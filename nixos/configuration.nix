@@ -165,11 +165,27 @@
   console.keyMap = "us";
 
   # Enable Hyprland (config managed via stow in .dotfiles)
-  programs.hyprland.enable = true;
+  programs.hyprland = {
+    enable = true;
+    xwayland.enable = true;
+  };
 
-  # Set enviroment variables
+  # Set environment variables
   environment.variables = {
     EDITOR = "nvim";
+  };
+
+  # NVIDIA Wayland/Hyprland environment variables
+  environment.sessionVariables = {
+    # Force NVIDIA GPU for Wayland
+    WLR_NO_HARDWARE_CURSORS = "1";
+    # Use NVIDIA for GBM
+    GBM_BACKEND = "nvidia-drm";
+    __GLX_VENDOR_LIBRARY_NAME = "nvidia";
+    # LIBVA for hardware acceleration
+    LIBVA_DRIVER_NAME = "nvidia";
+    # Use NVIDIA for Vulkan
+    VK_ICD_FILENAMES = "/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.x86_64.json";
   };
 
   # polkit
@@ -211,9 +227,17 @@
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
+    extraPackages = with pkgs; [
+      nvidia-vaapi-driver
+      vaapiVdpau
+      libvdpau-va-gl
+    ];
   };
 
-  boot.kernelParams = [ "nvidia.NVreg_PreserveVideoMemoryAllocations=1" ];
+  boot.kernelParams = [
+    "nvidia.NVreg_PreserveVideoMemoryAllocations=1"
+    "nvidia-drm.modeset=1"
+  ];
 
   # Load nvidia driver for Xorg and Wayland
   services.xserver.videoDrivers = ["nvidia"];
