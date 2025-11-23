@@ -251,7 +251,7 @@
     package = config.boot.kernelPackages.nvidiaPackages.stable;
 
     prime = {
-      sync.enable = true;
+      reverseSync.enable = true;
       amdgpuBusId = "PCI:1:0:0";
       nvidiaBusId = "PCI:5:0:0";
     };
