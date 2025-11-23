@@ -1,13 +1,10 @@
-{ lib, inputs, nixpkgs, home-manager, kmonad, hyprland, vars, ... }:
+{ lib, inputs, nixpkgs, home-manager, vars, ... }:
 
 let
   system = "x86_64-linux";
 
   pkgs = import nixpkgs {
     inherit system;
-    overlays = [
-      inputs.kmonad.overlays.default
-    ];
     config.allowUnfree = true;
   };
 
@@ -17,7 +14,7 @@ in
   miguel = lib.nixosSystem {
     inherit system;
     specialArgs = {
-      inherit system pkgs inputs kmonad vars;
+      inherit system pkgs inputs vars;
       host = {
         hostName = "nitro";
         mainMonitor = "HDMI-1";
@@ -29,10 +26,10 @@ in
       ./hardware-configuration.nix
 
       home-manager.nixosModules.home-manager {
+        home-manager.extraSpecialArgs = { inherit vars inputs; };
         home-manager.useGlobalPkgs = true;
         home-manager.useUserPackages = true;
       }
-      inputs.kmonad.nixosModules.default
     ];
   };
 }

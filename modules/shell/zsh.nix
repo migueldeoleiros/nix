@@ -10,17 +10,6 @@
       syntaxHighlighting.enable = true;
 
       initExtra = ''
-       # Change PATH to make sure local packages have priority
-
-       # Get the first two path variables
-       FIRST_PATH_VAR=$(echo $PATH | cut -d ":" -f 1)
-       SECOND_PATH_VAR=$(echo $PATH | cut -d ":" -f 2)
-
-       # Remove the first two path variables from the PATH
-       export PATH=$(echo $PATH | cut -d ":" -f 3-)
-
-       # Append the first two path variables to the end of the PATH
-       export PATH=$PATH:$FIRST_PATH_VAR:$SECOND_PATH_VAR
 
        # flutter config
        export PATH=/opt/flutter/bin:$PATH
@@ -42,6 +31,16 @@
           fi
         }
         zle -N zle-keyma p-select
+
+        # Yazi directory navigation function
+        function y() {
+          local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+          yazi "$@" --cwd-file="$tmp"
+          if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+            builtin cd -- "$cwd"
+          fi
+          rm -f -- "$tmp"
+        }
       '';
     };
     

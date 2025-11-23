@@ -1,5 +1,5 @@
 {
-  description = "NixOS and Nix configuration";
+  description = "NixOS configuration";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
@@ -8,17 +8,9 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    hyprland.url = "github:hyprwm/Hyprland";
-    split-monitor-workspaces = {
-      url = "github:Duckonaut/split-monitor-workspaces";
-      inputs.hyprland.follows = "hyprland";
-    };
-
-    kmonad.url = "github:kmonad/kmonad?dir=nix";
   };
 
-  outputs = inputs @ { self, nixpkgs, home-manager, kmonad, hyprland, ... }:
+  outputs = inputs @ { self, nixpkgs, home-manager, ... }:
     let
       vars = {
         user = "miguel";
@@ -27,14 +19,7 @@
       nixosConfigurations = (
         import ./nixos {
           inherit (nixpkgs) lib;
-          inherit inputs nixpkgs home-manager kmonad hyprland vars;
-        }
-      );
-
-      homeConfigurations = (
-        import ./nix {
-          inherit (nixpkgs) lib;
-          inherit inputs nixpkgs home-manager kmonad hyprland vars;
+          inherit inputs nixpkgs home-manager vars;
         }
       );
     };

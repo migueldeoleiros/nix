@@ -23,21 +23,21 @@
       emacs
       mpv
       telegram-desktop
-      amberol
       evince
-      gradience
       vesktop
-      gnome.gnome-font-viewer
-      gnome.nautilus
-      gnome.gvfs
-      gnome.eog
-      gnome.pomodoro
-      gnome.gnome-calculator
+      wdisplays
+      pavucontrol
+      gnome-font-viewer
+      nautilus
+      gvfs
+      eog
+      gnome-calculator
       qbittorrent
       pixelorama
       gimp
       inkscape
       anki
+      warpinator
       (pkgs.callPackage ../../pkgs/st.nix {})
     ];
   };

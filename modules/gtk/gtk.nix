@@ -4,7 +4,7 @@
   home = {
     packages = with pkgs; [
       dconf
-      gnome.dconf-editor
+      dconf-editor
     ];
     
     pointerCursor = {

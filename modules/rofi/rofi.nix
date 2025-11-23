@@ -3,6 +3,6 @@
 {
   programs = {
     rofi.enable = true;
-    rofi.theme = ./themes/EntropiaCenter.rasi;
+    rofi.theme = ./themes/SimpleIconCenter.rasi;
   };
 }

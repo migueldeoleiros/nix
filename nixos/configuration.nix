@@ -1,18 +1,10 @@
-{ config, pkgs, lib, inputs, kmonad, vars, ... }:
+{ config, pkgs, lib, inputs, vars, ... }:
 
 {
   imports = (
-    import ../modules/vm ++
-    import ../modules/shell ++
-    #import ../modules/kmonad ++
-    import ../modules/powersaver ++
-    import ../modules/rofi ++
-    import ../modules/hyprland ++
-    import ../modules/gtk ++
-    import ../modules/qutebrowser ++
-    import ../modules/bitwarden ++
-    import ../modules/games ++
-    import ../modules/home
+  #   import ../modules/vm ++
+      import ../modules/syncthing ++
+     import ../modules/powersaver
   );
 
   # Define a user account
@@ -31,7 +23,6 @@
     tldr
     eza
     trash-cli
-    ranger
     tmux
     gh
     neofetch
@@ -57,18 +48,33 @@
     zip
     pandoc
     killall
+
+    # Hyprland ecosystem (config managed via stow in .dotfiles)
+    dunst
+    eww
+    pyprland
+    swww
+    cliphist
+    playerctl
+    brightnessctl
+    wayshot
+    slurp
+    networkmanager_dmenu
+    bibata-cursors
+    jq
   ];
 
   # fonts
   fonts.packages = with pkgs; [
     noto-fonts
-    noto-fonts-cjk
-    noto-fonts-emoji
+    noto-fonts-cjk-sans
+    noto-fonts-cjk-serif
+    noto-fonts-color-emoji
     liberation_ttf
     fira-code
     fira-code-symbols
-    nerdfonts
     lmodern
+    nerd-fonts.sauce-code-pro
   ];  
 
   # Bootloader.
@@ -98,7 +104,7 @@
   };
 
   # Set your time.
-  services.ntp.enable = true;
+  services.timesyncd.enable = true;
   time.timeZone = "Europe/Madrid";
 
   # Select internationalisation properties.
@@ -128,8 +134,12 @@
     gvfs.enable = true;
   };
 
-  # Enable sound
-  sound.enable = true;
+  security.sudo = {
+    enable = true;
+    wheelNeedsPassword = true;
+  };
+
+  # Enable sound with PipeWire
   hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
 
@@ -146,13 +156,16 @@
   services.blueman.enable = true;
 
   # Configure keymap in X11
-  services.xserver = {
-    layout = "es";
-    xkbOptions = "compose:ralt";
+  services.xserver.xkb = {
+    layout = "us";
+    options = "compose:ralt";
   };
 
   # Configure console keymap
-  console.keyMap = "es";
+  console.keyMap = "us";
+
+  # Enable Hyprland (config managed via stow in .dotfiles)
+  programs.hyprland.enable = true;
 
   # Set enviroment variables
   environment.variables = {
@@ -194,11 +207,10 @@
   '';
 
   # Nvidia GPU
-  # Enable OpenGL
-  hardware.opengl = {
+  # Enable graphics
+  hardware.graphics = {
     enable = true;
-    driSupport = true;
-    driSupport32Bit = true;
+    enable32Bit = true;
   };
 
   boot.kernelParams = [ "nvidia.NVreg_PreserveVideoMemoryAllocations=1" ];
@@ -224,6 +236,18 @@
   system.stateVersion = "23.05";
 
   home-manager.users.${vars.user} = {
+    imports = (
+  #   import ../modules/qutebrowser ++
+      import ../modules/shell ++
+      import ../modules/rofi ++
+      import ../modules/gtk ++
+      import ../modules/bitwarden ++
+      import ../modules/yazi ++
+      import ../modules/fcitx5 ++
+      import ../modules/games ++
+      import ../modules/home
+    );
+
     home = {
       stateVersion = "23.05";
     };
