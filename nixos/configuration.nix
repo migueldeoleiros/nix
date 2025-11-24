@@ -10,7 +10,7 @@
   # Define a user account
   users.users.${vars.user} = {
     isNormalUser = true;
-    extraGroups = [ "networkmanager" "wheel" "video" "audio" "lp" "input" "uinput"];
+    extraGroups = [ "networkmanager" "wheel" "video" "audio" "lp" "input" "uinput" "seat"];
     shell = pkgs.zsh;
   };
   programs.zsh.enable = true;
@@ -62,6 +62,9 @@
     networkmanager_dmenu
     bibata-cursors
     jq
+    alsa-utils
+    socat
+    unixtools.ifconfig
   ];
 
   # fonts
@@ -155,6 +158,9 @@
   };
   services.blueman.enable = true;
 
+  # Enable seatd for Wayland compositors (sway, etc.)
+  services.seatd.enable = true;
+
   # Configure keymap in X11
   services.xserver.xkb = {
     layout = "us";
@@ -175,17 +181,12 @@
     EDITOR = "nvim";
   };
 
-  # NVIDIA Wayland/Hyprland environment variables
+  # NVIDIA/Wayland environment variables
   environment.sessionVariables = {
-    # Force NVIDIA GPU for Wayland
-    WLR_NO_HARDWARE_CURSORS = "1";
-    # Use NVIDIA for GBM
-    GBM_BACKEND = "nvidia-drm";
+    # Disable hardware cursors if issues occur
+    # WLR_NO_HARDWARE_CURSORS = "1";
+    # Let Hyprland auto-detect which GPU to use per display
     __GLX_VENDOR_LIBRARY_NAME = "nvidia";
-    # LIBVA for hardware acceleration
-    LIBVA_DRIVER_NAME = "nvidia";
-    # Use NVIDIA for Vulkan
-    VK_ICD_FILENAMES = "/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.x86_64.json";
   };
 
   # polkit
@@ -229,7 +230,7 @@
     enable32Bit = true;
     extraPackages = with pkgs; [
       nvidia-vaapi-driver
-      vaapiVdpau
+      libva-vdpau-driver
       libvdpau-va-gl
     ];
   };
@@ -251,7 +252,11 @@
     package = config.boot.kernelPackages.nvidiaPackages.stable;
 
     prime = {
-      reverseSync.enable = true;
+      sync.enable = true;
+      # offload = {
+      #   enable = true;
+      #   enableOffloadCmd = true;
+      # };
       amdgpuBusId = "PCI:1:0:0";
       nvidiaBusId = "PCI:5:0:0";
     };
