@@ -1,14 +1,14 @@
-{ stdenvNoCC
-, lib
-, fetchurl
-, gtk3
-, libsecret
-, nss
-, mesa
-, alsa-lib
-, dpkg
-, autoPatchelfHook
-, makeWrapper
+{ stdenvNoCC,
+  lib,
+  fetchurl,
+  gtk3,
+  libsecret,
+  nss,
+  mesa,
+  alsa-lib,
+  dpkg,
+  autoPatchelfHook,
+  makeWrapper
 }:
 
 let

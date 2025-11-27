@@ -17,27 +17,33 @@
       tldr
       tmux
       gh
+
       firefox
       thunderbird
       libreoffice
       emacs
       mpv
-      telegram-desktop
       evince
+
+      telegram-desktop
       vesktop
-      wdisplays
-      pavucontrol
-      gnome-font-viewer
+
       nautilus
       gvfs
       eog
       gnome-calculator
-      qbittorrent
+      gnome-font-viewer
+      wdisplays
+      pavucontrol
+
       pixelorama
       gimp
       inkscape
+
       anki
       warpinator
+      qbittorrent
+      
       (pkgs.callPackage ../../pkgs/st.nix {})
       (pkgs.callPackage ../../pkgs/pear-desktop.nix {})
     ];
