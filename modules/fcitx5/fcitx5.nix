@@ -2,7 +2,8 @@
 
 {
   i18n.inputMethod = {
-    enabled = "fcitx5";
+    enable = true;
+    type = "fcitx5";
     fcitx5.addons = with pkgs; [
       fcitx5-mozc        # Japanese input
       fcitx5-gtk         # GTK integration

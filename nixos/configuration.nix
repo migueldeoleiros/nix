@@ -135,16 +135,14 @@
       #jack.enable = true;
     };
     gvfs.enable = true;
+    pulseaudio.enable = false;
   };
+  security.rtkit.enable = true;
 
   security.sudo = {
     enable = true;
     wheelNeedsPassword = true;
   };
-
-  # Enable sound with PipeWire
-  hardware.pulseaudio.enable = false;
-  security.rtkit.enable = true;
 
   # Enable bluetooth
   hardware.bluetooth = {

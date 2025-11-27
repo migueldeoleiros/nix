@@ -14,7 +14,7 @@ in
   miguel = lib.nixosSystem {
     inherit system;
     specialArgs = {
-      inherit system pkgs inputs vars;
+      inherit system inputs vars;
       host = {
         hostName = "nitro";
         mainMonitor = "HDMI-1";
@@ -24,6 +24,7 @@ in
     modules = [
       ./configuration.nix
       ./hardware-configuration.nix
+      { nixpkgs.pkgs = pkgs; }
 
       home-manager.nixosModules.home-manager {
         home-manager.extraSpecialArgs = { inherit vars inputs; };

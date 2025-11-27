@@ -55,6 +55,6 @@
   # use gtk theme on qt apps
   qt = {
     enable = true;
-    platformTheme = "gtk";
+    platformTheme.name = "gtk";
   };
 }
