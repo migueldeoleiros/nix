@@ -22,6 +22,7 @@
       thunderbird
       libreoffice
       emacs
+      emacs-all-the-icons-fonts
       mpv
       evince
 
