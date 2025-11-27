@@ -39,6 +39,7 @@
       anki
       warpinator
       (pkgs.callPackage ../../pkgs/st.nix {})
+      (pkgs.callPackage ../../pkgs/pear-desktop.nix {})
     ];
   };
 }
