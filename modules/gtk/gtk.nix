@@ -27,19 +27,27 @@
 
   gtk = {
     enable = true;
+    iconTheme = {
+      name =  "Adwaita";
+      package = pkgs.adwaita-icon-theme; 
+    };
     gtk3 = {
       extraConfig = {
         gtk-application-prefer-dark-theme = 1;
+        gtk-im-module = "fcitx";
       };
       bookmarks = [
-        "file:///home/miguel/universidad"
-        "file:///home/miguel/merlin"
+        "file:///home/miguel/Downloads"
+        "file:///home/miguel/documents"
+        "file:///home/miguel/pictures"
+        "file:///home/miguel/pictures/Screenshots"
         "sftp://192.168.1.135/volume1/home/admin asustor"
       ];
     };
     gtk4 = {
       extraConfig = {
         gtk-application-prefer-dark-theme = 1;
+        gtk-im-module = "fcitx";
       };
     };
   };

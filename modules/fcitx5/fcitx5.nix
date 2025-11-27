@@ -12,10 +12,10 @@
 
   # Wayland environment variables for fcitx5
   home.sessionVariables = {
-    GTK_IM_MODULE = "fcitx";
     QT_IM_MODULE = "fcitx";
+    QT_IM_MODULES="wayland;fcitx;ibus";
     XMODIFIERS = "@im=fcitx";
-    GLFW_IM_MODULE = "ibus"; # For some applications that need it
+    GLFW_IM_MODULE = "ibus";
   };
 
   # fcitx5 configuration files
