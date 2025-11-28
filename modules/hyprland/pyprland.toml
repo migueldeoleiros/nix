@@ -1,0 +1,19 @@
+[pyprland]
+    plugins = ["scratchpads"]
+
+[scratchpads.term]
+    animation = "fromRight"
+    command = "kitty --class kitty-scratchpad"
+    class = "kitty-scratchpad"
+    size = "40% 75%"
+    margin = 10
+    lazy = true
+
+[scratchpads.music]
+    animation = "fromRight"
+    command = "tauon"
+    match_by = "class"
+    class = "tauonmb"
+    size = "40% 75%"
+    margin = 10
+    lazy = true

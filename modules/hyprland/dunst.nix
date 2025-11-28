@@ -1,8 +1,8 @@
-{config, pkgs, inputs, vars, ...}:
+{ pkgs, ... }:
 
 {
   services.dunst = {
-    enable = true; 
+    enable = true;
     settings = {
       global = {
         follow = "mouse";
@@ -23,21 +23,20 @@
         corner_radius = 10;
       };
       urgency_low = {
-        background = "#090a11";
-        foreground = "#afb4c0";
+        background = "#0f0f0f";
+        foreground = "#b9b9b9";
         timeout = 5;
       };
       urgency_normal = {
-        background = "#13141b";
-        foreground = "#d4dae8";
+        background = "#191919";
+        foreground = "#e0e0e0";
         timeout = 10;
       };
       urgency_critical = {
         background = "#660A1E";
-        foreground = "#d4dae8";
+        foreground = "#e0e0e0";
         timeout = 0;
       };
     };
   };
-  
 }

@@ -1,7 +1,6 @@
 [
   ./hyprland.nix
-  ./hyprpaper.nix
   ./dunst.nix
+  ./swww.nix
   ./eww/eww.nix
-  #./waybar.nix
 ]

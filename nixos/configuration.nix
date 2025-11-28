@@ -272,6 +272,7 @@
       import ../modules/yazi ++
       import ../modules/fcitx5 ++
       import ../modules/games ++
+      import ../modules/hyprland ++
       import ../modules/home
     );
 

@@ -1,26 +1,14 @@
-fi#!/bin/sh
+#!/bin/sh
 
-calendar(){
-    LOCK_FILE="$HOME/.cache/eww-calendar.lock"
-    EWW_BIN="eww"
-    CALENDAR_WIDGET="$1"  # which calendar to open
+calendar() {
+    local LOCK_FILE="$HOME/.cache/eww/eww-calendar.lock"
+    local MONITOR="$1"
 
-    run() {
-        ${EWW_BIN} open "$CALENDAR_WIDGET"
-    }
-
-    # Run eww daemon if not running
-    if [[ ! `pidof eww` ]]; then
-        ${EWW_BIN} daemon
-        sleep 1
-    fi
-
-    # Open widgets
     if [[ ! -f "$LOCK_FILE" ]]; then
         touch "$LOCK_FILE"
-        run
+        eww open calendar --arg monitor="$MONITOR"
     else
-        ${EWW_BIN} close "$CALENDAR_WIDGET"
+        eww close calendar
         rm "$LOCK_FILE"
     fi
 }
@@ -31,8 +19,8 @@ elif [ "$1" = "wifi" ]; then
     networkmanager_dmenu
 elif [ "$1" = "audio" ]; then
     pavucontrol
-elif [ "$1" = "calendar1" ]; then
-    calendar "calendar1"
-elif [ "$1" = "calendar2" ]; then
-    calendar "calendar2"
+elif [ "$1" = "calendar" ]; then
+    if [[ -n "$2" ]] then
+      calendar "$2"
+    fi
 fi

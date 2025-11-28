@@ -1,231 +1,238 @@
-{config, pkgs, inputs, vars, ...}:
+{ pkgs, ... }:
 
 {
   home = {
     packages = with pkgs; [
-      brightnessctl playerctl
-      libva libsForQt5.qt5ct
-      wayshot slurp
+      # Display/input utilities
+      brightnessctl
+      playerctl
+      wayshot
+      slurp
+
+      # Wayland/Qt integration
+      libva
+      libsForQt5.qt5ct
+
+      # Hyprland ecosystem
+      pyprland
+      hyprlock
+      wl-clipboard
+      cliphist
+
+      # Script dependencies
+      jq
+      procps
+      gnused
+      coreutils
+      gawk
     ];
+
+    file = {
+      # Main hyprland config
+      ".config/hypr/hyprland.conf".source = ./hyprland.conf;
+
+      # Pyprland config
+      ".config/hypr/pyprland.toml".source = ./pyprland.toml;
+
+      # Screen configuration directory
+      ".config/hypr/screen_conf".source = ./screen_conf;
+
+      # Power menu script
+      ".config/hypr/scripts/power_menu.sh" = {
+        executable = true;
+        text = ''
+          #!/usr/bin/env bash
+
+          rofi_cmd(){
+              rofi \
+              -theme-str 'window {width: 300px; height: 300px;}' \
+              -dmenu -i \
+              -p "POWER MENU"
+          }
+
+          selection=$(echo -e "Poweroff\nReboot\nLock Screen\nExit Hyprland\n" | rofi_cmd)
+
+          case $selection in
+              "Poweroff") poweroff ;;
+              "Reboot") reboot ;;
+              "Lock Screen") hyprlock ;;
+              "Exit Hyprland") killall Hyprland ;;
+          esac
+        '';
+      };
+
+      # Open bar script - opens correct eww bar based on monitor count
+      ".config/hypr/scripts/open_bar.sh" = {
+        executable = true;
+        text = ''
+          #!/usr/bin/env bash
+
+          # Open bar in the main monitor
+          # If there is only one screen open bar in that one, if there is 2 or more open it in the second one
+
+          num_monitors=$(hyprctl -j monitors | jq '. | length')
+
+          if [ "$num_monitors" -ge 2 ]; then
+              eww open bar-main
+          else
+              eww open bar-laptop
+          fi
+        '';
+      };
+
+      # Wallpaper menu script
+      ".config/hypr/scripts/wallpaper_menu.sh" = {
+        executable = true;
+        text = ''
+          #!/usr/bin/env bash
+
+          wallpaper_dir="$HOME/wallpapers"
+          wallpaper_script="$HOME/.config/hypr/wallpaper.sh"
+          transition="center"
+
+          rofi_cmd(){
+              rofi \
+              -theme-str 'window {width: 500; height: 500;}' \
+              -dmenu -i \
+              -p "SELECT WALLPAPER"
+          }
+
+          get_selection(){
+              local dir_file="$1"
+
+              if [[ -d $dir_file ]]; then
+                  selected=$(ls "$dir_file" | rofi_cmd)
+                  if [[ "$selected" == "" ]]; then
+                      echo ""
+                  else
+                      get_selection "$dir_file/$selected"
+                  fi
+              elif [[ -f $dir_file ]]; then
+                  echo "$dir_file"
+              else
+                  echo ""
+              fi
+          }
+
+          selection=$(get_selection "$wallpaper_dir")
+          display=$(hyprctl monitors -j | jq -r '.[] | select(.focused == true) | .name')
+          display_line=$(grep -n "$display" "$wallpaper_script" 2>/dev/null | cut -d: -f1)
+
+          if [[ -n $selection ]]; then
+              swww img "$selection" --transition-type "$transition" -o "$display"
+              if [[ -z $display_line ]]; then
+                  echo "swww img $selection -o $display" >> "$wallpaper_script"
+              else
+                  sed -i "''${display_line}s|.*|swww img $selection -o $display|" "$wallpaper_script"
+              fi
+              chmod +x "$wallpaper_script"
+          fi
+        '';
+      };
+
+      # Screen config menu script
+      ".config/hypr/scripts/screen_config.sh" = {
+        executable = true;
+        text = ''
+          #!/usr/bin/env bash
+
+          CONFIG_DIR="$HOME/.config/hypr/screen_conf"
+
+          declare -A OPTIONS=(
+            ["Custom Three Monitors"]="custom_three.conf"
+            ["Mirror Display"]="mirror.conf"
+            ["Screen on Left"]="screen_on_left.conf"
+            ["Screen on Right"]="screen_on_right.conf"
+          )
+
+          SELECTED_TEXT=$(printf "%s\n" "''${!OPTIONS[@]}" | rofi -dmenu -p "Select screen configuration:")
+
+          if [[ -n "$SELECTED_TEXT" ]]; then
+            SELECTED_FILE="''${OPTIONS[$SELECTED_TEXT]}"
+            SOURCE_LINE="source = $CONFIG_DIR/$SELECTED_FILE"
+            echo "$SOURCE_LINE" > "$CONFIG_DIR/screen.conf"
+          fi
+        '';
+      };
+
+      # Kill menu script
+      ".config/hypr/scripts/kill_menu.sh" = {
+        executable = true;
+        text = ''
+          #!/usr/bin/env bash
+
+          program=$(ps -u "$USER" -o comm,pid | awk 'NR > 1' | rofi -dmenu -i -p "kill")
+          pid=$(echo "$program" | awk '{print $NF}')
+          if [[ -n "$pid" ]]; then
+              kill "$pid"
+          fi
+        '';
+      };
+
+      # Swap workspace monitor script
+      ".config/hypr/scripts/swap_workspace_monitor.sh" = {
+        executable = true;
+        text = ''
+          #!/usr/bin/env bash
+
+          # Simple script that moves hyprland workspaces around connected monitors
+
+          MONITORS=$(hyprctl monitors -j | jq -r '.[] | .id')
+          CURRENT=$(hyprctl monitors -j | jq -r '.[] | select(.focused == true) | .id')
+          INDEX=$(echo "$MONITORS" | tr ' ' '\n' | grep -n "$CURRENT" | cut -d: -f1)
+          NEXT_INDEX=$(( (INDEX) % $(echo "$MONITORS" | wc -w) ))
+          NEXT_MONITOR=$(echo "$MONITORS" | tr ' ' '\n' | head -n $((NEXT_INDEX + 1)) | tail -n 1)
+          hyprctl dispatch movecurrentworkspacetomonitor "$NEXT_MONITOR"
+        '';
+      };
+
+      # Focus window script (emacs-like buffer switching)
+      ".config/hypr/scripts/hypr_focus_window.sh" = {
+        executable = true;
+        text = ''
+          #!/usr/bin/env bash
+
+          # Get a list of windows in hyprland and select one to move focus
+          # Inspired to work similar to emacs buffers
+
+          clients=$(hyprctl -j clients)
+
+          window=$(echo "$clients" |
+              jq -r '.[] | select(.class != "" ) | "[\(.workspace.name)] \(.class) - \(.title)"' |
+              sort |
+              rofi -dmenu -i -p "Select window")
+
+          if [[ -n "$window" ]]; then
+              address=$(echo "$clients" |
+                  jq -r --arg win "$window" '.[] | select(.class != "" and "[\(.workspace.name)] \(.class) - \(.title)" == $win) | .address')
+              hyprctl dispatch focuswindow "address:$address"
+          fi
+        '';
+      };
+
+      # Mirror toggle script
+      ".config/hypr/scripts/mirror_toggle.sh" = {
+        executable = true;
+        text = ''
+          #!/usr/bin/env bash
+
+          # Simple script that toggles a commented line for switching between extending or sharing screen
+
+          FILE="$HOME/.config/hypr/hyprland.conf"
+          LINE_NUMBER=5
+
+          if sed -n "''${LINE_NUMBER}p" "$FILE" | grep -q '^#'; then
+            sed -i "''${LINE_NUMBER}s/^#//" "$FILE"
+          else
+            sed -i "''${LINE_NUMBER}s/^/#/" "$FILE"
+          fi
+        '';
+      };
+    };
   };
+
   wayland.windowManager.hyprland = {
     enable = true;
-    package = inputs.hyprland.packages.${pkgs.system}.hyprland;
     xwayland.enable = true;
-    enableNvidiaPatches = true;
-    # plugins = [
-    #   inputs.split-monitor-workspaces.packages.${pkgs.system}.split-monitor-workspaces
-    # ];
-    extraConfig = ''
-      monitor=eDP-1,1920x1080@60,0x0,1
-      monitor=HDMI-A-1,1920x1080@60,1920x0,1
-      monitor=,preferred,auto,1,mirror,eDP-1
-      
-      # Execute at launch
-      exec-once = hyprpaper & dunst
-      exec-once = eww open-many bar1 bar2
-      exec-once = emacs --daemon 
-      
-      # source = ~/.config/hypr/myColors.conf
-      
-      env = XCURSOR_SIZE,24
-      env = LIBVA_DRIVER_NAME,nvidia
-      env = XDG_SESSION_TYPE,wayland
-      env = WLR_NO_HARDWARE_CURSORS,1
-      env = WLR_DRM_NO_ATOMIC,1
-      #env = WLR_DRM_DEVICES,/dev/dri/card1:/dev/dri/card0
-      
-      input {
-          kb_layout = us,es
-          kb_variant =
-          kb_model =
-          kb_options = ctrl:nocaps
-          kb_rules =
-      
-          follow_mouse = 1
-      
-          touchpad {
-              natural_scroll = no
-          }
-      
-          sensitivity = 0 # -1.0 - 1.0, 0 means no modification.
-      }
-      device:at-translated-set-2-keyboard {
-          kb_layout=es,us
-          kb_options = ctrl:nocaps
-      }
-      
-      general {
-          gaps_in = 3
-          gaps_out = 5
-          border_size = 1
-          col.active_border = rgb(7BA3F4) rgb(51BACD) 45deg
-          col.inactive_border = rgb(242532)
-      
-          layout = master
-      
-          allow_tearing = true
-      }
-      
-      xwayland {
-          force_zero_scaling = true
-      }
-      
-      decoration {
-          rounding = 10
-          
-          blur {
-              enabled = false
-              size = 3
-              passes = 1
-          }
-      
-          drop_shadow = false
-          shadow_range = 4
-          shadow_render_power = 3
-          col.shadow = rgba(1a1a1aee)
-      }
-      
-      animations {
-          enabled = yes
-      
-          bezier = myBezier, 0.05, 0.9, 0.1, 1.05
-      
-          animation = windows, 1, 7, myBezier
-          animation = windowsOut, 1, 7, default, popin 80%
-          animation = border, 1, 10, default
-          animation = borderangle, 1, 8, default
-          animation = fade, 1, 7, default
-          animation = workspaces, 1, 6, default, slidevert
-      }
-      
-      dwindle {
-          pseudotile = yes
-          preserve_split = yes
-          no_gaps_when_only = 1
-      }
-      
-      master {
-          new_is_master = false
-          drop_at_cursor = true
-          no_gaps_when_only = 1
-      }
-      
-      gestures {
-          workspace_swipe = on
-      }
-      
-      
-      # Example windowrule v1
-      # windowrule = float, ^(kitty)$
-      # Example windowrule v2
-      # windowrulev2 = float,class:^(kitty)$,title:^(kitty)$
-      # See https://wiki.hyprland.org/Configuring/Window-Rules/ for more
-      
-      
-      $mod = SUPER
-      
-      bind = $mod, Return, exec, kitty
-      bind = $mod, Q, killactive, 
-      bind = $mod SHIFT, Escape, exit, 
-      bind = $mod, F, exec, nautilus
-      bind = $mod, W, exec, qutebrowser
-      bind = $mod, E, exec, emacsclient --create-frame
-      bind = $mod, N, exec, networkmanager_dmenu
-      bind = $mod, A, exec, hyprctl switchxkblayout at-translated-set-2-keyboard next & hyprctl switchxkblayout evision-usb-device next
-      bind = $mod, T, togglefloating, 
-      bind = $mod, Space, exec, rofi -show drun
-      # bind = $mod, P, pseudo, # dwindle
-      # bind = $mod, J, togglesplit, # dwindle
-
-      bind = ,Print, exec, wayshot -f ~/pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).jpg -s "$(slurp)"
-
-      # Switch waybar on/off
-      #bindr = $mod, B, exec, kill $(pidof waybar) || waybar
-      # Switch eww on/off
-      bindr = $mod, B, exec, eww kill || eww open-many bar1 bar2 
-
-      # audio and brightness
-      bind=,xf86audioplay,exec,playerctl play-pause
-      bind=,xf86audiostop,exec,playerctl stop
-      bind=,xf86audioprev,exec,playerctl previous
-      bind=,xf86audionext,exec,playerctl next
-
-      bind=,xf86audioraisevolume,exec,wpctl set-volume @DEFAULT_SINK@ 5%+
-      bind=,xf86audiolowervolume,exec,wpctl set-volume @DEFAULT_SINK@ 5%-
-      bind=,xf86audiomute,exec,wpctl set-mute @DEFAULT_SINK@ toggle
-
-      bind=,xf86monbrightnessup,exec,brightnessctl set +10
-      bind=,xf86monbrightnessdown,exec,brightnessctl set 10-
-
-      # window resize
-      bind = $mod, R, submap, resize
-      
-      submap = resize
-      binde = , H, resizeactive, -10 0
-      binde = , L, resizeactive, 10 0
-      binde = , K, resizeactive, 0 -10
-      binde = , J, resizeactive, 0 10
-      bind = , escape, submap, reset
-      submap = reset
-      
-      # Move focus
-      bind = $mod, left, movefocus, l
-      bind = $mod, right, movefocus, r
-      bind = $mod, up, movefocus, u
-      bind = $mod, down, movefocus, d
-      
-      bind = $mod, H, movefocus, l
-      bind = $mod, L, movefocus, r
-      bind = $mod, K, movefocus, u
-      bind = $mod, J, movefocus, d
-
-      #plugin {
-      #    split-monitor-workspaces {
-      #      count = 5
-      #    }
-      #}
-
-      # Switch to monitor
-      #bind = $mod, P, split-changemonitor, next
-
-      # Switch workspaces
-      #bind = $mod, 1, split-workspace, 1
-      #bind = $mod, 2, split-workspace, 2
-      #bind = $mod, 3, split-workspace, 3
-      #bind = $mod, 4, split-workspace, 4
-      #bind = $mod, 5, split-workspace, 5
-      
-      # Move active window to a workspace
-      #bind = $mod SHIFT, 1, split-movetoworkspace, 1
-      #bind = $mod SHIFT, 2, split-movetoworkspace, 2
-      #bind = $mod SHIFT, 3, split-movetoworkspace, 3
-      #bind = $mod SHIFT, 4, split-movetoworkspace, 4
-      #bind = $mod SHIFT, 5, split-movetoworkspace, 5
-      
-      # Switch workspaces
-      bind = $mod, 1, workspace, 1
-      bind = $mod, 2, workspace, 2
-      bind = $mod, 3, workspace, 3
-      bind = $mod, 4, workspace, 4
-      bind = $mod, 5, workspace, 5
-      
-      # Move active window to a workspace
-      bind = $mod SHIFT, 1, movetoworkspace, 1
-      bind = $mod SHIFT, 2, movetoworkspace, 2
-      bind = $mod SHIFT, 3, movetoworkspace, 3
-      bind = $mod SHIFT, 4, movetoworkspace, 4
-      bind = $mod SHIFT, 5, movetoworkspace, 5
-
-      # Move/resize windows with mod + LMB/RMB and dragging
-      bindm = $mod, mouse:272, movewindow
-      bindm = $mod, mouse:273, resizewindow
-
-      # Disable keybinds
-      bind=$mod Shift, B,submap,clean
-      submap=clean
-      bind=$mod Shift, B,submap,reset
-      submap=reset
-    ''; 
   };
 }

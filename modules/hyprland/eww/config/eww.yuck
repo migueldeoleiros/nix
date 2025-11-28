@@ -1,114 +1,126 @@
 ;; -*- mode: lisp -*-
 
-(defwidget bar1 []
-  (centerbox :orientation "v" 
-    (time :open-calendar "scripts/popup calendar1")
-    (workspaces1)
-    (sidestuff)
-    ))
-(defwidget bar2 []
-  (centerbox :orientation "v" 
-    (time :open-calendar "scripts/popup calendar2")
-    (workspaces2)
-    (sidestuff)
-    ))
+(defwidget bar []
+  (box :orientation "h"
+       (box :orientation "h"
+            :spacing 40
+            :space-evenly false
+            (time)
+            (button :class "task" :onclick "scripts/org-clock-open" org-clock))
+       (workspaces)
+       (sidestuff)
+   ))
+
+(defpoll hour :interval "10s" "date +%H")
+(defpoll min  :interval "10s" "date +%M")
+(defwidget time []
+  (box :class "time"
+       :halign "start"
+       (button :onclick "scripts/popup calendar 1"
+               (box :orientation "h"
+                    :space-evenly false
+                    hour ":" min)
+       )
+  )
+)
 
 (defwidget sidestuff []
-  (box :class "sidestuff" :orientation "v" :space-evenly false :valign "end"
-    (metric :label {audio == "on" ? "󰕾" : "󰖁"}
-            :value volume
-            :class {audio == "on" ? "volume" : "volume-mute"}
-            :onchange "amixer sset Master {}%")
-    (metric :label "󱊣"
-            :value {EWW_BATTERY.BAT1.capacity}
-            :class "battery"
-            :onchange "")
+  (box :class "sidestuff"
+       :space-evenly true
+       :halign "end"
+       (box :space-evenly false :halign "end" (systray :orientation "h" :space-evenly false :spacing 8 :icon-size 20))
+       (network)
+       (metric :label {audio == "on" ? "󰕾" : "󰖁"}
+               :value volume
+               :class {audio == "on" ? "volume" : "volume-mute"}
+               :onchange "amixer sset Master {}%")
+       (metric :label "󰁹"
+               :value {EWW_BATTERY.BAT0.capacity}
+               :class "battery"
+               :onchange "")
   ))
 
-(defwidget workspaces1 []
-  (box :orientation "v"
-       :class "workspaces"
+(deflisten workspaces "scripts/workspaces")
+(defwidget workspaces []
+  (box :orientation "h" :class "button"
        :space-evenly false
-       :spacing 8
-       (button :onclick "hyprctl dispatch split-workspace 1"
-               :class {activeworkspace == 1 ? "wsp-active" : "wsp-inactive"} 1)
-       (button :onclick "hyprctl dispatch split-workspace 2"
-               :class {activeworkspace == 2 ? "wsp-active" : "wsp-inactive"} 2)
-       (button :onclick "hyprctl dispatch split-workspace 3"
-               :class {activeworkspace == 3 ? "wsp-active" : "wsp-inactive"} 3)
-       (button :onclick "hyprctl dispatch split-workspace 4"
-               :class {activeworkspace == 4 ? "wsp-active" : "wsp-inactive"} 4)
-       (button :onclick "hyprctl dispatch split-workspace 5"
-               :class {activeworkspace == 5 ? "wsp-active" : "wsp-inactive"} 5)))
+       :halign "center"
+       (for entry in { workspaces ?: "[]" }
+         (button
+           :onclick "hyprctl dispatch workspace ${entry.id}"
 
-(defwidget workspaces2 []
-  (box :orientation "v"
-       :class "workspaces"
-       :space-evenly false
-       :spacing 8
-       (button :onclick "hyprctl dispatch split-workspace 1"
-               :class {activeworkspace == 6 ? "wsp-active" : "wsp-inactive"} 1)
-       (button :onclick "hyprctl dispatch split-workspace 2"
-               :class {activeworkspace == 7 ? "wsp-active" : "wsp-inactive"} 2)
-       (button :onclick "hyprctl dispatch split-workspace 3"
-               :class {activeworkspace == 8 ? "wsp-active" : "wsp-inactive"} 3)
-       (button :onclick "hyprctl dispatch split-workspace 4"
-               :class {activeworkspace == 9 ? "wsp-active" : "wsp-inactive"} 4)
-       (button :onclick "hyprctl dispatch split-workspace 5"
-               :class {activeworkspace == 10 ? "wsp-active" : "wsp-inactive"} 5)))
+           :class "${entry.monitor} ${
+             entry.id == entry.active ? "wsp-${entry.monitor}-active"
+             : (entry.windows >= 1 ? "wsp-${entry.monitor}-inactive"
+               : "wsp-empty")
+           }"
+
+           { entry.name }
+         )
+       )
+  )
+)
+
 
 (defwidget metric [label value onchange class]
-  (box :orientation "v"
+  (box :orientation "h"
        :class class
        :space-evenly false
     (box :class "label" label)
     (scale :min 0
            :max 101
-           :flipped true 
-           :orientation "v" 
+           :flipped false
+           :orientation "h"
            :active {onchange != ""}
            :value value
            :onchange onchange)))
 
 (defpoll volume :interval "0.5s"
-  "amixer sget Master | awk -F '[^0-9]+' '/Left:/{print $3}'")
+  "amixer sget Master | awk -F '[^0-9]+' '/Left:/ && !/Rear/ && !/Side/ {print $3}'")
 
 (defpoll audio :interval "0.5s"
   "scripts/ismute")
 
-(defpoll activeworkspace :interval "0.2s"
-  "hyprctl activeworkspace | awk '/^workspace ID/ {print $3}'")
+(defpoll org-clock :interval "1s"
+  "scripts/org-clock")
 
-(defwidget time [open-calendar]
-  (box :class "time" :orientation "v" 
-	   (button :onclick open-calendar
-               (box :orientation "v"
-                    :space-evenly false
-                    hour min))))
+(defpoll net :interval "2s" "scripts/network")
+(defwidget network []
+    (box :class "network"
+         :orientation "h"
+         (button
+          :onclick "networkmanager_dmenu"
+          {net == "null" ? "󰤭" :
+            net.network == "eth" ? "󰈀" :
+            (net.network == "wifi" ?
+            (net.conn > 0.75 ? "󰤨" :
+            (net.conn > 0.50 ? "󰤥" :
+            (net.conn > 0.25 ? "󰤢" : "󰤟")))
+            : "󰤭")}
+         )
+     )
+)
 
-(defpoll hour :interval "10s" "date +%H")
-(defpoll min  :interval "10s" "date +%M")
-
-(defwindow bar1
-  :monitor 0
-  :windowtype "dock"
-  :exclusive true
-  :geometry (geometry :x "0%"
-                      :y "0%"
-                      :width "30px"
-                      :height "100%"
-                      :anchor "left center")
-  (bar1))
-
-(defwindow bar2
+(defwindow bar-main []
   :monitor 1
   :windowtype "dock"
   :exclusive true
   :geometry (geometry :x "0%"
                       :y "0%"
-                      :width "30px"
-                      :height "100%"
-                      :anchor "left center")
-  (bar2))
+                      :width "100%"
+                      :height "40px"
+                      :anchor "top center")
+  (bar))
+
+(defwindow bar-laptop []
+  :monitor 0
+  :windowtype "dock"
+  :exclusive true
+  :geometry (geometry :x "0%"
+                      :y "0%"
+                      :width "100%"
+                      :height "40px"
+                      :anchor "top center")
+  (bar))
 
 (include "calendar.yuck")
