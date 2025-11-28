@@ -18,6 +18,8 @@
       hyprlock
       wl-clipboard
       cliphist
+      networkmanager_dmenu
+      bibata-cursors
 
       # Script dependencies
       jq
@@ -25,6 +27,8 @@
       gnused
       coreutils
       gawk
+      alsa-utils
+      unixtools.ifconfig
     ];
 
     file = {

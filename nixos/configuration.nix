@@ -48,23 +48,6 @@
     zip
     pandoc
     killall
-
-    # Hyprland ecosystem (config managed via stow in .dotfiles)
-    dunst
-    eww
-    pyprland
-    swww
-    cliphist
-    playerctl
-    brightnessctl
-    wayshot
-    slurp
-    networkmanager_dmenu
-    bibata-cursors
-    jq
-    alsa-utils
-    socat
-    unixtools.ifconfig
   ];
 
   # fonts
