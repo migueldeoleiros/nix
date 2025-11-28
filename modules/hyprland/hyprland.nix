@@ -32,8 +32,8 @@
     ];
 
     file = {
-      # Main hyprland config
-      ".config/hypr/hyprland.conf".source = ./hyprland.conf;
+      # Main hyprland config - sourced via extraConfig below to avoid conflict
+      ".config/hypr/hyprland-settings.conf".source = ./hyprland.conf;
 
       # Pyprland config
       ".config/hypr/pyprland.toml".source = ./pyprland.toml;
@@ -238,5 +238,8 @@
   wayland.windowManager.hyprland = {
     enable = true;
     xwayland.enable = true;
+    extraConfig = ''
+      source = ~/.config/hypr/hyprland-settings.conf
+    '';
   };
 }
