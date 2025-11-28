@@ -5,6 +5,7 @@
     packages = with pkgs; [
       dconf
       dconf-editor
+      adwaita-qt
     ];
     
     pointerCursor = {
@@ -55,6 +56,6 @@
   # use gtk theme on qt apps
   qt = {
     enable = true;
-    platformTheme.name = "gtk";
+    platformTheme.name = "adwaita-dark";
   };
 }
