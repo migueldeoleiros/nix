@@ -28,9 +28,13 @@
 
   gtk = {
     enable = true;
+    theme = {
+      name = "Adwaita-dark";
+      package = pkgs.gnome-themes-extra;
+    };
     iconTheme = {
-      name =  "Adwaita";
-      package = pkgs.adwaita-icon-theme; 
+      name = "Adwaita";
+      package = pkgs.adwaita-icon-theme;
     };
     gtk3 = {
       extraConfig = {
@@ -52,10 +56,11 @@
       };
     };
   };
-  
-  # use gtk theme on qt apps
+
+  # Use adwaita dark on Qt apps
   qt = {
     enable = true;
-    platformTheme.name = "adwaita-dark";
+    platformTheme.name = "adwaita";
+    style.name = "adwaita-dark";
   };
 }
