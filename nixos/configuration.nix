@@ -256,6 +256,7 @@
       import ../modules/fcitx5 ++
       import ../modules/games ++
       import ../modules/hyprland ++
+      import ../modules/kitty ++
       import ../modules/home
     );
 

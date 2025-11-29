@@ -25,7 +25,6 @@
     };
     
     packages = with pkgs; [
-      kitty
       neovim
       tldr
       tmux
