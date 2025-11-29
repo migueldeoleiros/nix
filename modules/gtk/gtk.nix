@@ -6,8 +6,15 @@
       dconf
       dconf-editor
       adwaita-qt
+      qadwaitadecorations-qt6
     ];
-    
+
+    # Force dark theme via environment variables
+    sessionVariables = {
+      ADW_DISABLE_PORTAL = "1";
+      QT_STYLE_OVERRIDE = "adwaita-dark";
+    };
+
     pointerCursor = {
       package = pkgs.bibata-cursors;
       name = "Bibata-Modern-Classic";
