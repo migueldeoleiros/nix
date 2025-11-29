@@ -27,6 +27,7 @@
     packages = with pkgs; [
       # CLI extras
       neofetch
+      gh
 
       # Browsers & productivity
       firefox

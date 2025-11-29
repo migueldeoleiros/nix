@@ -18,14 +18,11 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    # Core tools
+    # Basic CLI utilities
     git
     neovim
     tmux
-    gh
     tldr
-
-    # Basic CLI utilities
     wget
     curl
     unzip
