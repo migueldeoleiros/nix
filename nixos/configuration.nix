@@ -258,6 +258,7 @@
       import ../modules/hyprland ++
       import ../modules/kitty ++
       import ../modules/tmux ++
+      import ../modules/neovim ++
       import ../modules/home
     );
 
