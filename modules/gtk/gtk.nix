@@ -38,7 +38,7 @@
         gtk-im-module = "fcitx";
       };
       bookmarks = [
-        "file:///home/miguel/Downloads"
+        "file:///home/miguel/downloads"
         "file:///home/miguel/documents"
         "file:///home/miguel/pictures"
         "file:///home/miguel/pictures/Screenshots"
