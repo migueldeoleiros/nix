@@ -257,6 +257,7 @@
       import ../modules/games ++
       import ../modules/hyprland ++
       import ../modules/kitty ++
+      import ../modules/tmux ++
       import ../modules/home
     );
 

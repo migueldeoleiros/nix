@@ -27,7 +27,6 @@
     packages = with pkgs; [
       neovim
       tldr
-      tmux
       gh
 
       firefox
