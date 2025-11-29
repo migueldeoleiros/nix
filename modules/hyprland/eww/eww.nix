@@ -3,12 +3,12 @@
 {
   home.packages = with pkgs; [
     acpi
-    socat  # for workspace socket listening
+    socat
   ];
 
   programs.eww = {
     enable = true;
-    package = pkgs.eww;  # eww-wayland is deprecated
+    package = pkgs.eww;
     configDir = ./config;
   };
 }

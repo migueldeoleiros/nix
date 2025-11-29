@@ -35,7 +35,7 @@
                :class {audio == "on" ? "volume" : "volume-mute"}
                :onchange "amixer sset Master {}%")
        (metric :label "󰁹"
-               :value {EWW_BATTERY.BAT0.capacity}
+               :value {EWW_BATTERY.BAT1.capacity}
                :class "battery"
                :onchange "")
   ))
