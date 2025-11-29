@@ -1,6 +1,19 @@
 { config, pkgs, lib, vars, ... }:
 
 {
+  xdg.userDirs = {
+    enable = true;
+    createDirectories = true;
+    desktop = "$HOME";
+    download = "$HOME/downloads";
+    templates = "$HOME";
+    publicShare = "$HOME";
+    documents = "$HOME/documents";
+    music = "$HOME/music";
+    pictures = "$HOME/pictures";
+    videos = "$HOME";
+  };
+
   home = {
     username = "${vars.user}";
     homeDirectory = "/home/${vars.user}";
