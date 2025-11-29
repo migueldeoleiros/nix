@@ -18,36 +18,45 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
+    # Core tools
     git
     neovim
-    tldr
-    eza
-    trash-cli
     tmux
     gh
-    neofetch
-    python3
-    wine
-    bat
-    unzip
+    tldr
+
+    # Basic CLI utilities
     wget
-    ocaml
-    ocamlPackages.utop
-    emacsPackages.tuareg
-    gcc
-    sbcl
-    libclang
+    curl
+    unzip
+    zip
     file
+    htop
+    killall
+    tree
+    jq
+    rsync
+    ripgrep
+    fd
+
+    # Spell checking
+    ispell
+
+    # Network tools
+    bind.dnsutils  # dig, nslookup
+
+    # Development
+    python3
+    gcc
+    gnumake
+    libclang
+    sbcl
+
+    # System utilities
     wl-clipboard
     qemu
-    htop
-    texlive.combined.scheme-full
-    gnumake
     exfatprogs
     ntfs3g
-    zip
-    pandoc
-    killall
   ];
 
   # fonts

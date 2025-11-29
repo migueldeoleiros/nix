@@ -25,21 +25,25 @@
     };
     
     packages = with pkgs; [
-      neovim
-      tldr
-      gh
+      # CLI extras
+      neofetch
 
+      # Browsers & productivity
       firefox
       thunderbird
       libreoffice
       emacs
       emacs-all-the-icons-fonts
+
+      # Media
       mpv
       evince
 
+      # Communication
       telegram-desktop
       vesktop
 
+      # Desktop utilities
       nautilus
       gvfs
       eog
@@ -48,14 +52,22 @@
       wdisplays
       pavucontrol
 
+      # Creative
       pixelorama
       gimp
       inkscape
 
+      # Other apps
       anki
       warpinator
       qbittorrent
-      
+      wine
+
+      # Writing/LaTeX
+      texlive.combined.scheme-full
+      pandoc
+
+      # Custom packages
       (pkgs.callPackage ../../pkgs/st.nix {})
       (pkgs.callPackage ../../pkgs/pear-desktop.nix {})
     ];
