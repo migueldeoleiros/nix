@@ -13,6 +13,7 @@
 
        # flutter config
        export PATH=/opt/flutter/bin:$PATH
+       export PATH="$HOME/.local/bin:$PATH"
 
         #vi mode
         bindkey -v
