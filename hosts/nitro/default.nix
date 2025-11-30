@@ -3,10 +3,10 @@
 {
   imports = [
     ./hardware-configuration.nix
-  #   ../../modules/nixos/vm
-      ../../modules/nixos/syncthing
-     ../../modules/nixos/powersaver
-  ];
+  ] ++
+  #   import ../../modules/nixos/vm ++
+      import ../../modules/nixos/syncthing ++
+      import ../../modules/nixos/powersaver;
 
   # Define a user account
   users.users.${vars.user} = {
