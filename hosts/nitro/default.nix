@@ -1,11 +1,12 @@
 { config, pkgs, lib, inputs, vars, ... }:
 
 {
-  imports = (
-  #   import ../modules/vm ++
-      import ../modules/syncthing ++
-     import ../modules/powersaver
-  );
+  imports = [
+    ./hardware-configuration.nix
+  #   ../../modules/nixos/vm
+      ../../modules/nixos/syncthing
+     ../../modules/nixos/powersaver
+  ];
 
   # Define a user account
   users.users.${vars.user} = {
@@ -67,7 +68,7 @@
     fira-code-symbols
     lmodern
     nerd-fonts.sauce-code-pro
-  ];  
+  ];
 
   # Bootloader.
   boot.loader = {
@@ -114,7 +115,7 @@
 
   services = {
     printing = {
-      enable = true; 
+      enable = true;
     };
     pipewire = {
       enable = true;
@@ -135,7 +136,7 @@
 
   # Enable bluetooth
   hardware.bluetooth = {
-    enable = true; 
+    enable = true;
     package = pkgs.bluez;
     settings = {
       General = {
@@ -250,30 +251,4 @@
   };
 
   system.stateVersion = "23.05";
-
-  home-manager.users.${vars.user} = {
-    imports = (
-  #   import ../modules/qutebrowser ++
-      import ../modules/shell ++
-      import ../modules/rofi ++
-      import ../modules/gtk ++
-      import ../modules/bitwarden ++
-      import ../modules/yazi ++
-      import ../modules/fcitx5 ++
-      import ../modules/games ++
-      import ../modules/hyprland ++
-      import ../modules/kitty ++
-      import ../modules/tmux ++
-      import ../modules/neovim ++
-      import ../modules/home
-    );
-
-    home = {
-      stateVersion = "23.05";
-    };
-
-    programs = {
-      home-manager.enable = true;
-    };
-  };
 }

@@ -15,15 +15,10 @@
   };
 
   home = {
-    username = "${vars.user}";
-    homeDirectory = "/home/${vars.user}";
-
-    stateVersion = "23.05";
-
     sessionVariables = {
       EDITOR = "nvim";
     };
-    
+
     packages = with pkgs; [
       # CLI extras
       neofetch
@@ -79,8 +74,8 @@
       pandoc
 
       # Custom packages
-      (pkgs.callPackage ../../pkgs/st.nix {})
-      (pkgs.callPackage ../../pkgs/pear-desktop.nix {})
+      (pkgs.callPackage ../../../pkgs/st.nix {})
+      (pkgs.callPackage ../../../pkgs/pear-desktop.nix {})
     ];
   };
 }
