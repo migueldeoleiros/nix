@@ -28,9 +28,11 @@
       # CLI extras
       neofetch
       gh
+      btop
 
       # Browsers & productivity
       firefox
+      chromium
       thunderbird
       libreoffice
       emacs
@@ -38,7 +40,9 @@
 
       # Media
       mpv
-      evince
+      kdePackages.okular
+      tauon
+      # jellyfin-media-player (qtwebengine insecure)
 
       # Communication
       telegram-desktop
@@ -52,6 +56,12 @@
       gnome-font-viewer
       wdisplays
       pavucontrol
+      snapshot
+      cameractrls-gtk4
+      helvum
+      drawing
+      gparted
+      picard
 
       # Creative
       pixelorama
