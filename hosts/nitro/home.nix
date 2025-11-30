@@ -14,7 +14,8 @@
       import ../../modules/home-manager/kitty ++
       import ../../modules/home-manager/tmux ++
       import ../../modules/home-manager/neovim ++
-      import ../../modules/home-manager/packages
+      import ../../modules/home-manager/packages ++
+      import ../../modules/home-manager/rust
   );
 
   home = {

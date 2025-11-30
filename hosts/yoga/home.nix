@@ -7,10 +7,11 @@
       import ../../modules/home-manager/gtk ++
       import ../../modules/home-manager/yazi ++
       import ../../modules/home-manager/fcitx5 ++
-      import ../../modules/home-manager/hyprland ++
+#      import ../../modules/home-manager/hyprland ++
       import ../../modules/home-manager/kitty ++
       import ../../modules/home-manager/tmux ++
-      import ../../modules/home-manager/neovim
+      import ../../modules/home-manager/neovim ++
+      import ../../modules/home-manager/rust
   );
 
   home = {
