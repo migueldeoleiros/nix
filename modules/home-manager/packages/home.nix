@@ -24,6 +24,8 @@
       neofetch
       gh
       btop
+      ledger
+      gnuplot
 
       # Browsers & productivity
       firefox
