@@ -40,6 +40,7 @@
     
     #git aliases
     gitlog="git log --decorate --color=always --pretty=tformat:\"%C(auto)%h %ce %s %d\" --graph";
+    gitloga="git log --all --decorate --color=always --pretty=tformat:\"%C(auto)%h %ce %s %d\" --graph";
     
     #check the weather in Coruna
     weather="curl wttr.in/Coruna";
