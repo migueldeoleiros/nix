@@ -15,7 +15,6 @@
        export PATH="$HOME/.local/bin:$PATH"
        export EDITOR="nvim"
        export VISUAL="nvim"
-       source ~/.nvm/nvm.sh
 
         #vi mode
         bindkey -v
