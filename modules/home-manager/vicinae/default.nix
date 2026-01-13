@@ -1,0 +1,3 @@
+[
+  ./vicinae.nix
+]
