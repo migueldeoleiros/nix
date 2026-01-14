@@ -1,4 +1,4 @@
-{ config, pkgs, vars, ... }:
+{ config, pkgs, inputs, vars, ... }:
 
 {
   programs.vicinae = {
@@ -30,5 +30,13 @@
         rounding= 10;
       };
     };
+
+    extensions = with inputs.vicinae-extensions.packages.${pkgs.stdenv.hostPlatform.system}; [
+      nix
+      bluetooth
+      wifi-commander
+      player-pilot
+      pulseaudio
+    ];
   };
 }
