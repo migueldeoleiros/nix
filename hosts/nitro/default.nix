@@ -6,6 +6,7 @@
   ] ++
   #   import ../../modules/nixos/vm ++
       import ../../modules/nixos/syncthing ++
+      import ../../modules/nixos/flatpak ++
       import ../../modules/nixos/powersaver;
 
   # Define a user account
@@ -36,12 +37,16 @@
     rsync
     ripgrep
     fd
+    bc
 
     # Spell checking
     ispell
 
     # Network tools
     bind.dnsutils  # dig, nslookup
+    protonvpn-gui
+    tor
+    tor-browser
 
     # Development
     python3
@@ -55,6 +60,11 @@
     qemu
     exfatprogs
     ntfs3g
+    displaylink
+
+    #keyboard
+    qmk
+    vial
   ];
 
   # fonts
@@ -79,6 +89,17 @@
     efi.canTouchEfiVariables = true;
   };
 
+  # Kernel modules
+  boot = {
+    extraModulePackages = [ config.boot.kernelPackages.evdi ];
+    initrd = {
+      # List of modules that are always loaded by the initrd.
+      kernelModules = [
+        "evdi"
+      ];
+    };
+  };
+
   # Garbage Collection
   nix = {
     settings.auto-optimise-store = true;
@@ -94,6 +115,10 @@
     hostName = "nitro";
     # wireless.enable = true;
     networkmanager.enable = true;
+    nameservers = [
+      "1.1.1.1"
+      "1.0.0.1"
+    ];
   };
 
   # Set your time.
@@ -109,7 +134,7 @@
       LC_MONETARY = "es_ES.UTF-8";
       LC_PAPER = "es_ES.UTF-8";
       LC_TELEPHONE = "es_ES.UTF-8";
-      LC_TIME = "es_ES.UTF-8";
+      LC_TIME = "en_IE.UTF-8";
     };
   };
 
@@ -126,6 +151,7 @@
     };
     gvfs.enable = true;
     pulseaudio.enable = false;
+    tor.enable = true;
   };
   security.rtkit.enable = true;
 
@@ -137,14 +163,21 @@
   # Enable bluetooth
   hardware.bluetooth = {
     enable = true;
-    package = pkgs.bluez;
+    powerOnBoot = true;
     settings = {
       General = {
-        Enable = "Source,Sink,Media,Socket";
+        EnableHFP = true;
+        EnableHSP = true;
+        Experimental = true;
+        FastConnectable = true;
       };
     };
   };
   services.blueman.enable = true;
+
+  # Custom keyboard config
+  hardware.keyboard.qmk.enable = true;
+  services.udev.packages = [ pkgs.vial ];
 
   # Enable seatd for Wayland compositors (sway, etc.)
   services.seatd.enable = true;
@@ -229,7 +262,7 @@
   ];
 
   # Load nvidia driver for Xorg and Wayland
-  services.xserver.videoDrivers = ["nvidia"];
+  services.xserver.videoDrivers = [ "nvidia" "displaylink" "modesetting" ];
 
   hardware.nvidia = { # Modesetting is required.
     modesetting.enable = true;
@@ -250,5 +283,5 @@
     };
   };
 
-  system.stateVersion = "23.05";
+  system.stateVersion = "25.11";
 }

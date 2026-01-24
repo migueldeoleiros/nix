@@ -1,4 +1,4 @@
-{ vars, ... }:
+{ vars, pkgs, ... }:
 
 {
   imports = (
@@ -22,7 +22,23 @@
   home = {
     username = vars.user;
     homeDirectory = "/home/${vars.user}";
-    stateVersion = "23.05";
+    stateVersion = "25.11";
+  };
+
+
+  xdg.portal = {
+    enable = true;
+    xdgOpenUsePortal = true;
+    extraPortals = with pkgs; [
+      xdg-desktop-portal-gtk
+      xdg-desktop-portal-hyprland
+    ];
+    config = {
+      common = {
+        default = [ "gtk" ];
+        "org.freedesktop.impl.portal.OpenURI" = [ "gtk" ];
+      };
+    };
   };
 
   programs.home-manager.enable = true;

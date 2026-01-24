@@ -26,6 +26,7 @@
       btop
       ledger
       gnuplot
+      imagemagickBig
 
       # Browsers & productivity
       firefox
@@ -39,7 +40,7 @@
       mpv
       kdePackages.okular
       tauon
-      # jellyfin-media-player (qtwebengine insecure)
+      jellyfin-desktop
 
       # Communication
       telegram-desktop

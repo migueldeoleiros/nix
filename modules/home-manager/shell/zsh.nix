@@ -13,6 +13,7 @@
 
        export PATH="$HOME/programs/flutter/bin:$PATH"
        export PATH="$HOME/.local/bin:$PATH"
+       export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/share:/var/lib/flatpak/exports/share:$HOME/.local/share/flatpak/exports/share
        export EDITOR="nvim"
        export VISUAL="nvim"
 

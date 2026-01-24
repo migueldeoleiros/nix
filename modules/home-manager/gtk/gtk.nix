@@ -11,7 +11,7 @@
 
     # Force dark theme via environment variables
     sessionVariables = {
-      ADW_DISABLE_PORTAL = "1";
+      # ADW_DISABLE_PORTAL = "1";
       QT_STYLE_OVERRIDE = "adwaita-dark";
     };
 
