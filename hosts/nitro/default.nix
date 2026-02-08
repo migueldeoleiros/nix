@@ -96,6 +96,7 @@
       # List of modules that are always loaded by the initrd.
       kernelModules = [
         "evdi"
+        "hidp" # for bluetooth keyboard
       ];
     };
   };
@@ -166,9 +167,7 @@
     powerOnBoot = true;
     settings = {
       General = {
-        EnableHFP = true;
-        EnableHSP = true;
-        Experimental = true;
+        Experimental = false;
         FastConnectable = true;
       };
     };
