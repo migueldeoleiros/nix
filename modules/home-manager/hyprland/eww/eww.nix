@@ -4,6 +4,7 @@
   home.packages = with pkgs; [
     acpi
     socat
+    wirelesstools
   ];
 
   programs.eww = {

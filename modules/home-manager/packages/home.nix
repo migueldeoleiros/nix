@@ -25,7 +25,7 @@
       gh
       btop
       ledger
-      gnuplot
+      (gnuplot.override {withQt = true;})
       imagemagickBig
 
       # Browsers & productivity
