@@ -35,9 +35,8 @@
       libreoffice
 
       # Emacs packages
-      emacs
+      (emacs.pkgs.withPackages (epkgs: [ epkgs.jinx ]))
       emacs-all-the-icons-fonts
-      enchant
 
       # Media
       mpv
