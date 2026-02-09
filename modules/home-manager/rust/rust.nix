@@ -4,7 +4,6 @@
   home = {
     packages = with pkgs; [
       rustup
-      gcc  # linker for Rust
     ];
 
     sessionVariables = {

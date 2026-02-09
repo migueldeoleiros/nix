@@ -33,8 +33,11 @@
       chromium
       thunderbird
       libreoffice
+
+      # Emacs packages
       emacs
       emacs-all-the-icons-fonts
+      enchant
 
       # Media
       mpv

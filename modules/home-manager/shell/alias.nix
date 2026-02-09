@@ -15,7 +15,7 @@
     "..."="cd ../..";
     vim="nvim";
     diff="diff --color";
-    e="emacsclient --tty";
+    e="TERM=xterm-256color emacsclient --tty";
     
     #use trash-cli instead of rm
     rm="trash-put";
