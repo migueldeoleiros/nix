@@ -37,6 +37,11 @@
       # Emacs packages
       (emacs.pkgs.withPackages (epkgs: [ epkgs.jinx ]))
       emacs-all-the-icons-fonts
+      enchant
+      hunspell
+      hunspellDicts.en_US
+      hunspellDicts.es_ES
+      hunspellDicts.pt_PT
 
       # Media
       mpv
