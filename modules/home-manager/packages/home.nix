@@ -42,6 +42,8 @@
       hunspellDicts.en_US
       hunspellDicts.es_ES
       hunspellDicts.pt_PT
+      mupdf
+      direnv
 
       # Media
       mpv
