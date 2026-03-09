@@ -21,7 +21,7 @@
 
     packages = with pkgs; [
       # CLI extras
-      neofetch
+      fastfetch
       gh
       btop
       ledger
@@ -54,6 +54,7 @@
       # Communication
       telegram-desktop
       vesktop
+      beeper
 
       # Desktop utilities
       nautilus
@@ -65,7 +66,7 @@
       pavucontrol
       snapshot
       cameractrls-gtk4
-      helvum
+      crosspipe
       drawing
       gparted
       picard

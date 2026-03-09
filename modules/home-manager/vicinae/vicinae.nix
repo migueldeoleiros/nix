@@ -33,7 +33,7 @@
 
     extensions = with inputs.vicinae-extensions.packages.${pkgs.stdenv.hostPlatform.system}; [
       nix
-      bluetooth
+      # bluetooth
       wifi-commander
       player-pilot
       pulseaudio
