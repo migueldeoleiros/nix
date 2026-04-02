@@ -28,6 +28,32 @@
         user = "miguel";
       };
 
+      nitroHost = {
+        hostName = "nitro";
+        mainMonitor = "HDMI-A-1";
+        secondMonitor = "eDP-1";
+        hasNvidia = true;
+        tabletOutput = "HDMI-A-1";
+        monitors = {
+          a = { name = "eDP-1"; resX = 1920; resY = 1080; };
+          b = { name = "HDMI-A-1"; resX = 2560; resY = 1440; };
+          c = { name = "DVI-I-1"; };
+        };
+      };
+
+      yogaHost = {
+        hostName = "yoga";
+        mainMonitor = "eDP-1";
+        secondMonitor = "DP-2";
+        hasNvidia = false;
+        tabletOutput = "DP-8";
+        monitors = {
+          a = { name = "eDP-1"; resX = 1920; resY = 1200; };
+          b = { name = "DP-8"; resX = 2560; resY = 1440; };
+          c = { name = "DP-1"; };
+        };
+      };
+
     in {
       # NixOS configurations
       nixosConfigurations = {
@@ -35,11 +61,7 @@
           inherit system;
           specialArgs = {
             inherit system inputs vars;
-            host = {
-              hostName = "nitro";
-              mainMonitor = "HDMI-1";
-              secondMonitor = "eDP-1";
-            };
+            host = nitroHost;
           };
           modules = [
             ./hosts/nitro/default.nix
@@ -48,11 +70,7 @@
             home-manager.nixosModules.home-manager {
               home-manager.extraSpecialArgs = {
                 inherit vars inputs;
-                host = {
-                  hostName = "nitro";
-                  mainMonitor = "HDMI-1";
-                  secondMonitor = "eDP-1";
-                };
+                host = nitroHost;
               };
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
@@ -68,11 +86,7 @@
           inherit pkgs;
           extraSpecialArgs = {
             inherit vars inputs;
-            host = {
-              hostName = "yoga";
-              mainMonitor = "eDP-1";
-              secondMonitor = "DP-2";
-            };
+            host = yogaHost;
           };
           modules = [ ./hosts/yoga/home.nix ];
         };
