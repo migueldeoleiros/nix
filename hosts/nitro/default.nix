@@ -61,6 +61,7 @@
     exfatprogs
     ntfs3g
     displaylink
+    bluez-tools
 
     #keyboard
     qmk
@@ -167,8 +168,17 @@
     powerOnBoot = true;
     settings = {
       General = {
-        Experimental = false;
+        Experimental = true;
+        Enable = "Source,Sink,Media,Socket";
+        ReconnectAttempts = 7;
+        ReconnectIntervals = "1, 2, 4, 8, 16, 32, 64";
         FastConnectable = true;
+      };
+      Policy = {
+        AutoEnable = true;
+      };
+      Input = {
+        UserspaceHID = true;
       };
     };
   };
@@ -209,7 +219,7 @@
     __GLX_VENDOR_LIBRARY_NAME = "nvidia";
   };
 
-  # polkit
+  # polkit and bluetooth agent
   systemd = {
     user.services.polkit-gnome-authentication-agent-1 = {
       description = "polkit-gnome-authentication-agent-1";
@@ -222,6 +232,17 @@
         Restart = "on-failure";
         RestartSec = 1;
         TimeoutStopSec = 10;
+      };
+    };
+    user.services.bluetooth-agent = {
+      description = "Bluetooth pairing agent";
+      wantedBy = [ "graphical-session.target" ];
+      after = [ "graphical-session.target" ];
+      serviceConfig = {
+        Type = "simple";
+        ExecStart = "${pkgs.bluez-tools}/bin/bt-agent --capability=NoInputNoOutput";
+        Restart = "on-failure";
+        RestartSec = 5;
       };
     };
   };
