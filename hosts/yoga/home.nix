@@ -12,7 +12,8 @@
       import ../../modules/home-manager/tmux ++
       import ../../modules/home-manager/neovim ++
       import ../../modules/home-manager/vicinae ++
-      import ../../modules/home-manager/rust
+      import ../../modules/home-manager/rust ++
+      import ../../modules/home-manager/nodejs
   );
 
   home = {
