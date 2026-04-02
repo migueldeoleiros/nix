@@ -20,6 +20,8 @@
       })
       lutris
       gamescope
+      modrinth-app
+      jdk
     ];
   };
 }
