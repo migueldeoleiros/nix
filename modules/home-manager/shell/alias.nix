@@ -27,7 +27,7 @@
     rn=". ranger";
     
     #process check
-    psuser="ps -u miguel";
+    psuser="ps -u ${vars.user}";
     
     # eza instead of ls
     ls="eza -s extension --group-directories-first";

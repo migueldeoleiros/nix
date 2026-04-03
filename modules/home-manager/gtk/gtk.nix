@@ -46,20 +46,19 @@
     gtk3 = {
       extraConfig = {
         gtk-application-prefer-dark-theme = 1;
-        gtk-im-module = "fcitx";
       };
       bookmarks = [
-        "file:///home/miguel/downloads"
-        "file:///home/miguel/documents"
-        "file:///home/miguel/pictures"
-        "file:///home/miguel/pictures/Screenshots"
+        "file:///home/${vars.user}/downloads"
+        "file:///home/${vars.user}/documents"
+        "file:///home/${vars.user}/pictures"
+        "file:///home/${vars.user}/pictures/Screenshots"
         "sftp://192.168.1.135/volume1/home/admin asustor"
       ];
     };
     gtk4 = {
+      theme = config.gtk.theme;
       extraConfig = {
         gtk-application-prefer-dark-theme = 1;
-        gtk-im-module = "fcitx";
       };
     };
   };

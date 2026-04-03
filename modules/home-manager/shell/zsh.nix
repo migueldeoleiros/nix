@@ -33,7 +33,7 @@
                echo -ne '\e[5 q'
           fi
         }
-        zle -N zle-keyma p-select
+        zle -N zle-keymap-select
 
         # Yazi directory navigation function
         function y() {
