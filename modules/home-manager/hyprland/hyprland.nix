@@ -20,6 +20,7 @@
       cliphist
       networkmanager_dmenu
       bibata-cursors
+      polkit_gnome
 
       # Script dependencies
       jq
@@ -38,6 +39,7 @@
       # Host-specific config (GPU env vars, tablet output, etc.)
       ".config/hypr/hyprland-host.conf".text = lib.concatStrings ([
         "# Host-specific config for ${host.hostName}\n\n"
+        "exec-once = ${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1\n\n"
       ] ++ lib.optionals host.hasNvidia [
         "env = LIBVA_DRIVER_NAME,nvidia\n"
         "env = __GL_GSYNC_ALLOWED,0\n"

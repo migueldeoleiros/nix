@@ -35,6 +35,7 @@
         hasNvidia = true;
         tabletOutput = "HDMI-A-1";
         defaultScreenConfig = "custom_three.conf";
+        batteryId = "BAT1";
         monitors = {
           a = { name = "eDP-1"; resX = 1920; resY = 1080; };
           b = { name = "HDMI-A-1"; resX = 2560; resY = 1440; };
@@ -49,6 +50,7 @@
         hasNvidia = false;
         tabletOutput = "DP-8";
         defaultScreenConfig = "screen_on_right.conf";
+        batteryId = "BAT0";
         monitors = {
           a = { name = "eDP-1"; resX = 1920; resY = 1200; };
           b = { name = "DP-8"; resX = 2560; resY = 1440; };

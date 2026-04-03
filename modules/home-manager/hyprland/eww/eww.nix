@@ -1,15 +1,20 @@
-{ pkgs, ... }:
+{ pkgs, host, ... }:
 
 {
   home.packages = with pkgs; [
     acpi
     socat
     wirelesstools
+    eww
   ];
 
-  programs.eww = {
-    enable = true;
-    package = pkgs.eww;
-    configDir = ./config;
+  xdg.configFile = {
+    "eww/eww.yuck".text = builtins.replaceStrings
+      [ "EWW_BATTERY.BAT1" ]
+      [ "EWW_BATTERY.${host.batteryId}" ]
+      (builtins.readFile ./config/eww.yuck);
+    "eww/eww.scss".source = ./config/eww.scss;
+    "eww/calendar.yuck".source = ./config/calendar.yuck;
+    "eww/scripts".source = ./config/scripts;
   };
 }
