@@ -1,14 +1,19 @@
 #!/bin/sh
 
-# Get ethernet ip
-eth=$(ifconfig enp3s0 | awk '/inet / {print $2}')
-wifi=$(iwconfig wlan0 | awk -F'[/= ]' '/Link Quality/ {print $13 / $14}')
+# Detect active ethernet (any interface starting with e, excluding lo/docker/veth/br/tailscale)
+eth=$(ip -4 -j addr show | jq -r '.[] | select(.ifname | test("^(en|eth)")) | select(.operstate == "UP") | .addr_info[0].local' 2>/dev/null | head -1)
+
+# Detect wifi signal strength
+wifi_iface=$(iw dev 2>/dev/null | awk '/Interface/ {print $2}' | head -1)
+if [ -n "$wifi_iface" ]; then
+  wifi=$(iw dev "$wifi_iface" link 2>/dev/null | awk '/signal:/ {print ($2 + 100) / 70}')
+fi
 
 # Return json
-if [[ -n $eth ]]; then
+if [ -n "$eth" ]; then
   echo '{"network": "eth", "ip": "'"$eth"'"}' | jq -Mc .
-elif [[ -n $wifi ]]; then
+elif [ -n "$wifi" ]; then
   echo '{"network": "wifi", "conn": '"$wifi"'}' | jq -Mc .
 else
-    echo 'null'
+  echo 'null'
 fi
