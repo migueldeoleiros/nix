@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, host, lib, ... }:
 
 {
   home = {
@@ -35,11 +35,49 @@
       # Main hyprland config - sourced via extraConfig below to avoid conflict
       ".config/hypr/hyprland-settings.conf".source = ./hyprland.conf;
 
+      # Host-specific config (GPU env vars, tablet output, etc.)
+      ".config/hypr/hyprland-host.conf".text = lib.concatStrings ([
+        "# Host-specific config for ${host.hostName}\n\n"
+      ] ++ lib.optionals host.hasNvidia [
+        "env = LIBVA_DRIVER_NAME,nvidia\n"
+        "env = __GL_GSYNC_ALLOWED,0\n"
+        "env = __GL_VRR_ALLOWED,0\n"
+        "env = WLR_DRM_NO_ATOMIC,1\n\n"
+      ] ++ [
+        "input {\n"
+        "    tablet {\n"
+        "        output = ${host.tabletOutput}\n"
+        "    }\n"
+        "}\n"
+      ]);
+
       # Pyprland config
       ".config/hypr/pyprland.toml".source = ./pyprland.toml;
 
-      # Screen configuration directory
-      ".config/hypr/screen_conf".source = ./screen_conf;
+      # Hyprlock config
+      ".config/hypr/hyprlock.conf".source = ./hyprlock.conf;
+
+      # Screen configuration files (individual, since variables.conf is generated)
+      ".config/hypr/screen_conf/screen_on_right.conf".source = ./screen_conf/screen_on_right.conf;
+      ".config/hypr/screen_conf/screen_on_left.conf".source = ./screen_conf/screen_on_left.conf;
+      ".config/hypr/screen_conf/mirror.conf".source = ./screen_conf/mirror.conf;
+      ".config/hypr/screen_conf/custom_three.conf".source = ./screen_conf/custom_three.conf;
+
+      # Generated monitor variables
+      ".config/hypr/screen_conf/variables.conf" = {
+        force = true;
+        text = ''
+          $A_MONITOR = ${host.monitors.a.name} # laptop
+          $A_RES_X = ${toString host.monitors.a.resX}
+          $A_RES_Y = ${toString host.monitors.a.resY}
+
+          $B_MONITOR = ${host.monitors.b.name}
+          $B_RES_X = ${toString host.monitors.b.resX}
+          $B_RES_Y = ${toString host.monitors.b.resY}
+
+          $C_MONITOR = ${host.monitors.c.name}
+        '';
+      };
 
       # Power menu script
       ".config/hypr/scripts/power_menu.sh" = {
@@ -123,11 +161,11 @@
           display_line=$(grep -n "$display" "$wallpaper_script" 2>/dev/null | cut -d: -f1)
 
           if [[ -n $selection ]]; then
-              swww img "$selection" --transition-type "$transition" -o "$display"
+              awww img "$selection" --transition-type "$transition" -o "$display"
               if [[ -z $display_line ]]; then
-                  echo "swww img $selection -o $display" >> "$wallpaper_script"
+                  echo "awww img $selection -o $display" >> "$wallpaper_script"
               else
-                  sed -i "''${display_line}s|.*|swww img $selection -o $display|" "$wallpaper_script"
+                  sed -i "''${display_line}s|.*|awww img $selection -o $display|" "$wallpaper_script"
               fi
               chmod +x "$wallpaper_script"
           fi
@@ -234,6 +272,15 @@
       };
     };
   };
+
+  # Create default screen.conf if it doesn't exist (mutable at runtime via screen_config.sh)
+  home.activation.createDefaultScreenConf = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    SCREEN_CONF="$HOME/.config/hypr/screen_conf/screen.conf"
+    if [ ! -f "$SCREEN_CONF" ]; then
+      mkdir -p "$(dirname "$SCREEN_CONF")"
+      echo "source = $HOME/.config/hypr/screen_conf/${host.defaultScreenConfig}" > "$SCREEN_CONF"
+    fi
+  '';
 
   wayland.windowManager.hyprland = {
     enable = true;

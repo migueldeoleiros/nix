@@ -1,4 +1,4 @@
-{config, pkgs, inputs, vars, ...}:
+{config, pkgs, inputs, vars, host, ...}:
 
 {
   programs.waybar = {
@@ -9,8 +9,8 @@
         position = "top";
         height = 25;
         output = [
-          "eDP-1"
-          "HDMI-A-1"
+          host.secondMonitor
+          host.mainMonitor
         ];
         modules-left = [ "clock" "hyprland/workspaces" ];
         modules-right = [ "tray" "network" "pulseaudio" "battery"];
