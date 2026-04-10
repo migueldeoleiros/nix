@@ -2,5 +2,11 @@
   "$schema": "https://opencode.ai/config.json",
   "plugin": [
     "oh-my-openagent"
-  ]
+  ],
+  "agent": {
+    "quick": {
+      "model": "opencode/big-pickle",
+      "description": "Free model for simple tasks"
+    }
+  }
 }

@@ -31,6 +31,22 @@
         target = ".config/opencode/.gitignore";
         force = true;
       };
+
+      "opencode.agent.quick.md" = {
+        text = ''
+          ---
+          name: quick
+          description: Free model for simple tasks - use for quick edits and simple queries
+          mode: primary
+          model: opencode/big-pickle
+          temperature: 0.3
+          ---
+
+          You are a quick task agent. Keep responses concise and focused.
+        '';
+        target = ".config/opencode/agent/quick.md";
+        force = true;
+      };
     };
   };
 }
