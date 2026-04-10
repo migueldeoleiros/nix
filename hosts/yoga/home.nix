@@ -13,13 +13,14 @@
       import ../../modules/home-manager/neovim ++
       import ../../modules/home-manager/vicinae ++
       import ../../modules/home-manager/rust ++
-      import ../../modules/home-manager/nodejs
+      import ../../modules/home-manager/nodejs ++
+      import ../../modules/home-manager/opencode
   );
 
   home = {
     username = vars.user;
     homeDirectory = "/home/${vars.user}";
-    stateVersion = "23.05";
+    stateVersion = "26.05";
   };
 
   # Required for standalone home-manager on non-NixOS
@@ -30,6 +31,7 @@
   # XDG directories
   xdg.userDirs = {
     enable = true;
+    setSessionVariables = true;
     createDirectories = true;
     desktop = "$HOME";
     download = "$HOME/downloads";
