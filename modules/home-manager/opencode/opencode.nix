@@ -14,9 +14,9 @@
         force = true;
       };
 
-      "oh-my-openagent.json" = {
-        source = ./oh-my-openagent.json;
-        target = ".config/opencode/oh-my-openagent.json";
+      "opencode.dcp.json" = {
+        source = ./dcp.json;
+        target = ".config/opencode/dcp.json";
         force = true;
       };
 
@@ -32,21 +32,27 @@
         force = true;
       };
 
-      "opencode.agent.quick.md" = {
-        text = ''
-          ---
-          name: quick
-          description: Free model for simple tasks - use for quick edits and simple queries
-          mode: primary
-          model: opencode/big-pickle
-          temperature: 0.3
-          ---
-
-          You are a quick task agent. Keep responses concise and focused.
-        '';
-        target = ".config/opencode/agent/quick.md";
+      "opencode.agents" = {
+        source = ./agents;
+        target = ".config/opencode/agents";
+        recursive = true;
         force = true;
       };
+
+      "opencode.commands" = {
+        source = ./commands;
+        target = ".config/opencode/commands";
+        recursive = true;
+        force = true;
+      };
+
+      "opencode.skills" = {
+        source = ./skills;
+        target = ".config/opencode/skills";
+        recursive = true;
+        force = true;
+      };
+
     };
   };
 }

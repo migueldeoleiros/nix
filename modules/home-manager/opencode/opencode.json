@@ -1,12 +1,130 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "default_agent": "assistant",
   "plugin": [
-    "oh-my-openagent"
+    "opencode-vibeguard",
+    "@tarquinen/opencode-dcp",
+    "@mohak34/opencode-notifier"
   ],
+  "small_model": "opencode/big-pickle",
   "agent": {
     "quick": {
       "model": "opencode/big-pickle",
-      "description": "Free model for simple tasks"
+      "prompt": "{file:./agents/quick.md}",
+      "description": "Lightweight primary workflow for simple, low-risk tasks"
+    },
+    "assistant": {
+      "model": "litellm/chatgpt/gpt-5.4",
+      "prompt": "{file:./agents/assistant.md}",
+      "description": "User-facing collaborative workflow for questions, analysis, and guided task support"
+    },
+    "build": {
+      "model": "litellm/chatgpt/gpt-5.3-codex",
+      "prompt": "{file:./agents/build.md}",
+      "description": "Primary implementation agent; delegate discovery to investigate, risk analysis to reviewer, and proof checks to verifier"
+    },
+    "plan": {
+      "model": "litellm/chatgpt/gpt-5.4",
+      "prompt": "{file:./agents/plan.md}",
+      "description": "Read-only planning workflow for scope clarification, sequencing, and risk-aware execution plans",
+      "permission": {
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "task": "allow",
+        "skill": "allow",
+        "edit": "deny",
+        "bash": {
+          "*": "ask",
+          "pwd": "allow",
+          "ls *": "allow",
+          "git status*": "allow",
+          "git log*": "allow",
+          "git diff*": "allow",
+          "rg *": "allow"
+        },
+        "webfetch": "allow"
+      }
+    },
+    "investigate": {
+      "mode": "subagent",
+      "model": "litellm/chatgpt/gpt-5.4",
+      "prompt": "{file:./agents/investigate.md}",
+      "description": "Use for fast read-only research, repo exploration, and web lookups before implementation decisions",
+      "permission": {
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "webfetch": "allow",
+        "edit": "deny",
+        "write": "deny",
+        "bash": {
+          "*": "deny"
+        }
+      }
+    },
+    "reviewer": {
+      "mode": "subagent",
+      "model": "litellm/chatgpt/gpt-5.3-codex",
+      "prompt": "{file:./agents/reviewer.md}",
+      "description": "Use for deep code/PR review: logic bugs, regressions, duplication, scalability limits, and reliability issues",
+      "permission": {
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "webfetch": "allow",
+        "edit": "deny",
+        "write": "deny",
+        "bash": {
+          "*": "deny"
+        }
+      }
+    },
+    "verifier": {
+      "mode": "subagent",
+      "model": "litellm/chatgpt/gpt-5.3-codex",
+      "prompt": "{file:./agents/verifier.md}",
+      "description": "Use when claims need proof: run tests/checks, inspect outputs, and report evidence-based verification results",
+      "permission": {
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "bash": "allow",
+        "edit": "deny",
+        "write": "deny",
+        "webfetch": "deny"
+      }
+    },
+    "general": {
+      "mode": "subagent",
+      "model": "litellm/chatgpt/gpt-5.3-codex",
+      "prompt": "{file:./agents/general.md}",
+      "description": "Fallback delegated agent for mixed tasks that do not clearly fit investigate, reviewer, or verifier"
+    },
+    "worker": {
+      "mode": "subagent",
+      "model": "litellm/chatgpt/gpt-5.3-codex",
+      "prompt": "{file:./agents/worker.md}",
+      "description": "Dedicated execution subagent for complex multi-step edits and tool-heavy implementation work"
+    }
+  },
+  "provider": {
+    "litellm": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "LiteLLM",
+      "options": {
+        "baseURL": "https://ai.int.merlinsoftware.es/v1",
+        "apiKey": "{file:/home/miguel/.config/opencode/keys/merlin.key}"
+      },
+      "models": {
+        "chatgpt/gpt-5.4": {
+          "name": "GPT-5.4"
+        },
+        "chatgpt/gpt-5.3-codex": {
+          "name": "GPT-5.3 Codex"
+        }
+      }
     }
   }
 }
