@@ -11,17 +11,63 @@
     "quick": {
       "model": "opencode/big-pickle",
       "prompt": "{file:./agents/quick.md}",
-      "description": "Lightweight primary workflow for simple, low-risk tasks"
+      "description": "Lightweight primary workflow for simple, low-risk tasks",
+      "permission": {
+        "bash": {
+          "git commit*": "ask",
+          "git push*": "ask",
+          "git rebase*": "ask",
+          "git reset*": "ask",
+          "git clean*": "ask",
+          "git restore*": "ask",
+          "rm*": "ask",
+          "rmdir*": "ask",
+          "unlink*": "ask",
+          "shred*": "ask",
+          "*": "allow"
+        }
+      }
     },
     "assistant": {
       "model": "litellm/chatgpt/gpt-5.4",
       "prompt": "{file:./agents/assistant.md}",
-      "description": "User-facing collaborative workflow for questions, analysis, and guided task support"
+      "description": "User-facing collaborative workflow for questions, analysis, and guided task support",
+      "permission": {
+        "edit": "ask",
+        "bash": {
+          "git commit*": "ask",
+          "git push*": "ask",
+          "git rebase*": "ask",
+          "git reset*": "ask",
+          "git clean*": "ask",
+          "git restore*": "ask",
+          "rm*": "ask",
+          "rmdir*": "ask",
+          "unlink*": "ask",
+          "shred*": "ask",
+          "*": "allow"
+        }
+      }
     },
     "build": {
       "model": "litellm/chatgpt/gpt-5.3-codex",
       "prompt": "{file:./agents/build.md}",
-      "description": "Primary implementation agent; delegate discovery to investigate, risk analysis to reviewer, and proof checks to verifier"
+      "description": "Primary implementation agent; delegate discovery to investigate, risk analysis to reviewer, and proof checks to verifier",
+      "permission": {
+        "bash": {
+          "git commit*": "ask",
+          "git push*": "ask",
+          "git rebase*": "ask",
+          "git reset*": "ask",
+          "git clean*": "ask",
+          "git restore*": "ask",
+          "rm*": "ask",
+          "rmdir*": "ask",
+          "unlink*": "ask",
+          "shred*": "ask",
+          "*": "allow"
+        }
+      }
     },
     "plan": {
       "model": "litellm/chatgpt/gpt-5.4",
@@ -90,7 +136,19 @@
         "read": "allow",
         "glob": "allow",
         "grep": "allow",
-        "bash": "allow",
+        "bash": {
+          "git commit*": "ask",
+          "git push*": "ask",
+          "git rebase*": "ask",
+          "git reset*": "ask",
+          "git clean*": "ask",
+          "git restore*": "ask",
+          "rm*": "ask",
+          "rmdir*": "ask",
+          "unlink*": "ask",
+          "shred*": "ask",
+          "*": "allow"
+        },
         "edit": "deny",
         "write": "deny",
         "webfetch": "deny"
@@ -100,13 +158,43 @@
       "mode": "subagent",
       "model": "litellm/chatgpt/gpt-5.3-codex",
       "prompt": "{file:./agents/general.md}",
-      "description": "Fallback delegated agent for mixed tasks that do not clearly fit investigate, reviewer, or verifier"
+      "description": "Fallback delegated agent for mixed tasks that do not clearly fit investigate, reviewer, or verifier",
+      "permission": {
+        "bash": {
+          "git commit*": "ask",
+          "git push*": "ask",
+          "git rebase*": "ask",
+          "git reset*": "ask",
+          "git clean*": "ask",
+          "git restore*": "ask",
+          "rm*": "ask",
+          "rmdir*": "ask",
+          "unlink*": "ask",
+          "shred*": "ask",
+          "*": "allow"
+        }
+      }
     },
     "worker": {
       "mode": "subagent",
       "model": "litellm/chatgpt/gpt-5.3-codex",
       "prompt": "{file:./agents/worker.md}",
-      "description": "Dedicated execution subagent for complex multi-step edits and tool-heavy implementation work"
+      "description": "Dedicated execution subagent for complex multi-step edits and tool-heavy implementation work",
+      "permission": {
+        "bash": {
+          "git commit*": "ask",
+          "git push*": "ask",
+          "git rebase*": "ask",
+          "git reset*": "ask",
+          "git clean*": "ask",
+          "git restore*": "ask",
+          "rm*": "ask",
+          "rmdir*": "ask",
+          "unlink*": "ask",
+          "shred*": "ask",
+          "*": "allow"
+        }
+      }
     }
   },
   "provider": {

@@ -7,7 +7,10 @@ description: Review PR commits against develop, focus on hidden risks, scalabili
 
 ## Overview
 
-Review the full PR delta against the first existing branch in this order: `develop`, `main`, `master`.
+Review the full PR delta using branches inferred from the user request when provided.
+Preferred phrasing is `<source-branch> into <base-branch>`.
+If only one branch is provided, treat it as the base and compare it against `HEAD`.
+If no branch is provided, compare `HEAD` against the first existing branch in this order: `develop`, `main`, `master`.
 
 Core rule: findings first, ordered by severity, with concrete evidence.
 
@@ -17,17 +20,21 @@ Base comparison:
 
 ```bash
 git fetch origin
-BASE_BRANCH="$(for b in develop main master; do git show-ref --verify --quiet "refs/remotes/origin/$b" && { printf "%s" "$b"; break; }; done)"
+SOURCE_BRANCH="<source-branch-from-request-or-HEAD>"
+BASE_BRANCH="<base-branch-from-request-or-empty>"
+if [ -z "$BASE_BRANCH" ]; then
+  BASE_BRANCH="$(for b in develop main master; do git show-ref --verify --quiet "refs/remotes/origin/$b" && { printf "%s" "$b"; break; }; done)"
+fi
 if [ -z "$BASE_BRANCH" ]; then
   echo "No base branch found on origin (checked: develop, main, master)" >&2
   exit 1
 fi
-git diff --name-status "origin/$BASE_BRANCH...HEAD"
-git log --oneline "origin/$BASE_BRANCH..HEAD"
-git diff "origin/$BASE_BRANCH...HEAD"
+git diff --name-status "origin/$BASE_BRANCH...origin/$SOURCE_BRANCH"
+git log --oneline "origin/$BASE_BRANCH..origin/$SOURCE_BRANCH"
+git diff "origin/$BASE_BRANCH...origin/$SOURCE_BRANCH"
 ```
 
-Always review all commits in the PR range (`origin/$BASE_BRANCH..HEAD`) and the combined diff (`origin/$BASE_BRANCH...HEAD`).
+Always review all commits in the PR range (`origin/$BASE_BRANCH..origin/$SOURCE_BRANCH`) and the combined diff (`origin/$BASE_BRANCH...origin/$SOURCE_BRANCH`).
 
 ## Review Priorities
 
@@ -70,17 +77,18 @@ Always review all commits in the PR range (`origin/$BASE_BRANCH..HEAD`) and the 
 
 ## Output Format
 
-- Findings first, ordered: `high` -> `medium` -> `low`.
-- Each finding includes:
-  - short title
-  - severity
-  - evidence (`path:line` or command output reference)
-  - impact (what breaks now or later)
-  - suggested fix direction (brief)
-- After findings, add:
-  - open questions/assumptions
-  - brief overall risk summary
-- If no findings, say so clearly and list residual risks/testing gaps.
+- Findings first, ordered: `high` -> `medium` -> `low` -> `info` or `low` risk.
+- Format each finding as a compact block:
+  - ``<severity>` <short title>``
+  - `Evidence:` 1-3 file:line references (max 3)
+  - `Impact:` one sentence (what breaks now or later)
+  - `Fix:` one sentence (brief fix direction)
+- Keep each finding to 4 bullets max.
+- Do not combine independent regressions into one finding.
+- After findings, add separate sections:
+  - `Open questions` — assumptions you could not verify
+  - `Risk summary` — 1-2 lines, overall severity estimation
+- If no findings, state that explicitly and list residual risks/testing gaps.
 
 ## Red Flags
 
