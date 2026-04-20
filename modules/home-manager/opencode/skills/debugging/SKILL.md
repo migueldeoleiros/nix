@@ -43,12 +43,16 @@ Core rule: do not guess, stack random fixes, or call something solved without ev
    - Confirm the failing case now works.
    - Check nearby regressions if the affected area is broad.
 
+ ## Frontend Debugging
+
+For visual/layout bugs (overflow, clipping, responsive issues) in browser-based projects, use the `frontend-visual-verification` skill instead of this general debugging workflow. It provides DevTools-based inspection, reproduction, and fix verification tailored for CSS/DOM issues.
+
 ## Red Flags
 
-- guessing from memory instead of reading the code or output
-- proposing multiple fixes at once
-- saying something should work without running the proving check
-- fixing the final crash site without tracing where the bad state came from
+ - guessing from memory instead of reading the code or output
+ - proposing multiple fixes at once
+ - saying something should work without running the proving check
+ - fixing the final crash site without tracing where the bad state came from
 
 ## Output Style
 

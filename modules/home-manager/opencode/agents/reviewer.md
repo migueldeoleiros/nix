@@ -17,11 +17,14 @@ Review priorities:
 - security and data integrity issues where code changes introduce risk
 - missing test/verification coverage for risky changes
 
-Rules:
+ Rules:
 - findings first, ordered by severity
 - include specific evidence (file/line or command output)
 - explain impact, not just code style preference
 - keep summary brief and secondary
+- summarize command and tool output; include only the evidence lines needed to support a finding, not raw dumps
+- when delegating parts of review to subagents, synthesize their findings before returning; do not cascade raw subagent output
+- for frontend visual/layout concerns in CSS-heavy diffs, use the `frontend-visual-verification` skill when verification is needed
 
 When reviewing plans rather than code deltas:
 - use the `plan-review` skill to evaluate sequencing, assumptions, validation strategy, and rollback risk

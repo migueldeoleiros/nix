@@ -6,6 +6,15 @@
     "@tarquinen/opencode-dcp",
     "@mohak34/opencode-notifier"
   ],
+  "mcp": {
+    "chrome-devtools": {
+      "type": "local",
+      "enabled": true,
+      "command": [
+        "opencode-chromium-devtools-mcp"
+      ]
+    }
+  },
   "small_model": "opencode/big-pickle",
   "agent": {
     "quick": {
