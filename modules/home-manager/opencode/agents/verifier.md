@@ -14,6 +14,7 @@ Goals:
   - identify the claim before running checks
   - prefer real tests/build/typecheck/lint over weak proxies
   - for frontend visual/layout claims, use the `frontend-visual-verification` skill
+  - for broader browser-visible claims (remote repro, interaction flows, console/network proof), use the `browser-devtools-investigation` skill
   - condense all tool output before returning; a concise pass/fail with 1-2 evidence lines is better than raw output
   - inspect full command output and exit status
   - never claim success without evidence from this session

@@ -43,9 +43,12 @@ Core rule: do not guess, stack random fixes, or call something solved without ev
    - Confirm the failing case now works.
    - Check nearby regressions if the affected area is broad.
 
- ## Frontend Debugging
+## Frontend Debugging
 
-For visual/layout bugs (overflow, clipping, responsive issues) in browser-based projects, use the `frontend-visual-verification` skill instead of this general debugging workflow. It provides DevTools-based inspection, reproduction, and fix verification tailored for CSS/DOM issues.
+For browser-based issues, route to specialized skills:
+
+- use `frontend-visual-verification` for visual/layout bugs (overflow, clipping, responsive issues)
+- use `browser-devtools-investigation` for broader browser debugging (remote repros, interaction-path failures, runtime console/network investigation)
 
 ## Red Flags
 

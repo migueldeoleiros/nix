@@ -7,7 +7,9 @@ description: Verify frontend visual/layout issues using Chrome DevTools MCP
 
 ## Overview
 
-Use Chrome DevTools via the `chrome-devtools` MCP to inspect, diagnose, and verify frontend visual issues. This skill covers overflow, clipping, responsive regressions, and CSS layout bugs.
+Use Chrome DevTools via the `chrome-devtools` MCP to inspect, diagnose, and verify frontend visual issues. This skill is intentionally layout-focused: overflow, clipping, responsive regressions, and CSS/DOM rendering bugs.
+
+For broader browser tasks (remote bug triage, end-to-end interaction debugging, scraping-flow prototyping), use the `browser-devtools-investigation` skill.
 
 ## Prerequisites
 
@@ -65,14 +67,14 @@ After code changes:
 
 ## MCP Tools Available
 
-When `chrome-devtools` MCP is active:
+When `chrome-devtools` MCP is active, prefer these tools for layout verification:
 
-- `chrome-devtools_navigate` — go to a URL or open a new tab
-- `chrome-devtools_evaluate` — run JavaScript in the page context
-- `chrome-devtools_screenshot` — capture a screenshot
-- `chrome-devtools_list_pages` — list open tabs
-- `chrome-devtools_network` — inspect network requests
-- `chrome-devtools_console` — read console messages
+- Navigation/pages: `chrome-devtools_new_page`, `chrome-devtools_navigate_page`, `chrome-devtools_list_pages`, `chrome-devtools_select_page`
+- DOM/state inspection: `chrome-devtools_take_snapshot`, `chrome-devtools_evaluate_script`
+- Visual evidence: `chrome-devtools_take_screenshot`
+- Resize/emulation: `chrome-devtools_resize_page`, `chrome-devtools_emulate`
+- Console/network checks: `chrome-devtools_list_console_messages`, `chrome-devtools_list_network_requests`, `chrome-devtools_get_network_request`
+- Interaction helpers (when needed): `chrome-devtools_click`, `chrome-devtools_fill`, `chrome-devtools_press_key`, `chrome-devtools_wait_for`
 
 ## Output Style
 

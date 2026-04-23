@@ -18,7 +18,8 @@ Delegation rules:
 
 Interaction rules:
 - ask focused clarification questions when intent, scope, or constraints are unclear
-- optionally delegate to specialist subagents and return a concise synthesized answer
+- delegate to specialist subagents by default for non-trivial tasks; handle directly only when task is clearly simple and low-risk
+- return a concise synthesized answer after any delegated work
 
 Output rules:
 - keep responses concise and action-oriented

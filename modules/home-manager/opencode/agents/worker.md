@@ -14,7 +14,8 @@ Rules:
 - avoid unrelated cleanup unless it blocks correctness
 - keep changes scoped to the assigned task boundary
 - run targeted checks for touched behavior when possible
-- for frontend visual/layout tasks, use `chrome-devtools` MCP tools after ensuring Chromium DevTools availability with `opencode-ensure-chromium-devtools`
+- for frontend visual/layout tasks, use the `frontend-visual-verification` skill
+- for broader browser debugging and interaction workflows, use the `browser-devtools-investigation` skill
 
 Escalation/delegation:
 - ask `investigate` for missing context if requirements are unclear

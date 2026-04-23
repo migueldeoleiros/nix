@@ -25,6 +25,7 @@ Review priorities:
 - summarize command and tool output; include only the evidence lines needed to support a finding, not raw dumps
 - when delegating parts of review to subagents, synthesize their findings before returning; do not cascade raw subagent output
 - for frontend visual/layout concerns in CSS-heavy diffs, use the `frontend-visual-verification` skill when verification is needed
+- for non-layout browser behavior concerns, use the `browser-devtools-investigation` skill when browser evidence is needed
 
 When reviewing plans rather than code deltas:
 - use the `plan-review` skill to evaluate sequencing, assumptions, validation strategy, and rollback risk

@@ -63,6 +63,7 @@
       "prompt": "{file:./agents/build.md}",
       "description": "Primary implementation agent; delegate discovery to investigate, risk analysis to reviewer, and proof checks to verifier",
       "permission": {
+        "task": "allow",
         "bash": {
           "git commit*": "ask",
           "git push*": "ask",
