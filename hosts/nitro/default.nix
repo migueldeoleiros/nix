@@ -7,7 +7,10 @@
   #   import ../../modules/nixos/vm ++
       import ../../modules/nixos/syncthing ++
       import ../../modules/nixos/flatpak ++
-      import ../../modules/nixos/powersaver;
+      import ../../modules/nixos/powersaver ++
+      import ../../modules/nixos/netbird;
+
+  services.netbird.enable = true;
 
   # Define a user account
   users.users.${vars.user} = {

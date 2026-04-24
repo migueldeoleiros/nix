@@ -83,7 +83,6 @@
       warpinator
       qbittorrent
       wine
-      gemini-cli-bin
 
       # Writing/LaTeX
       texlive.combined.scheme-full
