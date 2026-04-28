@@ -48,6 +48,9 @@
 
       # Media
       mpv
+      wf-recorder
+      slurp
+      wl-clipboard
       kdePackages.okular
       tauon
       jellyfin-desktop
