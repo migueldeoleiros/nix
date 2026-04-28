@@ -10,6 +10,7 @@
     mv="mv -i";
     #rm="rm -i";
     cp="cp -i";
+    rcp="rsync -avh --info=progress2";
     df="df -h";
     ".."="cd ..";
     "..."="cd ../..";
