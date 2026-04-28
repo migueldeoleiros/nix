@@ -47,7 +47,7 @@
 
     # Network tools
     bind.dnsutils  # dig, nslookup
-    protonvpn-gui
+    proton-vpn
     tor
     tor-browser
 
