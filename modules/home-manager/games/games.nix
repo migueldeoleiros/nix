@@ -18,7 +18,7 @@
           keyutils
         ];
       })
-      lutris
+      # lutris
       gamescope
       modrinth-app
       jdk
