@@ -38,7 +38,7 @@
       }
     },
     "assistant": {
-      "model": "litellm/chatgpt/gpt-5.4",
+      "model": "litellm/chatgpt/gpt-5.5",
       "prompt": "{file:./agents/assistant.md}",
       "description": "User-facing collaborative workflow for questions, analysis, and guided task support",
       "permission": {
@@ -59,7 +59,7 @@
       }
     },
     "build": {
-      "model": "litellm/chatgpt/gpt-5.3-codex",
+      "model": "litellm/chatgpt/gpt-5.5",
       "prompt": "{file:./agents/build.md}",
       "description": "Primary implementation agent; delegate discovery to investigate, risk analysis to reviewer, and proof checks to verifier",
       "permission": {
@@ -80,7 +80,7 @@
       }
     },
     "plan": {
-      "model": "litellm/chatgpt/gpt-5.4",
+      "model": "litellm/chatgpt/gpt-5.5",
       "prompt": "{file:./agents/plan.md}",
       "description": "Read-only planning workflow for scope clarification, sequencing, and risk-aware execution plans",
       "permission": {
@@ -105,7 +105,7 @@
     },
     "investigate": {
       "mode": "subagent",
-      "model": "litellm/chatgpt/gpt-5.4",
+      "model": "litellm/chatgpt/gpt-5.5",
       "prompt": "{file:./agents/investigate.md}",
       "description": "Use for fast read-only research, repo exploration, and web lookups before implementation decisions",
       "permission": {
@@ -122,7 +122,7 @@
     },
     "reviewer": {
       "mode": "subagent",
-      "model": "litellm/chatgpt/gpt-5.3-codex",
+      "model": "litellm/chatgpt/gpt-5.5",
       "prompt": "{file:./agents/reviewer.md}",
       "description": "Use for deep code/PR review: logic bugs, regressions, duplication, scalability limits, and reliability issues",
       "permission": {
@@ -139,7 +139,7 @@
     },
     "verifier": {
       "mode": "subagent",
-      "model": "litellm/chatgpt/gpt-5.3-codex",
+      "model": "litellm/chatgpt/gpt-5.5",
       "prompt": "{file:./agents/verifier.md}",
       "description": "Use when claims need proof: run tests/checks, inspect outputs, and report evidence-based verification results",
       "permission": {
@@ -166,7 +166,7 @@
     },
     "general": {
       "mode": "subagent",
-      "model": "litellm/chatgpt/gpt-5.3-codex",
+      "model": "litellm/chatgpt/gpt-5.5",
       "prompt": "{file:./agents/general.md}",
       "description": "Fallback delegated agent for mixed tasks that do not clearly fit investigate, reviewer, or verifier",
       "permission": {
@@ -187,7 +187,7 @@
     },
     "worker": {
       "mode": "subagent",
-      "model": "litellm/chatgpt/gpt-5.3-codex",
+      "model": "litellm/chatgpt/gpt-5.5",
       "prompt": "{file:./agents/worker.md}",
       "description": "Dedicated execution subagent for complex multi-step edits and tool-heavy implementation work",
       "permission": {
@@ -216,6 +216,9 @@
         "apiKey": "{file:/home/miguel/.config/opencode/keys/merlin.key}"
       },
       "models": {
+        "chatgpt/gpt-5.5": {
+          "name": "GPT-5.5"
+        },
         "chatgpt/gpt-5.4": {
           "name": "GPT-5.4"
         },
