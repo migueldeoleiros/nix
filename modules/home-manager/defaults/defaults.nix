@@ -50,8 +50,13 @@
 
     # Document Viewers
     application/pdf=okular.desktop
+    application/x-pdf=okular.desktop
+    application/epub+zip=okular.desktop
     image/vnd.djvu=okular.desktop
+    image/x-djvu=okular.desktop
     application/postscript=okular.desktop
+    application/vnd.ms-xpsdocument=okular.desktop
+    application/oxps=okular.desktop
 
     # Communication
     x-scheme-handler/tg=telegramdesktop.desktop
@@ -68,6 +73,9 @@
     # Creative Tools
     image/x-xcf=gimp.desktop
     application/illustrator=inkscape.desktop
+
+    # File manager
+    inode/directory=org.gnome.Nautilus.desktop
   '';
 
   xdg.configFile."mimeapps.list".force = true;
