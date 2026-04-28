@@ -6,6 +6,7 @@
       opencode
       nodejs
       chromium
+      docker-client
       (writeShellApplication {
         name = "opencode-ensure-chromium-devtools";
         runtimeInputs = [ curl chromium ];

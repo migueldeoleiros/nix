@@ -10,9 +10,27 @@
     "chrome-devtools": {
       "type": "local",
       "enabled": true,
+      "command": ["opencode-chromium-devtools-mcp"]
+    },
+    "sonarqube": {
+      "type": "local",
+      "enabled": true,
       "command": [
-        "opencode-chromium-devtools-mcp"
-      ]
+        "docker",
+        "run",
+        "--init",
+        "--rm",
+        "-i",
+        "-e",
+        "SONARQUBE_TOKEN",
+        "-e",
+        "SONARQUBE_URL",
+        "mcp/sonarqube"
+      ],
+      "environment": {
+        "SONARQUBE_TOKEN": "{file:/home/miguel/.config/opencode/keys/sonarqube.key}",
+        "SONARQUBE_URL": "{file:/home/miguel/.config/opencode/keys/sonarqube.url}"
+      }
     }
   },
   "small_model": "opencode/big-pickle",
