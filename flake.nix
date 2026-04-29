@@ -58,6 +58,21 @@
         };
       };
 
+      frameworkHost = {
+        hostName = "framework";
+        mainMonitor = "eDP-1";
+        secondMonitor = "DP-1";
+        hasNvidia = false;
+        tabletOutput = "eDP-1";
+        defaultScreenConfig = "screen_on_right.conf";
+        batteryId = "BAT1";
+        monitors = {
+          a = { name = "eDP-1"; resX = 2256; resY = 1504; };
+          b = { name = "DP-1"; resX = 2560; resY = 1440; };
+          c = { name = "DP-2"; };
+        };
+      };
+
     in {
       # NixOS configurations
       nixosConfigurations = {
@@ -79,6 +94,28 @@
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
               home-manager.users.${vars.user} = import ./hosts/nitro/home.nix;
+            }
+          ];
+        };
+
+        framework = nixpkgs.lib.nixosSystem {
+          inherit system;
+          specialArgs = {
+            inherit system inputs vars;
+            host = frameworkHost;
+          };
+          modules = [
+            ./hosts/framework/default.nix
+            { nixpkgs.pkgs = pkgs; }
+
+            home-manager.nixosModules.home-manager {
+              home-manager.extraSpecialArgs = {
+                inherit vars inputs;
+                host = frameworkHost;
+              };
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.users.${vars.user} = import ./hosts/framework/home.nix;
             }
           ];
         };
