@@ -1,4 +1,4 @@
-{ config, pkgs, lib, vars, ... }:
+{ config, pkgs, lib, vars, inputs, ... }:
 
 {
   xdg.userDirs = {
@@ -31,7 +31,7 @@
       imagemagickBig
 
       # Browsers & productivity
-      firefox
+      inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default
       chromium
       thunderbird
       libreoffice

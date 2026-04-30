@@ -9,6 +9,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    zen-browser = {
+      url = "github:youwen5/zen-browser-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     vicinae-extensions = {
       url = "github:vicinaehq/extensions";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -61,14 +66,14 @@
       frameworkHost = {
         hostName = "framework";
         mainMonitor = "eDP-1";
-        secondMonitor = "DP-1";
+        secondMonitor = "DP-10";
         hasNvidia = false;
         tabletOutput = "eDP-1";
         defaultScreenConfig = "screen_on_right.conf";
         batteryId = "BAT1";
         monitors = {
           a = { name = "eDP-1"; resX = 2256; resY = 1504; };
-          b = { name = "DP-1"; resX = 2560; resY = 1440; };
+          b = { name = "DP-10"; resX = 2560; resY = 1440; };
           c = { name = "DP-2"; };
         };
       };
