@@ -7,6 +7,7 @@
   #   import ../../modules/nixos/vm ++
       import ../../modules/nixos/syncthing ++
       import ../../modules/nixos/flatpak ++
+      import ../../modules/nixos/gnupg ++
       import ../../modules/nixos/powersaver ++
       import ../../modules/nixos/netbird;
 

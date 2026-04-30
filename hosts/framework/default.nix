@@ -6,6 +6,7 @@
   ] ++
     import ../../modules/nixos/syncthing ++
     import ../../modules/nixos/flatpak ++
+    import ../../modules/nixos/gnupg ++
     import ../../modules/nixos/netbird;
 
   services.netbird.enable = true;
