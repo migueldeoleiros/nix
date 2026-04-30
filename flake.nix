@@ -33,6 +33,10 @@
         user = "miguel";
       };
 
+      nixExperimentalFeatures = {
+        nix.settings.experimental-features = [ "nix-command" "flakes" ];
+      };
+
       nitroHost = {
         hostName = "nitro";
         mainMonitor = "HDMI-A-1";
@@ -88,6 +92,7 @@
             host = nitroHost;
           };
           modules = [
+            nixExperimentalFeatures
             ./hosts/nitro/default.nix
             { nixpkgs.pkgs = pkgs; }
 
@@ -110,6 +115,7 @@
             host = frameworkHost;
           };
           modules = [
+            nixExperimentalFeatures
             ./hosts/framework/default.nix
             { nixpkgs.pkgs = pkgs; }
 
@@ -134,7 +140,10 @@
             inherit vars inputs;
             host = yogaHost;
           };
-          modules = [ ./hosts/yoga/home.nix ];
+          modules = [
+            nixExperimentalFeatures
+            ./hosts/yoga/home.nix
+          ];
         };
       };
     };
