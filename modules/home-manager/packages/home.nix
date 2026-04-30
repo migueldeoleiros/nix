@@ -12,6 +12,7 @@
     documents = "$HOME/documents";
     music = "$HOME/music";
     pictures = "$HOME/pictures";
+    projects = "$HOME/projects";
     videos = "$HOME";
   };
 
