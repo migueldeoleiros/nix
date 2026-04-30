@@ -38,6 +38,11 @@
     
     #open programs
     op="xdg-open";
+
+    #apply host configurations
+    nitrosw="sudo nixos-rebuild switch --flake ~/nix-config#miguel";
+    frameworksw="sudo nixos-rebuild switch --flake ~/nix-config#framework";
+    yogasw="home-manager switch --flake ~/nix-config#miguel@yoga";
     
     #git aliases
     gitlog="git log --decorate --color=always --pretty=tformat:\"%C(auto)%h %ce %s %d\" --graph";
