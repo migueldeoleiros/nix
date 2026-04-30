@@ -34,6 +34,7 @@
       chromium
       thunderbird
       libreoffice
+      dbeaver-bin
 
       # Emacs packages
       (emacs.pkgs.withPackages (epkgs: [ epkgs.jinx ]))
