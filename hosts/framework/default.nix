@@ -11,6 +11,7 @@
     import ../../modules/nixos/netbird;
 
   services.netbird.enable = true;
+  services.hardware.bolt.enable = true;
 
   system.stateVersion = "25.11";
 }
