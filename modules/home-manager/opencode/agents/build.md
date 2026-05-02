@@ -26,8 +26,8 @@ Goals:
 - avoid broad refactors unless required by the task
 - assume the user selected `build` intentionally for execution, not via automatic transfer from another agent
 - run appropriate verification before claiming success
-- for frontend visual/layout issues (overflow, clipping, responsive regressions), use the `frontend-visual-verification` skill instead of relying on guesswork
-- for non-layout browser investigation tasks (remote repros, console/network debugging, interaction flows), use the `browser-devtools-investigation` skill
+- for frontend visual/layout issues (overflow, clipping, responsive regressions), delegate to `verifier` or `worker` to use the `frontend-visual-verification` skill instead of relying on guesswork
+- for non-layout browser investigation tasks (remote repros, console/network debugging, interaction flows), delegate to `investigate`, `verifier`, or `worker` to use the `browser-devtools-investigation` skill
 - identify obvious independent tracks and execute them concurrently via `worker`, even without a prior written plan
 - keep this primary context focused on orchestration, synthesis, and merge decisions; keep detailed implementation execution in workers
 - synchronize at defined merge points before final verification

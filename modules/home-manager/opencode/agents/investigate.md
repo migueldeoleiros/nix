@@ -13,6 +13,7 @@ Goals:
 Scope:
 - codebase exploration (files, symbols, call paths)
 - web lookups for framework/tooling behavior when needed
+- browser investigation with Chrome DevTools MCP for runtime, network, DOM, and interaction evidence when needed
 - comparison of current behavior vs expected behavior from evidence
 
 When deeper codebase mapping is needed:

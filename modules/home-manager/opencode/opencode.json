@@ -40,6 +40,8 @@
       "prompt": "{file:./agents/quick.md}",
       "description": "Lightweight primary workflow for simple, low-risk tasks",
       "permission": {
+        "chrome-devtools_*": "deny",
+        "sonarqube_*": "deny",
         "bash": {
           "git commit*": "ask",
           "git push*": "ask",
@@ -60,6 +62,8 @@
       "prompt": "{file:./agents/assistant.md}",
       "description": "User-facing collaborative workflow for questions, analysis, and guided task support",
       "permission": {
+        "chrome-devtools_*": "deny",
+        "sonarqube_*": "deny",
         "edit": "ask",
         "bash": {
           "git commit*": "ask",
@@ -81,6 +85,8 @@
       "prompt": "{file:./agents/build.md}",
       "description": "Primary implementation agent; delegate discovery to investigate, risk analysis to reviewer, and proof checks to verifier",
       "permission": {
+        "chrome-devtools_*": "deny",
+        "sonarqube_*": "deny",
         "task": "allow",
         "bash": {
           "git commit*": "ask",
@@ -102,6 +108,8 @@
       "prompt": "{file:./agents/plan.md}",
       "description": "Read-only planning workflow for scope clarification, sequencing, and risk-aware execution plans",
       "permission": {
+        "chrome-devtools_*": "deny",
+        "sonarqube_*": "deny",
         "read": "allow",
         "glob": "allow",
         "grep": "allow",
@@ -127,6 +135,8 @@
       "prompt": "{file:./agents/investigate.md}",
       "description": "Use for fast read-only research, repo exploration, and web lookups before implementation decisions",
       "permission": {
+        "chrome-devtools_*": "allow",
+        "sonarqube_*": "deny",
         "read": "allow",
         "glob": "allow",
         "grep": "allow",
@@ -144,6 +154,8 @@
       "prompt": "{file:./agents/reviewer.md}",
       "description": "Use for deep code/PR review: logic bugs, regressions, duplication, scalability limits, and reliability issues",
       "permission": {
+        "chrome-devtools_*": "allow",
+        "sonarqube_*": "allow",
         "read": "allow",
         "glob": "allow",
         "grep": "allow",
@@ -161,6 +173,8 @@
       "prompt": "{file:./agents/verifier.md}",
       "description": "Use when claims need proof: run tests/checks, inspect outputs, and report evidence-based verification results",
       "permission": {
+        "chrome-devtools_*": "allow",
+        "sonarqube_*": "deny",
         "read": "allow",
         "glob": "allow",
         "grep": "allow",
@@ -188,6 +202,8 @@
       "prompt": "{file:./agents/general.md}",
       "description": "Fallback delegated agent for mixed tasks that do not clearly fit investigate, reviewer, or verifier",
       "permission": {
+        "chrome-devtools_*": "deny",
+        "sonarqube_*": "deny",
         "bash": {
           "git commit*": "ask",
           "git push*": "ask",
@@ -209,6 +225,8 @@
       "prompt": "{file:./agents/worker.md}",
       "description": "Dedicated execution subagent for complex multi-step edits and tool-heavy implementation work",
       "permission": {
+        "chrome-devtools_*": "allow",
+        "sonarqube_*": "deny",
         "bash": {
           "git commit*": "ask",
           "git push*": "ask",
