@@ -50,6 +50,7 @@
     exfatprogs
     ntfs3g
     bluez-tools
+    overskride
 
     # Keyboard
     qmk
@@ -147,7 +148,6 @@
       Input.UserspaceHID = true;
     };
   };
-  services.blueman.enable = true;
 
   hardware.keyboard.qmk.enable = true;
   services.udev.packages = [ pkgs.vial ];
