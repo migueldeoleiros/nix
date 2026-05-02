@@ -78,7 +78,7 @@
         monitors = {
           a = { name = "eDP-1"; resX = 2256; resY = 1504; };
           b = { name = "DP-10"; resX = 2560; resY = 1440; };
-          c = { name = "DP-2"; };
+          c = { name = "DP-4"; };
         };
       };
 
