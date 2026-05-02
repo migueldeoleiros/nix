@@ -3,6 +3,7 @@
 {
   imports = [
     ./hardware-configuration.nix
+    ./wifi-workaround.nix
     ../../modules/nixos/profiles/base-desktop.nix
   ] ++
     import ../../modules/nixos/syncthing ++
