@@ -15,6 +15,7 @@
 
       # Hyprland ecosystem
       pyprland
+      hyprshutdown
       hyprlock
       wl-clipboard
       cliphist

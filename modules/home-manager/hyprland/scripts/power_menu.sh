@@ -10,8 +10,8 @@ rofi_cmd(){
 selection=$(echo -e "Poweroff\nReboot\nLock Screen\nExit Hyprland\n" | rofi_cmd)
 
 case $selection in
-    "Poweroff") poweroff ;;
-    "Reboot") reboot ;;
+    "Poweroff") hyprshutdown --post-cmd "systemctl poweroff" ;;
+    "Reboot") hyprshutdown --post-cmd "systemctl reboot" ;;
     "Lock Screen") hyprlock ;;
-    "Exit Hyprland") killall Hyprland ;;
+    "Exit Hyprland") hyprshutdown ;;
 esac
