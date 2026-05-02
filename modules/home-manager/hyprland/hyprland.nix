@@ -35,7 +35,7 @@
 
     file = {
       ".config/hypr/hyprland-settings.conf".source = ./hyprland.conf;
-      ".config/hypr/pyprland.toml".source = ./pyprland.toml;
+      ".config/pypr/config.toml".source = ./pyprland.toml;
       ".config/hypr/hyprlock.conf".source = ./hyprlock.conf;
       ".config/hypr/scripts".source = ./scripts;
 
