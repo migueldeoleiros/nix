@@ -68,6 +68,7 @@
           $A_MONITOR = ${host.monitors.a.name} # laptop
           $A_RES_X = ${toString host.monitors.a.resX}
           $A_RES_Y = ${toString host.monitors.a.resY}
+          $A_SCALE = ${host.monitors.a.scale}
 
           $B_MONITOR = ${host.monitors.b.name}
           $B_RES_X = ${toString host.monitors.b.resX}

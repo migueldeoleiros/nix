@@ -46,7 +46,7 @@
         defaultScreenConfig = "custom_three.conf";
         batteryId = "BAT1";
         monitors = {
-          a = { name = "eDP-1"; resX = 1920; resY = 1080; };
+          a = { name = "eDP-1"; resX = 1920; resY = 1080; scale = "1"; };
           b = { name = "HDMI-A-1"; resX = 2560; resY = 1440; };
           c = { name = "DVI-I-1"; };
         };
@@ -61,7 +61,7 @@
         defaultScreenConfig = "screen_on_right.conf";
         batteryId = "BAT0";
         monitors = {
-          a = { name = "eDP-1"; resX = 1920; resY = 1200; };
+          a = { name = "eDP-1"; resX = 1920; resY = 1200; scale = "1"; };
           b = { name = "DP-8"; resX = 2560; resY = 1440; };
           c = { name = "DP-1"; };
         };
@@ -76,7 +76,7 @@
         defaultScreenConfig = "screen_on_right.conf";
         batteryId = "BAT1";
         monitors = {
-          a = { name = "eDP-1"; resX = 2256; resY = 1504; };
+          a = { name = "eDP-1"; resX = 2256; resY = 1504; scale = "1.17"; };
           b = { name = "DP-10"; resX = 2560; resY = 1440; };
           c = { name = "DP-4"; };
         };
