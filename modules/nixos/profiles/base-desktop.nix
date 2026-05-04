@@ -63,9 +63,16 @@
     noto-fonts-cjk-serif
     noto-fonts-color-emoji
     liberation_ttf
+    corefonts
+    vista-fonts
+    roboto
+    open-sans
+    source-sans
+    ubuntu-classic
     fira-code
     fira-code-symbols
     lmodern
+    dejavu_fonts
     nerd-fonts.sauce-code-pro
   ];
 
