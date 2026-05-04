@@ -14,7 +14,7 @@ fi
 # visible signal still counts as wifi so the bar does not show the crossed icon.
 wifi_iface=$(printf '%s\n' "$devices" | awk -F: '$2 == "wifi" && $3 == "connected" {print $1; exit}')
 if [ -n "$wifi_iface" ]; then
-  wifi=$(nmcli -t -f ACTIVE,SIGNAL device wifi 2>/dev/null \
+  wifi=$(timeout 0.5s nmcli -t -f ACTIVE,SIGNAL device wifi 2>/dev/null \
     | awk -F: '$1 == "yes" {quality = ($2 + 0) / 100; if (quality > 1) quality = 1; print quality; exit}')
   wifi=${wifi:-$(awk -v iface="$wifi_iface" '$1 == iface ":" {quality = ($3 + 0) / 70; if (quality > 1) quality = 1; print quality; exit}' /proc/net/wireless 2>/dev/null)}
   wifi=${wifi:-0}
