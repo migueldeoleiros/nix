@@ -96,6 +96,7 @@
       # Custom packages
       (pkgs.callPackage ../../../pkgs/st.nix {})
       (pkgs.callPackage ../../../pkgs/pear-desktop.nix {})
+      (pkgs.callPackage ../../../pkgs/brave-origin-beta.nix {})
     ];
   };
 }
