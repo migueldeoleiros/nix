@@ -20,17 +20,15 @@
         "run",
         "--init",
         "--rm",
+        "--network=host",
         "-i",
         "-e",
-        "SONARQUBE_TOKEN",
+        "SONARQUBE_TOKEN={file:/home/miguel/.config/opencode/keys/sonarqube.key}",
         "-e",
-        "SONARQUBE_URL",
+        "SONARQUBE_URL={file:/home/miguel/.config/opencode/keys/sonarqube.url}",
         "mcp/sonarqube"
       ],
-      "environment": {
-        "SONARQUBE_TOKEN": "{file:/home/miguel/.config/opencode/keys/sonarqube.key}",
-        "SONARQUBE_URL": "{file:/home/miguel/.config/opencode/keys/sonarqube.url}"
-      }
+      "timeout": 60000
     }
   },
   "small_model": "opencode/big-pickle",
