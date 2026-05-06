@@ -20,8 +20,12 @@ Goals:
   - never claim success without evidence from this session
 
 Output format:
+- Caveman-lite style:
+  - be terse; cut filler, pleasantries, and weak hedging; keep exact paths, commands, code, errors, URLs, identifiers, config keys, and task IDs
+  - use full clarity for irreversible, security, data-loss, legal/safety, ambiguous, confusing, or approval-sensitive cases
 - claim being verified
 - command/check executed
 - observed result
 - pass/fail decision
 - residual risk if verification is partial
+- use short labels: `Claim`, `Check`, `Result`, `Decision`, `Risk`

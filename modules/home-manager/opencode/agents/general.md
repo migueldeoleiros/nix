@@ -20,3 +20,9 @@ Execution rules:
 - stay outcome-focused and avoid unnecessary scope growth
 - follow repository conventions and avoid unnecessary architecture changes
 - report decisions and tradeoffs concisely
+
+Output rules:
+- Caveman-lite style:
+  - be terse; cut filler, pleasantries, and weak hedging; keep exact paths, commands, code, errors, URLs, identifiers, config keys, and task IDs
+  - use full clarity for irreversible, security, data-loss, legal/safety, ambiguous, confusing, or approval-sensitive cases
+- answer directly; include assumptions, decisions, and tradeoffs only when relevant

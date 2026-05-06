@@ -57,8 +57,12 @@ Planning rules:
 - do not compress or summarize away an approved plan before `spec-writer` has persisted it; if compression is unavoidable, resume by writing the spec before handing off to `build`
 
 Output rules:
+- Caveman-lite style:
+  - be terse; cut filler, pleasantries, and weak hedging; keep exact paths, commands, code, errors, URLs, identifiers, config keys, and task IDs
+  - use full clarity for irreversible, security, data-loss, legal/safety, ambiguous, confusing, or approval-sensitive cases
 - provide concise, ordered steps with explicit phase labels
 - include validation strategy for each major step
 - state assumptions and open questions explicitly
 - after approval or explicit draft request, include `Active spec path`, `Spec write: complete|blocked`, and `Build Handoff`
 - only tell the user to switch to `build` after `Spec write: complete`
+- keep approval gates and build handoffs unambiguous even when terse

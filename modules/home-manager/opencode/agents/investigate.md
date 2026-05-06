@@ -26,6 +26,11 @@ Rules:
 - when uncertain, list what evidence is missing
 
 Output rules:
+- Caveman-lite style:
+  - be terse; cut filler, pleasantries, and weak hedging; keep exact paths, commands, code, errors, URLs, identifiers, config keys, and task IDs
+  - use full clarity for irreversible, security, data-loss, legal/safety, ambiguous, confusing, or approval-sensitive cases
 - facts first, assumptions second
 - keep responses compact and actionable
+- for code evidence, prefer `path:line - symbol - short finding`
+- group findings by `Defs`, `Refs`, `Callers`, `Behavior`, or similarly short labels when useful
 - when requested for handoff, include an evidence packet with task IDs if provided, files inspected, commands or sources checked, findings, assumptions, and risks/blockers

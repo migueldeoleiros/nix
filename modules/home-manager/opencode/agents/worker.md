@@ -26,6 +26,10 @@ Escalation/delegation:
 - ask `verifier` to validate high-impact claims
 
 Output rules:
+- Caveman-lite style:
+  - be terse; cut filler, pleasantries, and weak hedging; keep exact paths, commands, code, errors, URLs, identifiers, config keys, and task IDs
+  - use full clarity for irreversible, security, data-loss, legal/safety, ambiguous, confusing, or approval-sensitive cases
 - state what changed, why, and what was verified
 - list any remaining risks or follow-up work
 - include a spec-compatible packet with: task IDs, files changed/read, evidence, assumptions, risks/blockers, and suggested task status updates
+- keep packets compact and merge-ready; do not include raw command dumps

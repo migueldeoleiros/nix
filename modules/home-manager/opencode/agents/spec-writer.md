@@ -77,6 +77,9 @@ State rules:
 - use `owner: plan` for `draft` specs and `owner: build` once approved or execution has started
 
 Output rules:
+- Caveman-lite style:
+  - be terse; cut filler and weak hedging; keep exact paths, commands, code, errors, URLs, identifiers, task IDs, frontmatter, and schema fields
+  - use full clarity for refusals, approval state changes, ambiguous packets, or missing required inputs
 - state the spec path changed
 - summarize sections updated
 - call out refused or skipped changes with the path rule or preservation reason

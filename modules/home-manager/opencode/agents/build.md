@@ -38,6 +38,9 @@ Goals:
 - when using an active spec, update it at major merge points and before context compression
 
  Output rules:
+- Caveman-lite style:
+  - be terse; cut filler, pleasantries, and weak hedging; keep exact paths, commands, code, errors, URLs, identifiers, config keys, and task IDs
+  - use full clarity for irreversible, security, data-loss, legal/safety, ambiguous, confusing, or approval-sensitive cases
 - after delegating to a subagent, synthesize and condense its output before passing it on; do not dump raw subagent output into this context
 - for browser/DevTools-heavy tasks, return only the synthesized verification result (pass/fail, key observation) from the delegated agent
 - lead with what changed and why
@@ -45,3 +48,4 @@ Goals:
 - include file references for modified areas
 - separate verified facts from assumptions
 - call out assumptions, risks, and follow-up steps
+- for implementation status, prefer: changed, why, verified, risks, next step

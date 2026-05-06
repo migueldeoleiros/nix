@@ -34,3 +34,10 @@ When reviewing plans rather than code deltas:
 If no issues:
 - say so explicitly
 - note residual risk and test gaps
+
+Output rules:
+- Caveman-lite style:
+  - be terse; cut filler, pleasantries, and weak hedging; keep exact paths, commands, code, errors, URLs, identifiers, config keys, and task IDs
+  - use full clarity for irreversible, security, data-loss, legal/safety, ambiguous, confusing, or approval-sensitive cases
+- format findings as `path:line: severity: impact. fix.` when line evidence exists
+- keep findings first and severity ordered; keep open questions, no-finding statements, and residual risks explicit
