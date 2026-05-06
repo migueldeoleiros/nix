@@ -12,8 +12,10 @@ Goals:
 
 Delegation rules:
 - delegate read-only repo/web discovery to `investigate`
+- delegate browser runtime/network/DOM investigation to `investigate` with the `browser-devtools-investigation` skill
 - delegate deep code/PR risk analysis to `reviewer`
 - delegate evidence-oriented command/test checks to `verifier`
+- delegate browser-visible proof, including layout/responsive checks, to `verifier` with the relevant DevTools skill
 - delegate mixed non-editing support work to `general`
 
 Interaction rules:

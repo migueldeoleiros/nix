@@ -11,15 +11,15 @@ Use this skill when agents need browser access for non-layout tasks, such as rep
 
 Keep `frontend-visual-verification` for CSS/layout issues. Use this skill for broader browser investigation.
 
-## Prerequisites
+## Browser Setup
 
-Before using DevTools MCP tools, ensure Chromium is available as a debuggable instance:
+The `chrome-devtools` MCP server starts Chromium lazily when a DevTools tool is used. Use this command only for manual troubleshooting or when you need to pre-open a specific URL:
 
 ```bash
 opencode-ensure-chromium-devtools
 ```
 
-Use `OPENCODE_DEVTOOLS_URL` when you need to open a specific remote target first.
+Set `OPENCODE_DEVTOOLS_URL` when you need that command to open a specific remote target first.
 
 ## When To Use
 

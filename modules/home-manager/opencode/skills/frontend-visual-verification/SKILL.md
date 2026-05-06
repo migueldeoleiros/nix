@@ -11,15 +11,15 @@ Use Chrome DevTools via the `chrome-devtools` MCP to inspect, diagnose, and veri
 
 For broader browser tasks (remote bug triage, end-to-end interaction debugging, scraping-flow prototyping), use the `browser-devtools-investigation` skill.
 
-## Prerequisites
+## Browser Setup
 
-Before using DevTools MCP tools, ensure Chromium is available as a debuggable instance:
+The `chrome-devtools` MCP server starts Chromium lazily when a DevTools tool is used. Use this command only for manual troubleshooting or when you need to pre-open a specific URL:
 
 ```bash
 opencode-ensure-chromium-devtools
 ```
 
-This attaches to an existing debuggable Chromium on `127.0.0.1:9222` (or launches one if none is found). Check `/tmp/opencode-chromium-devtools.log` on failures.
+Set `OPENCODE_DEVTOOLS_URL` when you need that command to open a specific target. Check `/tmp/opencode-chromium-devtools.log` on failures.
 
 ## Workflow
 
