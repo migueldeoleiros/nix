@@ -17,6 +17,7 @@
     import ../../modules/home-manager/vicinae ++
     import ../../modules/home-manager/dev/rust ++
     import ../../modules/home-manager/dev/nodejs ++
+    import ../../modules/home-manager/dev/bruno ++
     import ../../modules/home-manager/dev/java ++
     import ../../modules/home-manager/dev/mysql ++
     import ../../modules/home-manager/opencode
