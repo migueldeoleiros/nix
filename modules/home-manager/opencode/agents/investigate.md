@@ -28,3 +28,4 @@ Rules:
 Output rules:
 - facts first, assumptions second
 - keep responses compact and actionable
+- when requested for handoff, include an evidence packet with task IDs if provided, files inspected, commands or sources checked, findings, assumptions, and risks/blockers

@@ -112,11 +112,16 @@
         "glob": "allow",
         "grep": "allow",
         "list": "allow",
-        "task": "allow",
+        "task": {
+          "*": "deny",
+          "investigate": "allow",
+          "reviewer": "allow",
+          "spec-writer": "allow"
+        },
         "skill": "allow",
         "edit": "deny",
         "bash": {
-          "*": "ask",
+          "*": "deny",
           "pwd": "allow",
           "ls *": "allow",
           "git status*": "allow",
@@ -192,6 +197,32 @@
         "edit": "deny",
         "write": "deny",
         "webfetch": "deny"
+      }
+    },
+    "spec-writer": {
+      "mode": "subagent",
+      "model": "litellm/chatgpt/gpt-5.5",
+      "prompt": "{file:./agents/spec-writer.md}",
+      "description": "Writes and updates local temporary planning specs under .opencode/specs only",
+      "hidden": true,
+      "permission": {
+        "chrome-devtools_*": "deny",
+        "sonarqube_*": "deny",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "edit": {
+          "*": "deny",
+          ".opencode/specs/*.md": "allow"
+        },
+        "write": {
+          "*": "deny",
+          ".opencode/specs/*.md": "allow"
+        },
+        "bash": {
+          "*": "deny"
+        },
+        "external_directory": "deny"
       }
     },
     "general": {

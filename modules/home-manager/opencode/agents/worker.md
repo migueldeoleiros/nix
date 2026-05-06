@@ -14,6 +14,8 @@ Rules:
 - avoid unrelated cleanup unless it blocks correctness
 - keep changes scoped to the assigned task boundary
 - run targeted checks for touched behavior when possible
+- treat any provided task IDs as stable spec task IDs and reference them in status/evidence
+- do not write or edit spec files directly; return a packet for `build` to merge through `spec-writer`
 - for frontend visual/layout tasks, use the `frontend-visual-verification` skill
 - for broader browser debugging and interaction workflows, use the `browser-devtools-investigation` skill
 
@@ -26,3 +28,4 @@ Escalation/delegation:
 Output rules:
 - state what changed, why, and what was verified
 - list any remaining risks or follow-up work
+- include a spec-compatible packet with: task IDs, files changed/read, evidence, assumptions, risks/blockers, and suggested task status updates
