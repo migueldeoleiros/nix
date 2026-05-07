@@ -1,8 +1,19 @@
 ---
 description: Review changes with findings first, ordered by severity
+agent: reviewer
+subtask: true
 ---
 
 Use the `code-review` skill for this task.
+
+Current git status:
+!`git status --short`
+
+Changed files:
+!`git diff --name-status`
+
+Diff:
+!`git diff`
 
 Review with a code-review mindset:
 - prioritize bugs, regressions, risky assumptions, and missing tests

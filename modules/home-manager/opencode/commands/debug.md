@@ -1,8 +1,16 @@
 ---
 description: Investigate a bug methodically before proposing or applying a fix
+agent: build
+subtask: true
 ---
 
 Use the `debugging` skill for this task.
+
+Current git status:
+!`git status --short`
+
+Recent commits:
+!`git log --oneline -10`
 
 For browser-based debugging:
 - use `frontend-visual-verification` for CSS/layout bugs

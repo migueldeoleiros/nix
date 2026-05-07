@@ -1,5 +1,7 @@
 ---
 description: Verify work with concrete evidence before claiming success
+agent: verifier
+subtask: true
 ---
 
 Use the `verification` skill for this task.
