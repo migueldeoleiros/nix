@@ -1,6 +1,11 @@
 { config, pkgs, inputs, vars, ... }:
 
 {
+  home = {
+    packages = with pkgs; [
+      pulseaudio
+    ];
+  };
   programs.vicinae = {
     enable = true;
     systemd = {
