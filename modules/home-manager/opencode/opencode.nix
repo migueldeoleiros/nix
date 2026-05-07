@@ -126,6 +126,40 @@ let
         --isolated
     '';
   };
+
+  trivyMcp = pkgs.writeShellApplication {
+    name = "opencode-trivy-mcp";
+    runtimeInputs = with pkgs; [ gnugrep trivy ];
+    text = ''
+      set -euo pipefail
+
+      if ! trivy plugin list 2>/dev/null | grep -q '^mcp[[:space:]]'; then
+        trivy plugin install mcp
+      fi
+
+      exec trivy mcp
+    '';
+  };
+
+  trivyDockerScan = pkgs.writeShellApplication {
+    name = "trivy-docker-scan";
+    runtimeInputs = with pkgs; [ docker-client trivy ];
+    text = ''
+      set -euo pipefail
+
+      image="''${1:-$(basename "$PWD"):local}"
+      context="''${2:-.}"
+      severity="''${TRIVY_SEVERITY:-HIGH,CRITICAL}"
+      scanners="''${TRIVY_SCANNERS:-vuln,secret,misconfig,license}"
+
+      docker build -t "$image" "$context"
+      trivy image \
+        --scanners "$scanners" \
+        --severity "$severity" \
+        --exit-code 1 \
+        "$image"
+    '';
+  };
 in
 {
   home = {
@@ -134,8 +168,11 @@ in
       nodejs
       chromium
       docker-client
+      trivy
       ensureChromiumDevtools
       chromiumDevtoolsMcp
+      trivyMcp
+      trivyDockerScan
     ];
 
     file = {

@@ -14,6 +14,14 @@
         "opencode-chromium-devtools-mcp"
       ]
     },
+    "trivy": {
+      "type": "local",
+      "enabled": true,
+      "command": [
+        "opencode-trivy-mcp"
+      ],
+      "timeout": 120000
+    },
     "sonarqube": {
       "type": "local",
       "enabled": true,
@@ -45,6 +53,7 @@
       "description": "Lightweight primary workflow for simple, low-risk tasks",
       "permission": {
         "chrome-devtools_*": "deny",
+        "trivy_*": "deny",
         "sonarqube_*": "deny",
         "bash": {
           "*": "ask",
@@ -80,6 +89,7 @@
       "description": "User-facing collaborative workflow for questions, analysis, and guided task support",
       "permission": {
         "chrome-devtools_*": "deny",
+        "trivy_*": "allow",
         "sonarqube_*": "deny",
         "edit": "ask",
         "bash": {
@@ -119,6 +129,7 @@
       "description": "Primary implementation agent; delegate discovery to investigate, risk analysis to reviewer, and proof checks to verifier",
       "permission": {
         "chrome-devtools_*": "deny",
+        "trivy_*": "allow",
         "sonarqube_*": "deny",
         "task": {
           "*": "deny",
@@ -160,6 +171,7 @@
       "description": "Read-only planning workflow for scope clarification, sequencing, and risk-aware execution plans",
       "permission": {
         "chrome-devtools_*": "deny",
+        "trivy_*": "deny",
         "sonarqube_*": "deny",
         "read": "allow",
         "glob": "allow",
@@ -194,6 +206,7 @@
       "description": "Use for fast read-only research, repo exploration, and web lookups before implementation decisions",
       "permission": {
         "chrome-devtools_*": "allow",
+        "trivy_*": "allow",
         "sonarqube_*": "deny",
         "read": "allow",
         "glob": "allow",
@@ -215,6 +228,7 @@
       "description": "Use for deep code/PR review: logic bugs, regressions, duplication, scalability limits, and reliability issues",
       "permission": {
         "chrome-devtools_*": "allow",
+        "trivy_*": "allow",
         "sonarqube_*": "allow",
         "read": "allow",
         "glob": "allow",
@@ -236,6 +250,7 @@
       "description": "Use when claims need proof: run tests/checks, inspect outputs, and report evidence-based verification results",
       "permission": {
         "chrome-devtools_*": "allow",
+        "trivy_*": "allow",
         "sonarqube_*": "deny",
         "read": "allow",
         "glob": "allow",
@@ -276,6 +291,7 @@
       "hidden": true,
       "permission": {
         "chrome-devtools_*": "deny",
+        "trivy_*": "deny",
         "sonarqube_*": "deny",
         "read": "allow",
         "glob": "allow",
@@ -300,6 +316,7 @@
       "description": "Fallback delegated agent for mixed tasks that do not clearly fit investigate, reviewer, or verifier",
       "permission": {
         "chrome-devtools_*": "deny",
+        "trivy_*": "deny",
         "sonarqube_*": "deny",
         "bash": {
           "*": "ask",
@@ -338,6 +355,7 @@
       "description": "Dedicated execution subagent for complex multi-step edits and tool-heavy implementation work",
       "permission": {
         "chrome-devtools_*": "allow",
+        "trivy_*": "allow",
         "sonarqube_*": "deny",
         "bash": {
           "*": "ask",
