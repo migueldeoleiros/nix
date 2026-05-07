@@ -1,5 +1,5 @@
 ---
-name: Exploration Deep Dive
+name: exploration-deep-dive
 description: Systematically map unknown code areas and produce evidence-first findings with precise references
 ---
 

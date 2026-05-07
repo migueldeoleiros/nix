@@ -1,5 +1,5 @@
 ---
-name: PR Review
+name: pr-review
 description: Review PR commits against develop, focus on hidden risks, scalability, and high-impact mistakes
 ---
 

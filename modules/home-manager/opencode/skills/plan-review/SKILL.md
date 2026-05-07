@@ -1,5 +1,5 @@
 ---
-name: Plan Review
+name: plan-review
 description: Review requirements and execution plans for sequencing flaws, hidden assumptions, and verification gaps
 ---
 

@@ -1,5 +1,5 @@
 ---
-name: Debugging
+name: debugging
 description: Investigate problems systematically by finding root cause before fixing symptoms
 ---
 

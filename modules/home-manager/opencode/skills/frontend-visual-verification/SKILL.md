@@ -1,5 +1,5 @@
 ---
-name: Frontend Visual Verification
+name: frontend-visual-verification
 description: Verify frontend visual/layout issues using Chrome DevTools MCP
 ---
 

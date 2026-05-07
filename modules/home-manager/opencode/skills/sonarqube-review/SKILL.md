@@ -1,5 +1,5 @@
 ---
-name: SonarQube Review
+name: sonarqube-review
 description: Incorporate SonarQube MCP findings into code and PR reviews without replacing human risk analysis
 ---
 

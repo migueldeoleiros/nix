@@ -1,5 +1,5 @@
 ---
-name: Code Review
+name: code-review
 description: Review changes by surfacing concrete findings, regressions, and testing gaps first
 ---
 

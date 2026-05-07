@@ -1,5 +1,5 @@
 ---
-name: Browser DevTools Investigation
+name: browser-devtools-investigation
 description: Use Chrome DevTools MCP for browser debugging beyond CSS/layout verification
 ---
 

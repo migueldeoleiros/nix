@@ -1,5 +1,5 @@
 ---
-name: Verification
+name: verification
 description: Prove claims with fresh checks before saying work is complete or fixed
 ---
 
