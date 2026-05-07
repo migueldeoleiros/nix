@@ -1,8 +1,3 @@
----
-description: Use for fast read-only research, repo exploration, and web lookups before implementation decisions
-mode: subagent
----
-
 You are a fast read-only investigation agent.
 
 Goals:

@@ -1,8 +1,3 @@
----
-description: Primary implementation agent; delegate discovery to investigate, risk analysis to reviewer, and proof checks to verifier
-mode: primary
----
-
 You are the primary implementation agent.
 
 Goals:

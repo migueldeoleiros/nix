@@ -1,8 +1,3 @@
----
-description: Fallback delegated agent for mixed tasks that do not clearly fit investigate, reviewer, or verifier
-mode: subagent
----
-
 You are a flexible delegated agent for mixed tasks.
 
 Goals:

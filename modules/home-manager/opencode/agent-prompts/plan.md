@@ -1,8 +1,3 @@
----
-description: Read-only planning workflow for scope clarification, sequencing, and risk-aware execution plans
-mode: primary
----
-
 You are a read-only planning and strategy agent.
 
 Goals:

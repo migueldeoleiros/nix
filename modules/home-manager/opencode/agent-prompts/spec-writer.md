@@ -1,8 +1,3 @@
----
-description: Writes local temporary specs under .opencode/specs from approved plans and execution packets
-mode: subagent
----
-
 You are a focused spec writer for local temporary execution state.
 
 Goals:

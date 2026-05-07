@@ -10,7 +10,9 @@
     "chrome-devtools": {
       "type": "local",
       "enabled": true,
-      "command": ["opencode-chromium-devtools-mcp"]
+      "command": [
+        "opencode-chromium-devtools-mcp"
+      ]
     },
     "sonarqube": {
       "type": "local",
@@ -23,11 +25,15 @@
         "--network=host",
         "-i",
         "-e",
-        "SONARQUBE_TOKEN={file:/home/miguel/.config/opencode/keys/sonarqube.key}",
+        "SONARQUBE_TOKEN",
         "-e",
-        "SONARQUBE_URL={file:/home/miguel/.config/opencode/keys/sonarqube.url}",
+        "SONARQUBE_URL",
         "mcp/sonarqube"
       ],
+      "environment": {
+        "SONARQUBE_TOKEN": "{file:/home/miguel/.config/opencode/keys/sonarqube.key}",
+        "SONARQUBE_URL": "{file:/home/miguel/.config/opencode/keys/sonarqube.url}"
+      },
       "timeout": 60000
     }
   },
@@ -35,12 +41,21 @@
   "agent": {
     "quick": {
       "model": "opencode/big-pickle",
-      "prompt": "{file:./agents/quick.md}",
+      "prompt": "{file:./agent-prompts/quick.md}",
       "description": "Lightweight primary workflow for simple, low-risk tasks",
       "permission": {
         "chrome-devtools_*": "deny",
         "sonarqube_*": "deny",
         "bash": {
+          "*": "ask",
+          "git status*": "allow",
+          "git log*": "allow",
+          "git diff*": "allow",
+          "git show*": "allow",
+          "rg *": "allow",
+          "ls *": "allow",
+          "ls": "allow",
+          "pwd": "allow",
           "git commit*": "ask",
           "git push*": "ask",
           "git rebase*": "ask",
@@ -50,20 +65,33 @@
           "rm*": "ask",
           "rmdir*": "ask",
           "unlink*": "ask",
-          "shred*": "ask",
-          "*": "allow"
-        }
-      }
+          "shred*": "ask"
+        },
+        "task": {
+          "*": "deny"
+        },
+        "edit": "allow"
+      },
+      "mode": "primary"
     },
     "assistant": {
       "model": "litellm/chatgpt/gpt-5.5",
-      "prompt": "{file:./agents/assistant.md}",
+      "prompt": "{file:./agent-prompts/assistant.md}",
       "description": "User-facing collaborative workflow for questions, analysis, and guided task support",
       "permission": {
         "chrome-devtools_*": "deny",
         "sonarqube_*": "deny",
         "edit": "ask",
         "bash": {
+          "*": "ask",
+          "git status*": "allow",
+          "git log*": "allow",
+          "git diff*": "allow",
+          "git show*": "allow",
+          "rg *": "allow",
+          "ls *": "allow",
+          "ls": "allow",
+          "pwd": "allow",
           "git commit*": "ask",
           "git push*": "ask",
           "git rebase*": "ask",
@@ -73,20 +101,44 @@
           "rm*": "ask",
           "rmdir*": "ask",
           "unlink*": "ask",
-          "shred*": "ask",
-          "*": "allow"
+          "shred*": "ask"
+        },
+        "task": {
+          "*": "deny",
+          "investigate": "allow",
+          "reviewer": "allow",
+          "verifier": "allow",
+          "general": "allow"
         }
-      }
+      },
+      "mode": "primary"
     },
     "build": {
       "model": "litellm/chatgpt/gpt-5.5",
-      "prompt": "{file:./agents/build.md}",
+      "prompt": "{file:./agent-prompts/build.md}",
       "description": "Primary implementation agent; delegate discovery to investigate, risk analysis to reviewer, and proof checks to verifier",
       "permission": {
         "chrome-devtools_*": "deny",
         "sonarqube_*": "deny",
-        "task": "allow",
+        "task": {
+          "*": "deny",
+          "investigate": "allow",
+          "reviewer": "allow",
+          "verifier": "allow",
+          "worker": "allow",
+          "spec-writer": "allow",
+          "general": "allow"
+        },
         "bash": {
+          "*": "ask",
+          "git status*": "allow",
+          "git log*": "allow",
+          "git diff*": "allow",
+          "git show*": "allow",
+          "rg *": "allow",
+          "ls *": "allow",
+          "ls": "allow",
+          "pwd": "allow",
           "git commit*": "ask",
           "git push*": "ask",
           "git rebase*": "ask",
@@ -96,14 +148,15 @@
           "rm*": "ask",
           "rmdir*": "ask",
           "unlink*": "ask",
-          "shred*": "ask",
-          "*": "allow"
-        }
-      }
+          "shred*": "ask"
+        },
+        "edit": "allow"
+      },
+      "mode": "primary"
     },
     "plan": {
       "model": "litellm/chatgpt/gpt-5.5",
-      "prompt": "{file:./agents/plan.md}",
+      "prompt": "{file:./agent-prompts/plan.md}",
       "description": "Read-only planning workflow for scope clarification, sequencing, and risk-aware execution plans",
       "permission": {
         "chrome-devtools_*": "deny",
@@ -124,18 +177,20 @@
           "*": "deny",
           "pwd": "allow",
           "ls *": "allow",
+          "ls": "allow",
           "git status*": "allow",
           "git log*": "allow",
           "git diff*": "allow",
           "rg *": "allow"
         },
         "webfetch": "allow"
-      }
+      },
+      "mode": "primary"
     },
     "investigate": {
       "mode": "subagent",
       "model": "litellm/chatgpt/gpt-5.5",
-      "prompt": "{file:./agents/investigate.md}",
+      "prompt": "{file:./agent-prompts/investigate.md}",
       "description": "Use for fast read-only research, repo exploration, and web lookups before implementation decisions",
       "permission": {
         "chrome-devtools_*": "allow",
@@ -145,8 +200,10 @@
         "grep": "allow",
         "webfetch": "allow",
         "edit": "deny",
-        "write": "deny",
         "bash": {
+          "*": "deny"
+        },
+        "task": {
           "*": "deny"
         }
       }
@@ -154,7 +211,7 @@
     "reviewer": {
       "mode": "subagent",
       "model": "litellm/chatgpt/gpt-5.5",
-      "prompt": "{file:./agents/reviewer.md}",
+      "prompt": "{file:./agent-prompts/reviewer.md}",
       "description": "Use for deep code/PR review: logic bugs, regressions, duplication, scalability limits, and reliability issues",
       "permission": {
         "chrome-devtools_*": "allow",
@@ -164,8 +221,10 @@
         "grep": "allow",
         "webfetch": "allow",
         "edit": "deny",
-        "write": "deny",
         "bash": {
+          "*": "deny"
+        },
+        "task": {
           "*": "deny"
         }
       }
@@ -173,7 +232,7 @@
     "verifier": {
       "mode": "subagent",
       "model": "litellm/chatgpt/gpt-5.5",
-      "prompt": "{file:./agents/verifier.md}",
+      "prompt": "{file:./agent-prompts/verifier.md}",
       "description": "Use when claims need proof: run tests/checks, inspect outputs, and report evidence-based verification results",
       "permission": {
         "chrome-devtools_*": "allow",
@@ -182,6 +241,15 @@
         "glob": "allow",
         "grep": "allow",
         "bash": {
+          "*": "ask",
+          "git status*": "allow",
+          "git log*": "allow",
+          "git diff*": "allow",
+          "git show*": "allow",
+          "rg *": "allow",
+          "ls *": "allow",
+          "ls": "allow",
+          "pwd": "allow",
           "git commit*": "ask",
           "git push*": "ask",
           "git rebase*": "ask",
@@ -191,18 +259,19 @@
           "rm*": "ask",
           "rmdir*": "ask",
           "unlink*": "ask",
-          "shred*": "ask",
-          "*": "allow"
+          "shred*": "ask"
         },
         "edit": "deny",
-        "write": "deny",
-        "webfetch": "deny"
+        "webfetch": "deny",
+        "task": {
+          "*": "deny"
+        }
       }
     },
     "spec-writer": {
       "mode": "subagent",
       "model": "litellm/chatgpt/gpt-5.5",
-      "prompt": "{file:./agents/spec-writer.md}",
+      "prompt": "{file:./agent-prompts/spec-writer.md}",
       "description": "Writes and updates local temporary planning specs under .opencode/specs only",
       "hidden": true,
       "permission": {
@@ -215,25 +284,33 @@
           "*": "deny",
           ".opencode/specs/*.md": "allow"
         },
-        "write": {
-          "*": "deny",
-          ".opencode/specs/*.md": "allow"
-        },
         "bash": {
           "*": "deny"
         },
-        "external_directory": "deny"
+        "external_directory": "deny",
+        "task": {
+          "*": "deny"
+        }
       }
     },
     "general": {
       "mode": "subagent",
       "model": "litellm/chatgpt/gpt-5.5",
-      "prompt": "{file:./agents/general.md}",
+      "prompt": "{file:./agent-prompts/general.md}",
       "description": "Fallback delegated agent for mixed tasks that do not clearly fit investigate, reviewer, or verifier",
       "permission": {
         "chrome-devtools_*": "deny",
         "sonarqube_*": "deny",
         "bash": {
+          "*": "ask",
+          "git status*": "allow",
+          "git log*": "allow",
+          "git diff*": "allow",
+          "git show*": "allow",
+          "rg *": "allow",
+          "ls *": "allow",
+          "ls": "allow",
+          "pwd": "allow",
           "git commit*": "ask",
           "git push*": "ask",
           "git rebase*": "ask",
@@ -243,20 +320,35 @@
           "rm*": "ask",
           "rmdir*": "ask",
           "unlink*": "ask",
-          "shred*": "ask",
-          "*": "allow"
-        }
+          "shred*": "ask"
+        },
+        "task": {
+          "*": "deny",
+          "investigate": "allow",
+          "reviewer": "allow",
+          "verifier": "allow"
+        },
+        "edit": "deny"
       }
     },
     "worker": {
       "mode": "subagent",
       "model": "litellm/chatgpt/gpt-5.5",
-      "prompt": "{file:./agents/worker.md}",
+      "prompt": "{file:./agent-prompts/worker.md}",
       "description": "Dedicated execution subagent for complex multi-step edits and tool-heavy implementation work",
       "permission": {
         "chrome-devtools_*": "allow",
         "sonarqube_*": "deny",
         "bash": {
+          "*": "ask",
+          "git status*": "allow",
+          "git log*": "allow",
+          "git diff*": "allow",
+          "git show*": "allow",
+          "rg *": "allow",
+          "ls *": "allow",
+          "ls": "allow",
+          "pwd": "allow",
           "git commit*": "ask",
           "git push*": "ask",
           "git rebase*": "ask",
@@ -266,9 +358,15 @@
           "rm*": "ask",
           "rmdir*": "ask",
           "unlink*": "ask",
-          "shred*": "ask",
-          "*": "allow"
-        }
+          "shred*": "ask"
+        },
+        "task": {
+          "*": "deny",
+          "investigate": "allow",
+          "reviewer": "allow",
+          "verifier": "allow"
+        },
+        "edit": "allow"
       }
     }
   },

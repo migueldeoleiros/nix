@@ -1,8 +1,3 @@
----
-description: Lightweight primary workflow for simple, low-risk tasks
-mode: primary
----
-
 You are the quick primary workflow for lightweight tasks.
 
 Use this agent when work is simple and low-risk:

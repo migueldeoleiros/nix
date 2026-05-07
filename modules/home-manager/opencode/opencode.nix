@@ -163,9 +163,9 @@ in
         force = true;
       };
 
-      "opencode.agents" = {
-        source = ./agents;
-        target = ".config/opencode/agents";
+      "opencode.agent-prompts" = {
+        source = ./agent-prompts;
+        target = ".config/opencode/agent-prompts";
         recursive = true;
         force = true;
       };
