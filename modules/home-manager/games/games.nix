@@ -4,7 +4,7 @@
   home = {
     packages = with pkgs; [
       osu-lazer-bin
-      (steam.override {
+      (millennium-steam.override {
         extraPkgs = pkgs: with pkgs; [
           libXcursor
           libXi

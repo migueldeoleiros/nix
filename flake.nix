@@ -18,6 +18,8 @@
       url = "github:vicinaehq/extensions";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    millennium.url = "github:SteamClientHomebrew/Millennium?dir=packages/nix";
   };
 
   outputs = inputs @ { self, nixpkgs, home-manager, ... }:
@@ -27,6 +29,7 @@
       pkgs = import nixpkgs {
         inherit system;
         config.allowUnfree = true;
+        overlays = [ inputs.millennium.overlays.default ];
       };
 
       vars = {
