@@ -42,6 +42,7 @@
       wifi-commander
       player-pilot
       pulseaudio
+      process-manager
     ];
   };
 }
