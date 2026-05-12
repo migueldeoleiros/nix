@@ -73,6 +73,10 @@
           $B_RES_Y = ${toString host.monitors.b.resY}
 
           $C_MONITOR = ${host.monitors.c.name}
+
+          $KEYBOARD_LAYOUT = ${host.keyboard.layout}
+          $KEYBOARD_VARIANT = ${host.keyboard.variant}
+          $KEYBOARD_OPTIONS = ${host.keyboard.options}
         '';
       };
     };

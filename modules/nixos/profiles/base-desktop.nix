@@ -162,8 +162,9 @@
   services.seatd.enable = true;
 
   services.xserver.xkb = {
-    layout = "us";
-    options = "compose:ralt";
+    layout = host.keyboard.layout;
+    variant = host.keyboard.variant;
+    options = host.keyboard.options;
   };
   console.keyMap = "us";
 

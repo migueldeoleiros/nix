@@ -48,6 +48,11 @@
         tabletOutput = "HDMI-A-1";
         defaultScreenConfig = "custom_three.conf";
         batteryId = "BAT1";
+        keyboard = {
+          layout = "us,es";
+          variant = ",";
+          options = "ctrl:nocaps,compose:ralt";
+        };
         monitors = {
           a = { name = "eDP-1"; resX = 1920; resY = 1080; scale = "1"; };
           b = { name = "HDMI-A-1"; resX = 2560; resY = 1440; };
@@ -63,6 +68,11 @@
         tabletOutput = "DP-8";
         defaultScreenConfig = "screen_on_right.conf";
         batteryId = "BAT0";
+        keyboard = {
+          layout = "us,es";
+          variant = ",";
+          options = "ctrl:nocaps,compose:ralt";
+        };
         monitors = {
           a = { name = "eDP-1"; resX = 1920; resY = 1200; scale = "1"; };
           b = { name = "DP-8"; resX = 2560; resY = 1440; };
@@ -78,6 +88,11 @@
         tabletOutput = "eDP-1";
         defaultScreenConfig = "screen_on_right.conf";
         batteryId = "BAT1";
+        keyboard = {
+          layout = "us";
+          variant = "altgr-intl";
+          options = "ctrl:nocaps";
+        };
         monitors = {
           a = { name = "eDP-1"; resX = 2256; resY = 1504; scale = "1.17"; };
           b = { name = "DP-10"; resX = 2560; resY = 1440; };
