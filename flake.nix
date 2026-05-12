@@ -71,7 +71,7 @@
       };
 
       frameworkHost = {
-        hostName = "framework";
+        hostName = "DSK-046";
         mainMonitor = "eDP-1";
         secondMonitor = "DP-10";
         hasNvidia = false;

@@ -3,6 +3,7 @@
 {
   imports = [
     ./hardware-configuration.nix
+    ./glpi.nix
     ./wifi-workaround.nix
     ../../modules/nixos/profiles/base-desktop.nix
   ] ++
