@@ -1,4 +1,3 @@
 [
   ./rofi.nix
-  ./networkmanager.nix
 ]

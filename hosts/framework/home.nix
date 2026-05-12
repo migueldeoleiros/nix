@@ -4,7 +4,6 @@
   imports = (
     import ../../modules/home-manager/shell ++
     import ../../modules/home-manager/defaults ++
-    import ../../modules/home-manager/rofi ++
     import ../../modules/home-manager/gtk ++
     import ../../modules/home-manager/bitwarden ++
     import ../../modules/home-manager/yazi ++

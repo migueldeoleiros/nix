@@ -4,18 +4,11 @@ wallpaper_dir="$HOME/wallpapers"
 wallpaper_script="$HOME/.config/hypr/wallpaper.sh"
 transition="center"
 
-rofi_cmd(){
-    rofi \
-    -theme-str 'window {width: 500; height: 500;}' \
-    -dmenu -i \
-    -p "SELECT WALLPAPER"
-}
-
 get_selection(){
     local dir_file="$1"
 
     if [[ -d $dir_file ]]; then
-        selected=$(ls "$dir_file" | rofi_cmd)
+        selected=$(find "$dir_file" -maxdepth 1 -mindepth 1 -printf "%f\n" | sort | vicinae dmenu -p "SELECT WALLPAPER" -W 500 -H 500)
         if [[ "$selected" == "" ]]; then
             echo ""
         else

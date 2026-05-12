@@ -1,13 +1,6 @@
 #!/usr/bin/env bash
 
-rofi_cmd(){
-    rofi \
-    -theme-str 'window {width: 300px; height: 300px;}' \
-    -dmenu -i \
-    -p "POWER MENU"
-}
-
-selection=$(echo -e "Poweroff\nReboot\nLock Screen\nExit Hyprland\n" | rofi_cmd)
+selection=$(printf "Poweroff\nReboot\nLock Screen\nExit Hyprland\n" | vicinae dmenu -p "POWER MENU" -W 300 -H 300)
 
 case $selection in
     "Poweroff") hyprshutdown --post-cmd "systemctl poweroff" ;;

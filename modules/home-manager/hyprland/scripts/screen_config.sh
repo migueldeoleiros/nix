@@ -9,7 +9,7 @@ declare -A OPTIONS=(
   ["Screen on Right"]="screen_on_right.conf"
 )
 
-SELECTED_TEXT=$(printf "%s\n" "${!OPTIONS[@]}" | rofi -dmenu -p "Select screen configuration:")
+SELECTED_TEXT=$(printf "%s\n" "${!OPTIONS[@]}" | vicinae dmenu -p "Select screen configuration:")
 
 if [[ -n "$SELECTED_TEXT" ]]; then
   SELECTED_FILE="${OPTIONS[$SELECTED_TEXT]}"

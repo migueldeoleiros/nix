@@ -18,8 +18,6 @@
       hyprshutdown
       hyprlock
       wl-clipboard
-      cliphist
-      networkmanager_dmenu
       bibata-cursors
       polkit_gnome
 
