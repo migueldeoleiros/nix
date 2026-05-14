@@ -43,6 +43,14 @@
         "SONARQUBE_URL": "{file:/home/miguel/.config/opencode/keys/sonarqube.url}"
       },
       "timeout": 60000
+    },
+    "gitea": {
+      "type": "local",
+      "enabled": true,
+      "command": [
+        "opencode-gitea-mcp"
+      ],
+      "timeout": 60000
     }
   },
   "small_model": "opencode/big-pickle",
@@ -51,6 +59,7 @@
       "model": "opencode/big-pickle",
       "prompt": "{file:./agent-prompts/quick.md}",
       "description": "Lightweight primary workflow for simple, low-risk tasks",
+      "color": "#9ccc65",
       "permission": {
         "chrome-devtools_*": "deny",
         "trivy_*": "deny",
@@ -79,7 +88,8 @@
         "task": {
           "*": "deny"
         },
-        "edit": "allow"
+        "edit": "allow",
+        "gitea_*": "deny"
       },
       "mode": "primary"
     },
@@ -87,6 +97,7 @@
       "model": "litellm/chatgpt/gpt-5.5",
       "prompt": "{file:./agent-prompts/assistant.md}",
       "description": "User-facing collaborative workflow for questions, analysis, and guided task support",
+      "color": "#4fc3f7",
       "permission": {
         "chrome-devtools_*": "deny",
         "trivy_*": "allow",
@@ -119,7 +130,8 @@
           "reviewer": "allow",
           "verifier": "allow",
           "general": "allow"
-        }
+        },
+        "gitea_*": "deny"
       },
       "mode": "primary"
     },
@@ -127,6 +139,7 @@
       "model": "litellm/chatgpt/gpt-5.5",
       "prompt": "{file:./agent-prompts/build.md}",
       "description": "Primary implementation agent; delegate discovery to investigate, risk analysis to reviewer, and proof checks to verifier",
+      "color": "#ffb74d",
       "permission": {
         "chrome-devtools_*": "deny",
         "trivy_*": "allow",
@@ -161,7 +174,8 @@
           "unlink*": "ask",
           "shred*": "ask"
         },
-        "edit": "allow"
+        "edit": "allow",
+        "gitea_*": "deny"
       },
       "mode": "primary"
     },
@@ -169,6 +183,7 @@
       "model": "litellm/chatgpt/gpt-5.5",
       "prompt": "{file:./agent-prompts/plan.md}",
       "description": "Read-only planning workflow for scope clarification, sequencing, and risk-aware execution plans",
+      "color": "#ba68c8",
       "permission": {
         "chrome-devtools_*": "deny",
         "trivy_*": "deny",
@@ -195,7 +210,8 @@
           "git diff*": "allow",
           "rg *": "allow"
         },
-        "webfetch": "allow"
+        "webfetch": "allow",
+        "gitea_*": "deny"
       },
       "mode": "primary"
     },
@@ -204,6 +220,7 @@
       "model": "litellm/chatgpt/gpt-5.5",
       "prompt": "{file:./agent-prompts/investigate.md}",
       "description": "Use for fast read-only research, repo exploration, and web lookups before implementation decisions",
+      "color": "#64b5f6",
       "permission": {
         "chrome-devtools_*": "allow",
         "trivy_*": "allow",
@@ -218,7 +235,8 @@
         },
         "task": {
           "*": "deny"
-        }
+        },
+        "gitea_*": "deny"
       }
     },
     "reviewer": {
@@ -226,6 +244,7 @@
       "model": "litellm/chatgpt/gpt-5.5",
       "prompt": "{file:./agent-prompts/reviewer.md}",
       "description": "Use for deep code/PR review: logic bugs, regressions, duplication, scalability limits, and reliability issues",
+      "color": "#e57373",
       "permission": {
         "chrome-devtools_*": "allow",
         "trivy_*": "allow",
@@ -240,7 +259,8 @@
         },
         "task": {
           "*": "deny"
-        }
+        },
+        "gitea_*": "deny"
       }
     },
     "verifier": {
@@ -248,6 +268,7 @@
       "model": "litellm/chatgpt/gpt-5.5",
       "prompt": "{file:./agent-prompts/verifier.md}",
       "description": "Use when claims need proof: run tests/checks, inspect outputs, and report evidence-based verification results",
+      "color": "#4db6ac",
       "permission": {
         "chrome-devtools_*": "allow",
         "trivy_*": "allow",
@@ -280,7 +301,8 @@
         "webfetch": "deny",
         "task": {
           "*": "deny"
-        }
+        },
+        "gitea_*": "deny"
       }
     },
     "spec-writer": {
@@ -306,7 +328,8 @@
         "external_directory": "deny",
         "task": {
           "*": "deny"
-        }
+        },
+        "gitea_*": "deny"
       }
     },
     "general": {
@@ -314,6 +337,7 @@
       "model": "litellm/chatgpt/gpt-5.5",
       "prompt": "{file:./agent-prompts/general.md}",
       "description": "Fallback delegated agent for mixed tasks that do not clearly fit investigate, reviewer, or verifier",
+      "color": "#90a4ae",
       "permission": {
         "chrome-devtools_*": "deny",
         "trivy_*": "deny",
@@ -345,7 +369,8 @@
           "reviewer": "allow",
           "verifier": "allow"
         },
-        "edit": "deny"
+        "edit": "deny",
+        "gitea_*": "deny"
       }
     },
     "worker": {
@@ -353,6 +378,7 @@
       "model": "litellm/chatgpt/gpt-5.5",
       "prompt": "{file:./agent-prompts/worker.md}",
       "description": "Dedicated execution subagent for complex multi-step edits and tool-heavy implementation work",
+      "color": "#ffd54f",
       "permission": {
         "chrome-devtools_*": "allow",
         "trivy_*": "allow",
@@ -384,8 +410,228 @@
           "reviewer": "allow",
           "verifier": "allow"
         },
-        "edit": "allow"
+        "edit": "allow",
+        "gitea_*": "deny"
       }
+    },
+    "gitea-repo": {
+      "model": "litellm/chatgpt/gpt-5.5",
+      "prompt": "{file:./agent-prompts/gitea-repo.md}",
+      "description": "User-facing Gitea repository management agent for issues, PRs, repo hygiene, and release/changelog workflows",
+      "color": "#81c784",
+      "permission": {
+        "gitea_*": "deny",
+        "gitea_search_repos": "allow",
+        "gitea_get_repo": "allow",
+        "gitea_list_branches": "allow",
+        "gitea_get_branch": "allow",
+        "gitea_list_repo_commits": "allow",
+        "gitea_get_file_contents": "allow",
+        "gitea_list_releases": "allow",
+        "gitea_list_tags": "allow",
+        "gitea_list_repo_topics": "allow",
+        "gitea_list_forks": "allow",
+        "gitea_list_collaborators": "allow",
+        "gitea_list_issues": "allow",
+        "gitea_get_issue": "allow",
+        "gitea_list_issue_comments": "allow",
+        "gitea_list_labels": "allow",
+        "gitea_get_label": "allow",
+        "gitea_list_milestones": "allow",
+        "gitea_get_milestone": "allow",
+        "gitea_list_pull_requests": "allow",
+        "gitea_get_pull_request": "allow",
+        "gitea_list_pr_commits": "allow",
+        "gitea_list_pr_files": "allow",
+        "gitea_get_pr_diff": "allow",
+        "gitea_list_pr_reviews": "allow",
+        "gitea_list_orgs": "allow",
+        "gitea_get_org": "allow",
+        "gitea_list_org_repos": "allow",
+        "gitea_list_org_members": "allow",
+        "gitea_list_org_teams": "allow",
+        "gitea_get_team": "allow",
+        "gitea_list_org_labels": "allow",
+        "gitea_list_org_hooks": "allow",
+        "gitea_get_authenticated_user": "allow",
+        "gitea_get_user": "allow",
+        "gitea_list_user_repos": "allow",
+        "gitea_list_user_orgs": "allow",
+        "gitea_search_users": "allow",
+        "gitea_list_followers": "allow",
+        "gitea_list_following": "allow",
+        "gitea_list_user_starred": "allow",
+        "gitea_list_my_starred": "allow",
+        "gitea_list_my_notifications": "allow",
+        "gitea_get_server_version": "allow",
+        "gitea_render_markdown": "allow",
+        "gitea_render_markup": "allow",
+        "gitea_list_gitignore_templates": "allow",
+        "gitea_get_gitignore_template": "allow",
+        "gitea_list_license_templates": "allow",
+        "gitea_get_license_template": "allow",
+        "gitea_list_label_templates": "allow",
+        "gitea_get_label_template": "allow",
+        "gitea_get_nodeinfo": "allow",
+        "gitea_list_action_runners_jobs": "allow",
+        "gitea_create_repo": "ask",
+        "gitea_create_org_repo": "ask",
+        "gitea_fork_repo": "ask",
+        "gitea_create_branch": "ask",
+        "gitea_create_file": "ask",
+        "gitea_update_file": "ask",
+        "gitea_create_release": "ask",
+        "gitea_update_repo_topics": "ask",
+        "gitea_create_issue": "ask",
+        "gitea_edit_issue": "ask",
+        "gitea_create_issue_comment": "ask",
+        "gitea_edit_issue_comment": "ask",
+        "gitea_create_label": "ask",
+        "gitea_edit_label": "ask",
+        "gitea_add_issue_labels": "ask",
+        "gitea_remove_issue_label": "ask",
+        "gitea_create_milestone": "ask",
+        "gitea_edit_milestone": "ask",
+        "gitea_create_pull_request": "ask",
+        "gitea_edit_pull_request": "ask",
+        "gitea_create_pr_review": "ask",
+        "gitea_request_pr_review": "ask",
+        "gitea_update_pr_branch": "ask",
+        "gitea_star_repo": "ask",
+        "gitea_unstar_repo": "ask",
+        "gitea_mark_notifications_read": "ask",
+        "gitea_delete_repo": "deny",
+        "gitea_delete_branch": "deny",
+        "gitea_delete_file": "deny",
+        "gitea_transfer_repo": "deny",
+        "gitea_add_collaborator": "deny",
+        "gitea_delete_issue_comment": "deny",
+        "gitea_delete_label": "deny",
+        "gitea_delete_milestone": "deny",
+        "gitea_merge_pull_request": "deny",
+        "gitea_create_org": "deny",
+        "gitea_edit_org": "deny",
+        "gitea_delete_org": "deny",
+        "gitea_create_team": "deny",
+        "gitea_add_team_member": "deny",
+        "gitea_remove_team_member": "deny",
+        "gitea_admin_list_users": "deny",
+        "gitea_admin_create_user": "deny",
+        "gitea_admin_delete_user": "deny",
+        "gitea_admin_edit_user": "deny",
+        "gitea_admin_list_cron_jobs": "deny",
+        "gitea_admin_run_cron_job": "deny",
+        "gitea_admin_list_hooks": "deny",
+        "gitea_get_runner_registration_token": "deny",
+        "chrome-devtools_*": "deny",
+        "trivy_*": "deny",
+        "sonarqube_*": "deny",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "webfetch": "allow",
+        "edit": "deny",
+        "bash": {
+          "*": "ask",
+          "git status*": "allow",
+          "git log*": "allow",
+          "git diff*": "allow",
+          "git show*": "allow",
+          "git fetch*": "allow",
+          "git branch*": "allow",
+          "git remote*": "allow",
+          "git rev-parse*": "allow",
+          "git merge-base*": "allow",
+          "git ls-files*": "allow",
+          "git show-ref*": "allow",
+          "git blame*": "allow",
+          "git grep*": "allow",
+          "git ls-remote*": "allow",
+          "git tag": "allow",
+          "git tag -l*": "allow",
+          "git describe*": "allow",
+          "git name-rev*": "allow",
+          "git shortlog*": "allow",
+          "git cherry*": "allow",
+          "git for-each-ref*": "allow",
+          "git config --get*": "allow",
+          "git config --list*": "allow",
+          "git worktree list*": "allow",
+          "docker ps*": "allow",
+          "docker images*": "allow",
+          "docker image ls*": "allow",
+          "docker logs*": "allow",
+          "docker inspect*": "allow",
+          "docker compose ps*": "allow",
+          "docker compose logs*": "allow",
+          "docker compose config*": "allow",
+          "act": "allow",
+          "act *": "allow",
+          "python *": "allow",
+          "python3 *": "allow",
+          "pnpm test*": "allow",
+          "pnpm build*": "allow",
+          "pnpm lint*": "allow",
+          "pnpm typecheck*": "allow",
+          "npm run test*": "allow",
+          "npm run build*": "allow",
+          "npm run lint*": "allow",
+          "npm run typecheck*": "allow",
+          "yarn test*": "allow",
+          "yarn build*": "allow",
+          "yarn lint*": "allow",
+          "yarn typecheck*": "allow",
+          "bun test*": "allow",
+          "bun run build*": "allow",
+          "bun run lint*": "allow",
+          "bun run typecheck*": "allow",
+          "mvn test*": "allow",
+          "mvn verify*": "allow",
+          "mvn package*": "allow",
+          "mvn compile*": "allow",
+          "./mvnw test*": "allow",
+          "./mvnw verify*": "allow",
+          "./mvnw package*": "allow",
+          "./mvnw compile*": "allow",
+          "gradle test*": "allow",
+          "gradle build*": "allow",
+          "gradle check*": "allow",
+          "./gradlew test*": "allow",
+          "./gradlew build*": "allow",
+          "./gradlew check*": "allow",
+          "make test*": "allow",
+          "make build*": "allow",
+          "make check*": "allow",
+          "pytest*": "allow",
+          "cargo test*": "allow",
+          "cargo build*": "allow",
+          "cargo check*": "allow",
+          "go test*": "allow",
+          "go build*": "allow",
+          "rg *": "allow",
+          "ls *": "allow",
+          "ls": "allow",
+          "pwd": "allow",
+          "git commit*": "ask",
+          "git push*": "ask",
+          "git rebase*": "ask",
+          "git reset*": "ask",
+          "git clean*": "ask",
+          "git restore*": "ask",
+          "rm*": "ask",
+          "rmdir*": "ask",
+          "unlink*": "ask",
+          "shred*": "ask"
+        },
+        "task": {
+          "*": "deny",
+          "investigate": "allow",
+          "reviewer": "allow",
+          "verifier": "allow",
+          "general": "allow"
+        }
+      },
+      "mode": "primary"
     }
   },
   "provider": {

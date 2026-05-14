@@ -141,6 +141,58 @@ let
     '';
   };
 
+  giteaMcp = pkgs.writeShellApplication {
+    name = "opencode-gitea-mcp";
+    runtimeInputs = with pkgs; [ coreutils nodejs ];
+    text = ''
+      set -euo pipefail
+
+      url_file="''${OPENCODE_GITEA_URL_FILE:-/home/miguel/.config/opencode/keys/gitea.url}"
+      token_file="''${OPENCODE_GITEA_TOKEN_FILE:-/home/miguel/.config/opencode/keys/gitea.token}"
+
+      if [ ! -r "$url_file" ]; then
+        echo "Gitea MCP URL file is missing or unreadable: $url_file" >&2
+        exit 1
+      fi
+
+      if [ ! -r "$token_file" ]; then
+        echo "Gitea MCP token file is missing or unreadable: $token_file" >&2
+        exit 1
+      fi
+
+      forgejo_url="$(tr -d '\r\n' < "$url_file")"
+      forgejo_token="$(tr -d '\r\n' < "$token_file")"
+
+      if [ -z "$forgejo_url" ]; then
+        echo "Gitea MCP URL file is empty: $url_file" >&2
+        exit 1
+      fi
+
+      if [ -z "$forgejo_token" ]; then
+        echo "Gitea MCP token file is empty: $token_file" >&2
+        exit 1
+      fi
+
+      case "$forgejo_url" in
+        http://*|https://*) ;;
+        *)
+          echo "Gitea MCP URL must start with http:// or https://: $url_file" >&2
+          exit 1
+          ;;
+      esac
+
+      token_mode="$(stat -c '%a' "$token_file")"
+      if [ $((10#$token_mode % 100)) -ne 0 ]; then
+        echo "Gitea MCP token file must not be group/world-readable: $token_file" >&2
+        exit 1
+      fi
+
+      export FORGEJO_URL="$forgejo_url"
+      export FORGEJO_TOKEN="$forgejo_token"
+      exec npx -y @ric_/forgejo-mcp@0.1.5
+    '';
+  };
+
   trivyDockerScan = pkgs.writeShellApplication {
     name = "trivy-docker-scan";
     runtimeInputs = with pkgs; [ docker-client trivy ];
@@ -172,6 +224,7 @@ in
       ensureChromiumDevtools
       chromiumDevtoolsMcp
       trivyMcp
+      giteaMcp
       trivyDockerScan
     ];
 
