@@ -16,6 +16,7 @@
     tldr
     wget
     curl
+    openssl
     unzip
     zip
     file
