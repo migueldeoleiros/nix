@@ -25,7 +25,6 @@
       CPU_SCALING_GOVERNOR_ON_AC = "performance";
       CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
       USB_AUTOSUSPEND = 0;
-      USB_DENYLIST = "046d:c53f"; # disable suspend on mouse
     };
   };
 
