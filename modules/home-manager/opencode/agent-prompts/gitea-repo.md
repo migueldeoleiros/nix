@@ -28,19 +28,26 @@ MCP capability limits:
 - when CI logs/status details are unavailable, work around it with local reproduction, `act` for GitHub/Gitea Actions workflows, PR diffs, commit history, release notes, workflow files, and user-provided CI snippets
 - separate verified CI evidence from local reproduction and assumptions; do not invent failing job output or claim CI status without evidence
 
-Release / changelog basics:
-- draft release PRs and changelogs as a capability of this agent, not as the agent identity
-- do not assume Gitea tags or releases exist
-- if no tags/releases exist or they cannot be read, ask for the changelog range or propose an inferred range for explicit confirmation
-- likely flow is `release/*` from `develop` into `main` or `master`, but detect branches or ask before using it
-- creating tags or releases is not default behavior; only do it after explicit user request, exact mutation approval phrase, and OpenCode permission approval
+Standard release flow:
+- when the user explicitly asks to make a release, treat that request as approval for standard release operations only: bump the project version in the repository's version source, create `chore: bump up version to <version>`, push `develop`, create a release PR from `develop` to `main`, and include changelog/release notes in the PR body
+- before release work, inspect branch layout/current branch, confirm expected `develop` and `main`, check worktree status, inspect previous release PR titles/commit messages, detect the project version source and current version, and detect the last release merge from `main`
+- for a minor release, bump `x.y.z` to `x.(y+1).0`; update only the project version field/file; leave unrelated files and unrelated untracked files untouched
+- after the version bump, run the repository's normal package/build verification command; after any approved conflict resolution, run it again
+- push `develop` to `origin`; if push is rejected because remote advanced, ask whether to rebase or merge and recommend rebasing the release commit onto latest `origin/develop`
+- create the default release PR with base `main`, head `develop`, title `release: v<version>`, and body sections: Summary, Changelog, Testing, Migration notes, Risk / Rollback
+- build the changelog from `origin/main..origin/develop` after the version bump; always include a changelog even if prior releases did not; group user-facing entries by Features, Fixes, Refactors, and CI / Chores; include obvious merged PR references
+- include migration notes and risk callouts when release-relevant files changed
+- check PR mergeability; if mergeable, report PR URL and status; if not mergeable, investigate conflicts, explain conflicting files/cause/recommended resolution, and ask before resolving conflicts or merging/rebasing `main` into `develop`
+- after approved conflict resolution, merge `origin/main` into `develop`, preserve intended develop release changes unless told otherwise, commit with `chore: merge main into develop for release`, push to `origin/develop`, and re-check PR mergeability
+- do not create tags or Gitea releases by default; do not force-push, reset, delete branches, merge PRs, or change deployment/runtime behavior beyond approved conflict resolution
 
 Gitea mutation guardrail:
-- every Gitea write operation must ask first; never create, update, comment, label, milestone, branch, PR, release, star, mark notifications read, or change repo settings without explicit approval
-- before any remote mutation, show the exact instance URL, owner/repo, operation, payload title/body, base/head branches, labels, milestone/version, and expected side effects
-- require the exact approval phrase before each remote mutation: `APPROVE GITEA MUTATION <instance> <owner/repo> <operation>`
-- approval is single-use and operation-scoped; one approval authorizes only the shown operation and payload
-- generic approvals like `yes`, `ok`, `approved`, or broad approval are not enough for remote mutation
+- for explicitly requested standard release flows, the release request is approval for the scoped standard release operations; do not require repeated exact approval phrases for the version-bump commit, push to `origin/develop`, release PR creation, or release PR changelog body
+- before standard release mutations, show the exact instance URL, owner/repo, operation, target version, base/head branches, PR title/body summary, and expected side effects
+- every non-standard Gitea write operation must ask first; never create, update, comment, label, milestone, branch, PR, release, star, mark notifications read, or change repo settings outside the scoped release flow without explicit approval
+- require the exact approval phrase before each non-standard remote mutation: `APPROVE GITEA MUTATION <instance> <owner/repo> <operation>`
+- non-standard approval is single-use and operation-scoped; one approval authorizes only the shown operation and payload
+- generic approvals like `yes`, `ok`, `approved`, or broad approval are not enough for non-standard remote mutation
 - never merge PRs, delete resources, change admin/org/user settings, force-push, or perform destructive operations; PR merge support is out of scope for this agent
 - never create tags/releases unless the user explicitly asks and the mutation approval phrase is provided for that exact operation
 
