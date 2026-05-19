@@ -9,7 +9,7 @@
             (button :class "task" :onclick "scripts/org-clock-open" org-clock))
        (workspaces)
        (sidestuff)
-   ))
+       ))
 
 (defpoll hour :interval "10s" "date +%H")
 (defpoll min  :interval "10s" "date +%M")
@@ -20,25 +20,36 @@
                (box :orientation "h"
                     :space-evenly false
                     hour ":" min)
+               )
        )
   )
-)
 
 (defwidget sidestuff []
   (box :class "sidestuff"
-       :space-evenly true
+       :space-evenly false
        :halign "end"
-       (box :space-evenly false :halign "end" (systray :orientation "h" :space-evenly false :spacing 8 :icon-size 20))
-       (network)
-       (metric :label {audio == "on" ? "󰕾" : "󰖁"}
-               :value volume
-               :class {audio == "on" ? "volume" : "volume-mute"}
-               :onchange "amixer sset Master {}%")
+        (box :orientation "h"
+             :space-evenly false
+             :spacing 28
+             (box :orientation "h"
+                  :space-evenly false
+                  :spacing 18
+                  (box :space-evenly false :halign "end"
+                       (systray :orientation "h"
+                                :space-evenly false
+                                :spacing 8
+                                :icon-size 20))
+                  (notifications)
+                  (network))
+             (metric :label {audio == "on" ? "󰕾" : "󰖁"}
+                     :value volume
+                     :class {audio == "on" ? "volume" : "volume-mute"}
+                     :onchange "amixer sset Master {}%"))
        (metric :label "󰁹"
                :value {EWW_BATTERY.BAT1.capacity}
                :class "battery"
                :onchange "")
-  ))
+       ))
 
 (deflisten workspaces "scripts/workspaces")
 (defwidget workspaces []
@@ -46,60 +57,72 @@
        :space-evenly false
        :halign "center"
        (for entry in { workspaces ?: "[]" }
-         (button
-           :onclick "hyprctl dispatch workspace ${entry.id}"
+            (button
+             :onclick "hyprctl dispatch workspace ${entry.id}"
 
-           :class "${entry.monitor} ${
+             :class "${entry.monitor} ${
              entry.id == entry.active ? "wsp-${entry.monitor}-active"
              : (entry.windows >= 1 ? "wsp-${entry.monitor}-inactive"
                : "wsp-empty")
            }"
 
-           { entry.name }
-         )
+             { entry.name }
+             )
+            )
        )
   )
-)
 
 
 (defwidget metric [label value onchange class]
-  (box :orientation "h"
-       :class class
-       :space-evenly false
-    (box :class "label" label)
-    (scale :min 0
-           :max 101
-           :flipped false
-           :orientation "h"
-           :active {onchange != ""}
-           :value value
-           :onchange onchange)))
+           (box :orientation "h"
+                :class class
+                :space-evenly false
+                (box :class "label" label)
+                (scale :min 0
+                       :max 101
+                       :flipped false
+                       :orientation "h"
+                       :active {onchange != ""}
+                       :value value
+                       :onchange onchange)))
 
 (defpoll volume :interval "0.5s"
-  "timeout 0.3s amixer sget Master | awk -F '[^0-9]+' '/Left:/ && !/Rear/ && !/Side/ {print $3}'")
+         "timeout 0.3s amixer sget Master | awk -F '[^0-9]+' '/Left:/ && !/Rear/ && !/Side/ {print $3}'")
 
 (defpoll audio :interval "0.5s"
-  "scripts/ismute")
+         "scripts/ismute")
 
 (defpoll org-clock :interval "1s"
-  "scripts/org-clock")
+         "scripts/org-clock")
 
 (defpoll net :interval "2s" "scripts/network")
+(defpoll notification-state :interval "1s" "scripts/notifications")
+
+(defwidget notifications []
+  (box :class {notification-state.paused ? "notifications-paused" : "notifications"}
+       :orientation "h"
+       (button
+        :onclick "scripts/notifications toggle"
+        :tooltip {notification-state.paused ? "Do Not Disturb on" : "Do Not Disturb off"}
+        {notification-state.waiting > 0 ? "${notification-state.paused ? "󰂛" : "󰂚"} ${notification-state.waiting}" : notification-state.paused ? "󰂛" : "󰂚"})
+       )
+  )
+
 (defwidget network []
-    (box :class "network"
-         :orientation "h"
-         (button
-          :onclick "networkmanager_dmenu"
-          {net == "null" ? "󰤭" :
-            net.network == "eth" ? "󰈀" :
-            (net.network == "wifi" ?
-            (net.conn > 0.75 ? "󰤨" :
-            (net.conn > 0.50 ? "󰤥" :
-            (net.conn > 0.25 ? "󰤢" : "󰤟")))
-            : "󰤭")}
-         )
-     )
-)
+  (box :class "network"
+       :orientation "h"
+       (button
+        :onclick "networkmanager_dmenu"
+        {net == "null" ? "󰤭" :
+        net.network == "eth" ? "󰈀" :
+        (net.network == "wifi" ?
+                     (net.conn > 0.75 ? "󰤨" :
+                               (net.conn > 0.50 ? "󰤥" :
+                                         (net.conn > 0.25 ? "󰤢" : "󰤟")))
+                     : "󰤭")}
+        )
+       )
+  )
 
 (defwindow bar-main []
   :monitor 1

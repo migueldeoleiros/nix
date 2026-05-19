@@ -56,6 +56,17 @@
   color: #000000;
 }
 
+// Notification styles
+.notifications,
+.notifications-paused {
+  font-size: 18;
+  color: #e0e0e0;
+}
+
+.notifications-paused {
+  color: #d1526d;
+}
+
 // Network styles
 .network {
   font-size: 18;
