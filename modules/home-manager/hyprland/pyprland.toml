@@ -9,6 +9,15 @@
     margin = 10
     lazy = true
 
+[scratchpads.beeper]
+    animation = "fromLeft"
+    command = "beeper"
+    match_by = "class"
+    class = "beepertexts"
+    size = "30% 50%"
+    margin = 10
+    lazy = true
+
 [scratchpads.music]
     animation = "fromRight"
     command = "tauon"
