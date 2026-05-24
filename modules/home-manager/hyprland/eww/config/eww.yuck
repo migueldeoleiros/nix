@@ -58,7 +58,7 @@
        :halign "center"
        (for entry in { workspaces ?: "[]" }
             (button
-             :onclick "hyprctl dispatch workspace ${entry.id}"
+             :onclick "hyprctl dispatch 'hl.dsp.focus({ workspace = ${entry.id} })'"
 
              :class "${entry.monitor} ${
              entry.id == entry.active ? "wsp-${entry.monitor}-active"
