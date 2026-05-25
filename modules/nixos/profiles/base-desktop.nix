@@ -3,7 +3,7 @@
 {
   users.users.${vars.user} = {
     isNormalUser = true;
-    extraGroups = [ "networkmanager" "wheel" "video" "audio" "lp" "input" "uinput" "seat" ];
+    extraGroups = [ "networkmanager" "wheel" "video" "audio" "lp" "input" "uinput" "seat" "adbusers" ];
     shell = pkgs.zsh;
   };
   programs.zsh.enable = true;
@@ -47,6 +47,8 @@
 
     # System utilities
     wl-clipboard
+    android-tools
+    scrcpy
     qemu
     exfatprogs
     ntfs3g
