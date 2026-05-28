@@ -1,0 +1,80 @@
+# Vicinae theme based on the current libadwaita dark palette.
+
+[meta]
+name = "Adwaita Dark"
+description = "GTK4/libadwaita dark colours"
+variant = "dark"
+inherits = "vicinae-dark"
+
+[colors.accents]
+blue = "#3584e4"
+cyan = "#2190a4"
+green = "#3a944a"
+magenta = "#d56199"
+orange = "#ed5b00"
+purple = "#9141ac"
+red = "#e62d42"
+yellow = "#c88800"
+
+[colors.core]
+accent = "colors.accents.blue"
+accent_foreground = "#ffffff"
+background = "#222226"
+foreground = "#ffffff"
+secondary_background = "#2e2e32"
+border = "#00000000"
+
+[colors.main_window]
+border = "#00000000"
+footer = { background = "colors.core.secondary_background" }
+
+[colors.settings_window]
+border = "#00000000"
+
+[colors.shortcut]
+border = "#00000000"
+
+[colors.text]
+default = "colors.core.foreground"
+muted = "#c0bfbc"
+danger = "#ff938c"
+success = "#78e9ab"
+placeholder = "#77767b"
+selection = { background = "colors.core.accent", foreground = "#ffffff" }
+
+[colors.text.links]
+default = "colors.core.accent"
+visited = "#fba7ff"
+
+[colors.input]
+border = "#00000000"
+border_focus = "#00000000"
+border_error = "#00000000"
+
+[colors.button.primary]
+background = "colors.core.secondary_background"
+foreground = "#ffffff"
+hover = { background = "#3d3d41" }
+focus = { outline = "#00000000" }
+
+[colors.list.item.hover]
+foreground = "#ffffff"
+secondary_foreground = "#c0bfbc"
+
+[colors.list.item.selection]
+background = "#3d3d41"
+foreground = "#ffffff"
+secondary_background = "colors.core.accent"
+secondary_foreground = "#ffffff"
+
+[colors.grid.item]
+background = "colors.core.secondary_background"
+hover = { outline = "#00000000" }
+selection = { outline = "#00000000" }
+
+[colors.scrollbars]
+background = "#48484c"
+
+[colors.loading]
+bar = "colors.core.accent"
+spinner = "#ffffff"

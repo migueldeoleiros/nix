@@ -17,22 +17,33 @@
       consider_preedit= false;
       favicon_service= "twenty";
       font= {
-        size= 10.5;
+        normal = {
+          size= 11.5;
+        };
       };
       keybinding= "default";
       keybinds= {
       };
       pop_to_root_on_close= true;
-      root_search= {
-        search_files= false;
-      };
+      search_files_in_root= false;
       theme= {
-        name= "vicinae-dark";
+        dark= {
+          name= "deep-dark";
+        };
+        light= {
+          name= "deep-dark";
+        };
       };
-      window= {
-        csd= true;
-        opacity= 0.98;
-        rounding= 10;
+      launcher_window= {
+        opacity= 1.0;
+        size= {
+          width= 900;
+          height= 560;
+        };
+        client_side_decorations= {
+          enabled= true;
+          rounding= 10;
+        };
       };
     };
 
@@ -45,4 +56,9 @@
       process-manager
     ];
   };
+
+  xdg.dataFile."vicinae/themes/adwaita-dark.toml".source = ./themes/adwaita-dark.toml;
+  xdg.dataFile."vicinae/themes/deep-dark.toml".source = ./themes/deep-dark.toml;
+
+  systemd.user.services.vicinae.Service.Environment = "PATH=%h/.local/bin:%h/programs/flutter/bin:%h/.cargo/bin:/run/wrappers/bin:%h/.local/share/flatpak/exports/bin:/var/lib/flatpak/exports/bin:%h/.nix-profile/bin:/nix/profile/bin:%h/.local/state/nix/profile/bin:/etc/profiles/per-user/${vars.user}/bin:/nix/var/nix/profiles/default/bin:/run/current-system/sw/bin";
 }
