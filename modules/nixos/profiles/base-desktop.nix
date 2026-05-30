@@ -1,4 +1,4 @@
-{ pkgs, vars, host, ... }:
+{ lib, pkgs, vars, host, ... }:
 
 {
   users.users.${vars.user} = {
@@ -163,6 +163,16 @@
   services.udev.packages = [ pkgs.vial ];
 
   services.seatd.enable = true;
+
+  # nixos-unstable currently generates seatd.service as Type=notify via
+  # s6-notify-socket-from-fd. On this machine it never reaches READY=1, so
+  # systemd kills it after TimeoutStartSec=90s. Hyprland then loses libseat and
+  # DRM permissions. Run seatd as a normal foreground daemon instead.
+  systemd.services.seatd.serviceConfig = {
+    Type = lib.mkForce "simple";
+    ExecStart = lib.mkForce "${pkgs.seatd}/bin/seatd -n 1 -u root -g seat -l info";
+    NotifyAccess = lib.mkForce "none";
+  };
 
   services.xserver.xkb = {
     layout = host.keyboard.layout;
