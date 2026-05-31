@@ -18,6 +18,7 @@ in
       import ../../modules/nixos/docker ++
       import ../../modules/nixos/flatpak ++
       import ../../modules/nixos/gnupg ++
+      import ../../modules/nixos/kdeconnect ++
       import ../../modules/nixos/netbird;
 
   # Keep MT7921 Bluetooth on the last known-good kernel/firmware stack.
