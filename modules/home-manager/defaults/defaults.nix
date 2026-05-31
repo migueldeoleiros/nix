@@ -21,19 +21,19 @@
     text/calendar=thunderbird.desktop
 
     # Office - LibreOffice
-    application/vnd.oasis.opendocument.text=libreoffice-writer.desktop
-    application/vnd.oasis.opendocument.spreadsheet=libreoffice-calc.desktop
-    application/vnd.oasis.opendocument.presentation=libreoffice-impress.desktop
-    application/vnd.oasis.opendocument.graphics=libreoffice-draw.desktop
-    application/msword=libreoffice-writer.desktop
-    application/vnd.ms-excel=libreoffice-calc.desktop
-    application/vnd.ms-powerpoint=libreoffice-impress.desktop
-    application/vnd.openxmlformats-officedocument.wordprocessingml.document=libreoffice-writer.desktop
-    application/vnd.openxmlformats-officedocument.spreadsheetml.sheet=libreoffice-calc.desktop
-    application/vnd.openxmlformats-officedocument.presentationml.presentation=libreoffice-impress.desktop
-    text/csv=libreoffice-calc.desktop
-    text/plain=libreoffice-writer.desktop
-    application/rtf=libreoffice-writer.desktop
+    application/vnd.oasis.opendocument.text=writer.desktop
+    application/vnd.oasis.opendocument.spreadsheet=calc.desktop
+    application/vnd.oasis.opendocument.presentation=impress.desktop
+    application/vnd.oasis.opendocument.graphics=draw.desktop
+    application/msword=writer.desktop
+    application/vnd.ms-excel=calc.desktop
+    application/vnd.ms-powerpoint=impress.desktop
+    application/vnd.openxmlformats-officedocument.wordprocessingml.document=writer.desktop
+    application/vnd.openxmlformats-officedocument.spreadsheetml.sheet=calc.desktop
+    application/vnd.openxmlformats-officedocument.presentationml.presentation=impress.desktop
+    text/csv=calc.desktop
+    text/plain=writer.desktop
+    application/rtf=writer.desktop
 
     # Media Players
     video/mpeg=mpv.desktop
@@ -49,30 +49,30 @@
     audio/wav=mpv.desktop
 
     # Document Viewers
-    application/pdf=okular.desktop
-    application/x-pdf=okular.desktop
-    application/epub+zip=okular.desktop
-    image/vnd.djvu=okular.desktop
-    image/x-djvu=okular.desktop
-    application/postscript=okular.desktop
-    application/vnd.ms-xpsdocument=okular.desktop
-    application/oxps=okular.desktop
+    application/pdf=okularApplication_pdf.desktop
+    application/x-pdf=okularApplication_pdf.desktop
+    application/epub+zip=okularApplication_epub.desktop
+    image/vnd.djvu=okularApplication_djvu.desktop
+    image/x-djvu=okularApplication_djvu.desktop
+    application/postscript=okularApplication_ghostview.desktop
+    application/vnd.ms-xpsdocument=okularApplication_xps.desktop
+    application/oxps=okularApplication_xps.desktop
 
     # Communication
-    x-scheme-handler/tg=telegramdesktop.desktop
-    x-scheme-handler/telegram=telegramdesktop.desktop
+    x-scheme-handler/tg=org.telegram.desktop.desktop
+    x-scheme-handler/telegram=org.telegram.desktop.desktop
 
     # Images
-    image/jpeg=eog.desktop
-    image/png=eog.desktop
-    image/gif=eog.desktop
-    image/bmp=eog.desktop
-    image/webp=eog.desktop
-    image/svg+xml=inkscape.desktop
+    image/jpeg=org.gnome.eog.desktop
+    image/png=org.gnome.eog.desktop
+    image/gif=org.gnome.eog.desktop
+    image/bmp=org.gnome.eog.desktop
+    image/webp=org.gnome.eog.desktop
+    image/svg+xml=org.inkscape.Inkscape.desktop
 
     # Creative Tools
     image/x-xcf=gimp.desktop
-    application/illustrator=inkscape.desktop
+    application/illustrator=org.inkscape.Inkscape.desktop
 
     # File manager
     inode/directory=org.gnome.Nautilus.desktop
