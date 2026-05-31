@@ -5,15 +5,12 @@
     packages = with pkgs; [
       dconf
       dconf-editor
-      adwaita-qt
+      kdePackages.breeze
+      kdePackages.breeze-icons
+      kdePackages.qtstyleplugin-kvantum
+      libsForQt5.qtstyleplugin-kvantum
       qadwaitadecorations-qt6
     ];
-
-    # Force dark theme via environment variables
-    sessionVariables = {
-      # ADW_DISABLE_PORTAL = "1";
-      QT_STYLE_OVERRIDE = "adwaita-dark";
-    };
 
     pointerCursor = {
       package = pkgs.bibata-cursors;
@@ -29,6 +26,7 @@
     settings = {
       "org/gnome/desktop/interface" = {
         color-scheme = "prefer-dark";
+        gtk-theme = "Adwaita-dark";
       };
     };
   };
@@ -63,10 +61,40 @@
     };
   };
 
-  # Use adwaita dark on Qt apps
+  xdg.configFile = {
+    "Kvantum/kvantum.kvconfig".text = ''
+      [General]
+      theme=KvSimplicityDark
+    '';
+
+    # KDE apps read this outside Plasma too. Use the full Breeze Dark color
+    # scheme; a minimal kdeglobals can make apps fall back to a light palette.
+    "kdeglobals".text = builtins.readFile "${pkgs.kdePackages.breeze}/share/color-schemes/BreezeDark.colors" + ''
+
+      [Icons]
+      Theme=breeze-dark
+
+      [KDE]
+      widgetStyle=kvantum
+    '';
+  };
+
+  # Use qtct + Kvantum so Qt5/Qt6 apps are themed from files, not UI tools.
   qt = {
     enable = true;
-    platformTheme.name = "adwaita";
-    style.name = "adwaita-dark";
+    platformTheme.name = "qtct";
+    style.name = "kvantum";
+
+    qt5ctSettings.Appearance = {
+      style = "kvantum";
+      icon_theme = "breeze-dark";
+      standard_dialogs = "xdgdesktopportal";
+    };
+
+    qt6ctSettings.Appearance = {
+      style = "kvantum";
+      icon_theme = "breeze-dark";
+      standard_dialogs = "xdgdesktopportal";
+    };
   };
 }
