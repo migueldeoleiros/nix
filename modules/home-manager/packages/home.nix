@@ -45,7 +45,7 @@
       kdePackages.okular
       tauon
       jellyfin-desktop
-      grayjay
+      # grayjay
 
       # Communication
       telegram-desktop
