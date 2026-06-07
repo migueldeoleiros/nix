@@ -103,7 +103,7 @@
     in {
       # NixOS configurations
       nixosConfigurations = {
-        miguel = nixpkgs.lib.nixosSystem {
+        "miguel@nitro" = nixpkgs.lib.nixosSystem {
           inherit system;
           specialArgs = {
             inherit system inputs vars;
@@ -126,7 +126,7 @@
           ];
         };
 
-        framework = nixpkgs.lib.nixosSystem {
+        "miguel@framework" = nixpkgs.lib.nixosSystem {
           inherit system;
           specialArgs = {
             inherit system inputs vars;
