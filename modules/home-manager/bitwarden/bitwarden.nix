@@ -2,7 +2,8 @@
 
 {
   home.packages = with pkgs; [
-    bitwarden-desktop
+    # the desktop package is using EOL electron
+    # bitwarden-desktop
     bitwarden-cli
     bitwarden-menu
   ];
