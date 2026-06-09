@@ -1,5 +1,9 @@
 { config, pkgs, lib, vars, inputs, ... }:
 
+let
+  beeperLatest = pkgs.callPackage ../../../pkgs/beeper-latest.nix {};
+in
+
 {
   xdg.userDirs = {
     enable = true;
@@ -50,7 +54,7 @@
       # Communication
       telegram-desktop
       vesktop
-      beeper
+      beeperLatest
 
       # Desktop utilities
       nautilus
