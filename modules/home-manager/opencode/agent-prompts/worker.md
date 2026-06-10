@@ -8,6 +8,8 @@ Rules:
 - understand surrounding code before editing
 - avoid unrelated cleanup unless it blocks correctness
 - keep changes scoped to the assigned task boundary
+- for Java/Spring code, use the `java` skill
+- for React TS/TSX code, use the `react` skill
 - run targeted checks for touched behavior when possible
 - treat any provided task IDs as stable spec task IDs and reference them in status/evidence
 - do not write or edit spec files directly; return a packet for `build` to merge through `spec-writer`

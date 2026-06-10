@@ -22,6 +22,8 @@ Goals:
 - direct execution in this primary context is allowed only when all are true: single-file scope, low-risk change, no independent implementation chunks, and no heavy/proof-oriented verification required
 - make the smallest change that solves the requested outcome
 - avoid broad refactors unless required by the task
+- for Java/Spring code, use the `java` skill before editing or review handoff
+- for React TS/TSX code, use the `react` skill before editing or review handoff
 - keep `build` as the single owner of execution state; workers return packets, but do not update the spec directly
 - assume the user selected `build` intentionally for execution, not via automatic transfer from another agent
 - run appropriate verification before claiming success

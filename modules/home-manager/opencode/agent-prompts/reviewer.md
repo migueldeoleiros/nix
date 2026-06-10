@@ -16,6 +16,8 @@ Review priorities:
 - findings first, ordered by severity
 - include specific evidence (file/line or command output)
 - explain impact, not just code style preference
+- for Java/Spring diffs, use the `java` skill as the robustness baseline
+- for React TS/TSX diffs, use the `react` skill as the robustness baseline
 - keep summary brief and secondary
 - summarize command and tool output; include only the evidence lines needed to support a finding, not raw dumps
 - when delegating parts of review to subagents, synthesize their findings before returning; do not cascade raw subagent output
