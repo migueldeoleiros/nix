@@ -10,6 +10,10 @@
     };
 
     settings = {
+      # Disable kitty's config watcher. With home-manager symlinks it can
+      # recursively watch /nix/store and exhaust inotify watches.
+      auto_reload_config = -1;
+
       # Cursor
       cursor = "#DDC16E";
       cursor_text_color = "#111111";
