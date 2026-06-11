@@ -1,11 +1,11 @@
-{ lib, writeShellApplication, curl, appimage-run, makeDesktopItem, symlinkJoin }:
+{ lib, writeShellApplication, curl, appimage-run, coreutils, makeDesktopItem, symlinkJoin }:
 
 let
   pname = "beeper-latest";
 
   beeper = writeShellApplication {
     name = "beeper";
-    runtimeInputs = [ curl appimage-run ];
+    runtimeInputs = [ curl appimage-run coreutils ];
     text = ''
       set -euo pipefail
 
@@ -15,6 +15,7 @@ let
       stamp="$cache_dir/last-check"
       tmp="$cache_dir/.Beeper-x86_64.AppImage.tmp"
       desktop_file="''${XDG_DATA_HOME:-$HOME/.local/share}/applications/Beeper.desktop"
+      beeper_exec="$(readlink -f "$0")"
 
       write_desktop_entry() {
         icon="beeper"
@@ -26,7 +27,7 @@ let
         printf '%s\n' \
           '[Desktop Entry]' \
           'Name=Beeper' \
-          'Exec=beeper %U' \
+          "Exec=$beeper_exec %U" \
           'Type=Application' \
           'Terminal=false' \
           'Comment=Universal chat app' \
@@ -83,7 +84,7 @@ let
     desktopName = "Beeper";
     genericName = "Messaging client";
     comment = "Universal chat app";
-    exec = "beeper %U";
+    exec = "${beeper}/bin/beeper %U";
     terminal = false;
     categories = [ "Network" "InstantMessaging" "Chat" ];
     startupWMClass = "Beeper";
