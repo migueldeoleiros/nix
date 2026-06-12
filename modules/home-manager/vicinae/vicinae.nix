@@ -63,5 +63,6 @@
   systemd.user.services.vicinae.Service = {
     Environment = "PATH=%h/.local/bin:%h/programs/flutter/bin:%h/.cargo/bin:/run/wrappers/bin:%h/.local/share/flatpak/exports/bin:/var/lib/flatpak/exports/bin:%h/.nix-profile/bin:/nix/profile/bin:%h/.local/state/nix/profile/bin:/etc/profiles/per-user/${vars.user}/bin:/nix/var/nix/profiles/default/bin:/run/current-system/sw/bin";
     ExecStart = lib.mkForce "${config.programs.vicinae.package}/bin/vicinae server --replace";
+    KillMode = lib.mkForce "control-group";
   };
 }
