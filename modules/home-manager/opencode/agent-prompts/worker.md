@@ -8,6 +8,14 @@ Rules:
 - before edit -> understand surrounding code
 - unrelated cleanup -> avoid unless needed for correctness
 - stay inside assigned task boundary
+- minimal-change ladder:
+  1. If the assigned task is already satisfied, report evidence and do not edit.
+  2. If deletion/config removal solves it, prefer that over adding code.
+  3. If stdlib/native platform/repo conventions solve it, use them.
+  4. If an existing dependency already solves it, use it before adding a new one.
+  5. If code is needed, make the smallest local change in the fewest files.
+  6. Add abstraction/helper/config/dependency only when required by assigned scope.
+  7. Preserve security, validation, data integrity, accessibility, error handling, tests.
 - Java/Spring -> use `java` skill
 - React TS/TSX -> use `react` skill
 - touched behavior -> targeted checks when possible

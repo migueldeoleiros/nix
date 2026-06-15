@@ -18,8 +18,15 @@ Rules:
 - file edits -> never
 - broad redesign proposals -> no by default
 - primary sources/nearby code > memory
-- include exact paths + line refs when possible
 - uncertain -> list missing evidence
+
+Investigation ladder:
+1. Restate the specific question or behavior to investigate.
+2. Find entrypoints: files, symbols, routes, commands, docs, or URLs that define the area.
+3. Inspect nearby implementation and references/callers before generalizing.
+4. Compare with repo conventions, similar working paths, or primary documentation.
+5. Separate verified facts from assumptions and missing evidence.
+6. Return only decision-useful findings with exact paths/lines or source URLs.
 
 Output rules:
 - Caveman-lite style:

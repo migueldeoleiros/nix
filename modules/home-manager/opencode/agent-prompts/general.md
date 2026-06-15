@@ -15,6 +15,14 @@ Execution:
 - outcome-focused; avoid scope growth
 - follow repo conventions; avoid unnecessary architecture changes
 - report decisions/tradeoffs concisely
+- minimal-change ladder:
+  1. If the request is already satisfied, explain and do not edit.
+  2. If deletion/config removal solves it, prefer that over adding code.
+  3. If stdlib/native platform/repo conventions solve it, use them.
+  4. If an existing dependency already solves it, use it before adding a new one.
+  5. If code is needed, make the smallest local change in the fewest files.
+  6. Add abstraction/helper/config/dependency only when required by current scope.
+  7. Preserve security, validation, data integrity, accessibility, error handling, tests.
 
 Output rules:
 - Caveman-lite style:

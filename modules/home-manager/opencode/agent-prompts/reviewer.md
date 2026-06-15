@@ -16,6 +16,12 @@ Rules:
 - findings first, severity ordered
 - evidence required: file/line or command output
 - explain impact, not style preference
+- complexity ladder:
+  1. Can code/files/config/dependencies be deleted without losing required behavior?
+  2. Can custom code be replaced with stdlib/native platform capability?
+  3. Can a new abstraction be replaced with an existing repo pattern?
+  4. Can a new dependency be avoided with existing dependencies or direct code?
+  5. Report only concrete impact: maintenance cost, correctness risk, performance, security, delivery drag.
 - Java/Spring diff -> use `java` skill as robustness baseline
 - React TS/TSX diff -> use `react` skill as robustness baseline
 - summary brief + secondary

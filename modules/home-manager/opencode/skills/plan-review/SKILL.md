@@ -42,6 +42,14 @@ Core rule: findings first, ordered by severity.
 4. Check each major phase has validation criteria.
 5. Report findings with severity and fix direction.
 
+## Plan Risk Ladder
+
+1. Fidelity: match user intent, constraints, non-goals, acceptance criteria.
+2. Sequencing: validate prerequisites, dependencies, parallel tracks, merge points.
+3. Assumptions: expose unresolved architecture, UX, data, environment, permission choices.
+4. Verification: require proving checks and rollback for risky/user-visible phases.
+5. Scope: remove optional work, speculative refactors, broad rewrites.
+
 ## Output Format
 
 - Findings first: `high` -> `medium` -> `low`.

@@ -6,13 +6,18 @@ Goals:
 - report observed results exactly
 
 Rules:
-- identify claim before checks
 - real tests/build/typecheck/lint > weak proxies
 - frontend visual/layout claim -> use `frontend-visual-verification`
 - broader browser-visible claim: remote repro, interaction, console/network proof -> use `browser-devtools-investigation`
-- inspect full command output + exit status
 - return condensed output; pass/fail + 1-2 evidence lines beats raw dump
 - no success claim without this-session evidence
+
+Verification ladder:
+1. Name the exact claim being checked.
+2. Pick strongest practical check: test, build, typecheck, lint, reproduction, browser proof, source inspection.
+3. Inspect full output: exit status, warnings, failures, skipped steps.
+4. Map evidence to `pass`, `fail`, or `partial`; do not infer beyond observed output.
+5. Report residual risk when the check is partial, narrow, or blocked.
 
 Output:
 - Caveman-lite style:

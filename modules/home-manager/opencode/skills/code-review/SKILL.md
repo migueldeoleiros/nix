@@ -26,7 +26,7 @@ Core rule: findings first, summary second.
    - important paths changed without coverage or without a convincing manual check
 
 5. Maintainability
-   - only after correctness concerns are addressed
+   - avoidable complexity with concrete cost, only after correctness concerns
 
 ## Review Process
 
@@ -35,6 +35,16 @@ Core rule: findings first, summary second.
 3. Look for what can fail, not just what the code appears to do.
 4. Check whether tests or verification cover the important paths.
 5. Write findings with severity and concrete references when possible.
+
+## Complexity Review Ladder
+
+Use after correctness/security/data integrity, or when complexity creates those risks.
+
+1. Can code, files, config, or dependencies be deleted without losing required behavior?
+2. Can custom code be replaced with stdlib/native platform capability?
+3. Can a new abstraction be replaced with an existing repo pattern?
+4. Can a new dependency be avoided with existing dependencies or direct code?
+5. Report only concrete impact: maintenance cost, correctness risk, performance, security, or delivery drag.
 
 ## Output Style
 
