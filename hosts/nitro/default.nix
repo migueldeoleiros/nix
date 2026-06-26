@@ -13,6 +13,7 @@ in
     ./nvidia.nix
     ../../modules/nixos/profiles/base-desktop.nix
   ] ++
+      import ../../modules/nixos/btop ++
   #   import ../../modules/nixos/vm ++
       import ../../modules/nixos/syncthing ++
       import ../../modules/nixos/docker ++

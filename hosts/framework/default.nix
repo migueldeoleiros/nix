@@ -14,6 +14,7 @@ in
     ./wifi-workaround.nix
     ../../modules/nixos/profiles/base-desktop.nix
   ] ++
+    import ../../modules/nixos/btop ++
     import ../../modules/nixos/syncthing ++
     import ../../modules/nixos/docker ++
     import ../../modules/nixos/mysql ++
