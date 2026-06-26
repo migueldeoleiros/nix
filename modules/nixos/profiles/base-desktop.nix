@@ -91,6 +91,13 @@
     "hidp" # for bluetooth keyboard
   ];
 
+  swapDevices = [
+    {
+      device = "/swapfile";
+      size = 16384;
+    }
+  ];
+
   nix = {
     settings.auto-optimise-store = true;
     gc = {
