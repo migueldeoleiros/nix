@@ -1,9 +1,9 @@
 #!/bin/sh
 
-monitor=$(hyprctl -j monitors | jq '.[] | select(.name | startswith("HDMI")) | .id')
-
-if [[ -n "$monitor" ]]; then
-    echo $monitor
-else
-    echo 0
-fi
+hyprctl -j monitors | jq -r '
+    ["@B_MONITOR@", "@C_MONITOR@", "@A_MONITOR@"] as $preferred
+    | map(select(.name as $name | $preferred | index($name)))
+    | sort_by(.name as $name | $preferred | index($name))
+    | first
+    | .id // 0
+'

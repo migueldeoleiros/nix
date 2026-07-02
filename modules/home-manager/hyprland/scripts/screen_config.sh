@@ -4,6 +4,7 @@ CONFIG_DIR="$HOME/.config/hypr/screen_conf"
 
 declare -A OPTIONS=(
   ["Custom Three Monitors"]="custom_three"
+  ["Custom Three Monitors Right"]="custom_three_right"
   ["Mirror Display"]="mirror"
   ["Screen on Left"]="screen_on_left"
   ["Screen on Right"]="screen_on_right"

@@ -27,6 +27,10 @@ let
     cp -r ${./config/scripts} $out
     chmod -R u+w $out
     install -m755 ${notificationScript} $out/notifications
+    substituteInPlace $out/main-monitor \
+      --replace-fail '@B_MONITOR@' '${host.monitors.b.name}' \
+      --replace-fail '@C_MONITOR@' '${host.monitors.c.name}' \
+      --replace-fail '@A_MONITOR@' '${host.monitors.a.name}'
   '';
 in
 {

@@ -1,12 +1,7 @@
 #!/usr/bin/env bash
 
-# Open bar in the main monitor
-# If there is only one screen open bar in that one, if there is 2 or more open it in the second one
+# Open bar on the preferred connected monitor: B -> C -> A.
 
-num_monitors=$(hyprctl -j monitors | jq '. | length')
+monitor=$(~/.config/eww/scripts/main-monitor)
 
-if [ "$num_monitors" -ge 2 ]; then
-    eww open bar-main
-else
-    eww open bar-laptop
-fi
+eww open bar --arg monitor="$monitor"

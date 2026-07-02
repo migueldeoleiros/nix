@@ -44,6 +44,7 @@ in
       ".config/hypr/screen_conf/screen_on_left.lua".source = ./screen_conf/screen_on_left.lua;
       ".config/hypr/screen_conf/mirror.lua".source = ./screen_conf/mirror.lua;
       ".config/hypr/screen_conf/custom_three.lua".source = ./screen_conf/custom_three.lua;
+      ".config/hypr/screen_conf/custom_three_right.lua".source = ./screen_conf/custom_three_right.lua;
 
       # Generated per-host config
       ".config/hypr/hyprland-host.lua".text = ''
@@ -79,6 +80,8 @@ in
           B_RES_Y = ${toLua (toString host.monitors.b.resY)}
 
           C_MONITOR = ${toLua host.monitors.c.name}
+          C_RES_X = ${toLua (toString host.monitors.c.resX)}
+          C_RES_Y = ${toLua (toString host.monitors.c.resY)}
 
           KEYBOARD_LAYOUT = ${toLua host.keyboard.layout}
           KEYBOARD_VARIANT = ${toLua host.keyboard.variant}

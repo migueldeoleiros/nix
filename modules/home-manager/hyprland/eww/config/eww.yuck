@@ -124,19 +124,8 @@
        )
   )
 
-(defwindow bar-main []
-  :monitor 1
-  :windowtype "dock"
-  :exclusive true
-  :geometry (geometry :x "0%"
-                      :y "0%"
-                      :width "100%"
-                      :height "40px"
-                      :anchor "top center")
-  (bar))
-
-(defwindow bar-laptop []
-  :monitor 0
+(defwindow bar [monitor]
+  :monitor monitor
   :windowtype "dock"
   :exclusive true
   :geometry (geometry :x "0%"

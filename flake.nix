@@ -56,7 +56,7 @@
         monitors = {
           a = { name = "eDP-1"; resX = 1920; resY = 1080; scale = "1"; };
           b = { name = "HDMI-A-1"; resX = 2560; resY = 1440; };
-          c = { name = "DVI-I-1"; };
+          c = { name = "DVI-I-1"; resX = 1080; resY = 1920; };
         };
       };
 
@@ -76,7 +76,7 @@
         monitors = {
           a = { name = "eDP-1"; resX = 1920; resY = 1200; scale = "1"; };
           b = { name = "DP-8"; resX = 2560; resY = 1440; };
-          c = { name = "DP-1"; };
+          c = { name = "DP-1"; resX = 1920; resY = 1080; };
         };
       };
 
@@ -86,7 +86,7 @@
         secondMonitor = "DP-10";
         hasNvidia = false;
         tabletOutput = "eDP-1";
-        defaultScreenConfig = "screen_on_right.conf";
+        defaultScreenConfig = "custom_three_right.conf";
         batteryId = "BAT1";
         keyboard = {
           layout = "us";
@@ -94,9 +94,9 @@
           options = "ctrl:nocaps";
         };
         monitors = {
-          a = { name = "eDP-1"; resX = 2256; resY = 1504; scale = "1.17"; };
+          a = { name = "eDP-1"; resX = 2256; resY = 1504; scale = "1.175"; };
           b = { name = "DP-10"; resX = 2560; resY = 1440; };
-          c = { name = "DP-4"; };
+          c = { name = "DP-4"; resX = 2560; resY = 1440; };
         };
       };
 
