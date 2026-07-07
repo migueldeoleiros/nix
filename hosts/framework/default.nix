@@ -10,6 +10,7 @@
     import ../../modules/nixos/btop ++
     import ../../modules/nixos/syncthing ++
     import ../../modules/nixos/docker ++
+    import ../../modules/nixos/vm ++
     import ../../modules/nixos/mysql ++
     import ../../modules/nixos/flatpak ++
     import ../../modules/nixos/gnupg ++
