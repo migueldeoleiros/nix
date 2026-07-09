@@ -1,11 +1,16 @@
-{ lib, writeShellApplication, curl, appimage-run, coreutils, makeDesktopItem, symlinkJoin }:
+{ lib, writeShellApplication, curl, coreutils, makeDesktopItem, symlinkJoin, buildFHSEnv, appimageTools }:
 
 let
   pname = "beeper-latest";
 
+  beeperRunner = buildFHSEnv (appimageTools.defaultFhsEnvArgs // {
+    name = "beeper-appimage-runner";
+    runScript = "bash";
+  });
+
   beeper = writeShellApplication {
     name = "beeper";
-    runtimeInputs = [ curl appimage-run coreutils ];
+    runtimeInputs = [ curl coreutils ];
     text = ''
       set -euo pipefail
 
@@ -75,7 +80,8 @@ let
         done
       ) >/dev/null 2>&1 &
 
-      exec appimage-run "$appimage" "$@"
+      export APPIMAGE_EXTRACT_AND_RUN=1
+      exec ${beeperRunner}/bin/beeper-appimage-runner -c 'exec "$@"' beeper-appimage-runner "$appimage" "$@"
     '';
   };
 
