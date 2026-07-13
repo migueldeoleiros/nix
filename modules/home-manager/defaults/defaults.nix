@@ -49,14 +49,10 @@
     audio/wav=mpv.desktop
 
     # Document Viewers
-    application/pdf=okularApplication_pdf.desktop
-    application/x-pdf=okularApplication_pdf.desktop
-    application/epub+zip=okularApplication_epub.desktop
-    image/vnd.djvu=okularApplication_djvu.desktop
-    image/x-djvu=okularApplication_djvu.desktop
-    application/postscript=okularApplication_ghostview.desktop
-    application/vnd.ms-xpsdocument=okularApplication_xps.desktop
-    application/oxps=okularApplication_xps.desktop
+    application/pdf=org.gnome.Papers.desktop
+    application/x-pdf=org.gnome.Papers.desktop
+    image/vnd.djvu=org.gnome.Papers.desktop
+    image/x-djvu=org.gnome.Papers.desktop
 
     # Communication
     x-scheme-handler/tg=org.telegram.desktop.desktop

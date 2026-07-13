@@ -46,7 +46,7 @@ in
       wf-recorder
       slurp
       wl-clipboard
-      kdePackages.okular
+      papers
       tauon
       jellyfin-desktop
       # grayjay
