@@ -79,13 +79,13 @@
         "task": {
           "*": "deny"
         },
-        "edit": "allow",
+        "edit": "ask",
         "gitea_*": "deny"
       },
       "mode": "primary"
     },
     "assistant": {
-      "model": "openai/gpt-5.5",
+      "model": "openai/gpt-5.6-terra",
       "reasoningEffort": "low",
       "prompt": "{file:./agent-prompts/assistant.md}",
       "description": "User-facing collaborative workflow for questions, analysis, and guided task support",
@@ -94,17 +94,23 @@
         "chrome-devtools_*": "deny",
         "trivy_*": "allow",
         "sonarqube_*": "deny",
-        "edit": "ask",
+        "edit": "allow",
         "bash": {
-          "*": "ask",
-          "git status*": "allow",
-          "git log*": "allow",
-          "git diff*": "allow",
-          "git show*": "allow",
-          "rg *": "allow",
-          "ls *": "allow",
-          "ls": "allow",
-          "pwd": "allow"
+          "*": "allow",
+          "git commit*": "ask",
+          "git push*": "ask",
+          "git rebase*": "ask",
+          "git reset*": "ask",
+          "git clean*": "ask",
+          "git restore*": "ask",
+          "git checkout*": "ask",
+          "sudo *": "ask",
+          "su *": "ask",
+          "doas *": "ask",
+          "rm*": "ask",
+          "rmdir*": "ask",
+          "unlink*": "ask",
+          "shred*": "ask"
         },
         "task": {
           "*": "deny",
@@ -118,7 +124,7 @@
       "mode": "primary"
     },
     "build": {
-      "model": "openai/gpt-5.5",
+      "model": "openai/gpt-5.6-sol",
       "reasoningEffort": "low",
       "prompt": "{file:./agent-prompts/build.md}",
       "description": "Primary implementation agent; delegate discovery to investigate, risk analysis to reviewer, and proof checks to verifier",
@@ -167,7 +173,7 @@
       "mode": "primary"
     },
     "plan": {
-      "model": "openai/gpt-5.5",
+      "model": "openai/gpt-5.6-sol",
       "reasoningEffort": "medium",
       "prompt": "{file:./agent-prompts/plan.md}",
       "description": "Read-only planning workflow for scope clarification, sequencing, and risk-aware execution plans",
@@ -205,7 +211,7 @@
     },
     "investigate": {
       "mode": "subagent",
-      "model": "openai/gpt-5.5",
+      "model": "openai/gpt-5.6-terra",
       "reasoningEffort": "none",
       "prompt": "{file:./agent-prompts/investigate.md}",
       "description": "Use for fast read-only research, repo exploration, and web lookups before implementation decisions",
@@ -230,7 +236,7 @@
     },
     "reviewer": {
       "mode": "subagent",
-      "model": "openai/gpt-5.5",
+      "model": "openai/gpt-5.6-sol",
       "reasoningEffort": "medium",
       "prompt": "{file:./agent-prompts/reviewer.md}",
       "description": "Use for deep code/PR review: logic bugs, regressions, duplication, scalability limits, and reliability issues",
@@ -255,7 +261,7 @@
     },
     "verifier": {
       "mode": "subagent",
-      "model": "openai/gpt-5.5",
+      "model": "openai/gpt-5.6-terra",
       "reasoningEffort": "low",
       "prompt": "{file:./agent-prompts/verifier.md}",
       "description": "Use when claims need proof: run tests/checks, inspect outputs, and report evidence-based verification results",
@@ -294,7 +300,7 @@
     },
     "spec-writer": {
       "mode": "subagent",
-      "model": "openai/gpt-5.5",
+      "model": "openai/gpt-5.6-terra",
       "reasoningEffort": "low",
       "prompt": "{file:./agent-prompts/spec-writer.md}",
       "description": "Writes and updates local temporary planning specs under .opencode/specs only",
@@ -308,7 +314,7 @@
         "grep": "allow",
         "edit": {
           "*": "deny",
-          ".opencode/specs/*.md": "allow"
+          ".opencode/specs/**": "allow"
         },
         "bash": {
           "*": "deny"
@@ -322,7 +328,7 @@
     },
     "general": {
       "mode": "subagent",
-      "model": "openai/gpt-5.5",
+      "model": "openai/gpt-5.6-terra",
       "reasoningEffort": "low",
       "prompt": "{file:./agent-prompts/general.md}",
       "description": "Fallback delegated agent for mixed tasks that do not clearly fit investigate, reviewer, or verifier",
@@ -354,7 +360,7 @@
     },
     "worker": {
       "mode": "subagent",
-      "model": "openai/gpt-5.5",
+      "model": "openai/gpt-5.6-terra",
       "reasoningEffort": "none",
       "prompt": "{file:./agent-prompts/worker.md}",
       "description": "Dedicated execution subagent for complex multi-step edits and tool-heavy implementation work",
@@ -387,7 +393,7 @@
       }
     },
     "gitea-repo": {
-      "model": "openai/gpt-5.5",
+      "model": "openai/gpt-5.6-terra",
       "reasoningEffort": "low",
       "prompt": "{file:./agent-prompts/gitea-repo.md}",
       "description": "User-facing Gitea repository management agent for issues, PRs, repo hygiene, and release/changelog workflows",
@@ -470,9 +476,10 @@
     "openai": {
       "name": "MerlinLLM",
       "whitelist": [
-	    "gpt-5.5",
-	    "gpt-5.4",
-	    "gpt-5.4-nano"
+        "gpt-5.6-sol",
+        "gpt-5.6-terra",
+        "gpt-5.5",
+        "gpt-5.4-mini"
       ],
       "options": {
         "baseURL": "https://ai.int.merlinsoftware.es/v1",

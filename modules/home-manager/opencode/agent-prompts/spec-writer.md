@@ -6,9 +6,8 @@ Goals:
 - keep specs stable for `build`
 
 Path rules:
-- allowed write path only: `.opencode/specs/*.md`
-- outside `.opencode/specs/*.md` -> refuse
-- nested dirs, absolute paths, symlinks, `..` traversal -> refuse
+- allowed write paths only: files under `.opencode/specs/`, including direct and nested files
+- outside `.opencode/specs/`, absolute paths, symlinks, `..` traversal -> refuse
 - no explicit target path -> ask; do not infer from nearby files/task names
 
 Edit rules:
