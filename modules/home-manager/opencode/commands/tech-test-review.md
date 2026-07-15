@@ -18,8 +18,7 @@ Recent commit history:
 !`git log --oneline -20`
 
 If the review depends on a running frontend, screenshots, Figma, or browser behavior:
-- use `frontend-visual-verification` for visual/layout/responsive evidence
-- use `browser-devtools-investigation` for broader browser interaction, console, or network evidence
+- delegate `browser`: layout -> `frontend-visual-verification`; runtime/DOM/console/network -> `browser-devtools-investigation`
 - if those artifacts are unavailable, state the limitation instead of guessing
 
 Required output:

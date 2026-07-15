@@ -12,7 +12,26 @@
       "enabled": true,
       "command": [
         "opencode-chromium-devtools-mcp"
-      ]
+      ],
+      "timeout": 120000
+    },
+    "playwright": {
+      "type": "local",
+      "enabled": true,
+      "command": [
+        "opencode-playwright-mcp"
+      ],
+      "timeout": 120000
+    },
+    "hr-merlin-context": {
+      "type": "remote",
+      "url": "https://hr-api.merlinsoftware.es/mcp",
+      "enabled": true,
+      "oauth": false,
+      "headers": {
+        "Authorization": "Bearer {file:/home/miguel/.config/opencode/keys/hr-merlin-context.token}"
+      },
+      "timeout": 60000
     },
     "trivy": {
       "type": "local",
@@ -63,8 +82,15 @@
       "color": "#9ccc65",
       "permission": {
         "chrome-devtools_*": "deny",
+        "playwright_*": "deny",
         "trivy_*": "deny",
         "sonarqube_*": "deny",
+        "read": {
+          "*": "allow",
+          "*.env": "deny",
+          "*.env.*": "deny",
+          "*.env.example": "allow"
+        },
         "bash": {
           "*": "ask",
           "git status*": "allow",
@@ -85,13 +111,14 @@
       "mode": "primary"
     },
     "assistant": {
-      "model": "openai/gpt-5.6-terra",
-      "reasoningEffort": "low",
+      "model": "openai/gpt-5.6-sol",
+      "variant": "balanced",
       "prompt": "{file:./agent-prompts/assistant.md}",
       "description": "User-facing collaborative workflow for questions, analysis, and guided task support",
       "color": "#4fc3f7",
       "permission": {
         "chrome-devtools_*": "deny",
+        "playwright_*": "deny",
         "trivy_*": "allow",
         "sonarqube_*": "deny",
         "edit": "allow",
@@ -117,6 +144,7 @@
           "investigate": "allow",
           "reviewer": "allow",
           "verifier": "allow",
+          "browser": "allow",
           "general": "allow"
         },
         "gitea_*": "deny"
@@ -125,12 +153,13 @@
     },
     "build": {
       "model": "openai/gpt-5.6-sol",
-      "reasoningEffort": "low",
+      "variant": "balanced",
       "prompt": "{file:./agent-prompts/build.md}",
       "description": "Primary implementation agent; delegate discovery to investigate, risk analysis to reviewer, and proof checks to verifier",
       "color": "#ffb74d",
       "permission": {
         "chrome-devtools_*": "deny",
+        "playwright_*": "deny",
         "trivy_*": "allow",
         "sonarqube_*": "deny",
         "task": {
@@ -138,6 +167,7 @@
           "investigate": "allow",
           "reviewer": "allow",
           "verifier": "allow",
+          "browser": "allow",
           "worker": "allow",
           "spec-writer": "allow",
           "general": "allow"
@@ -174,12 +204,13 @@
     },
     "plan": {
       "model": "openai/gpt-5.6-sol",
-      "reasoningEffort": "medium",
+      "variant": "balanced",
       "prompt": "{file:./agent-prompts/plan.md}",
       "description": "Read-only planning workflow for scope clarification, sequencing, and risk-aware execution plans",
       "color": "#ba68c8",
       "permission": {
         "chrome-devtools_*": "deny",
+        "playwright_*": "deny",
         "trivy_*": "deny",
         "sonarqube_*": "deny",
         "read": "allow",
@@ -190,6 +221,7 @@
           "*": "deny",
           "investigate": "allow",
           "reviewer": "allow",
+          "browser": "allow",
           "spec-writer": "allow"
         },
         "skill": "allow",
@@ -212,19 +244,24 @@
     "investigate": {
       "mode": "subagent",
       "model": "openai/gpt-5.6-terra",
-      "reasoningEffort": "none",
+      "variant": "fast",
       "prompt": "{file:./agent-prompts/investigate.md}",
       "description": "Use for fast read-only research, repo exploration, and web lookups before implementation decisions",
       "color": "#64b5f6",
       "permission": {
-        "chrome-devtools_*": "allow",
-        "trivy_*": "allow",
+        "chrome-devtools_*": "deny",
+        "playwright_*": "deny",
         "sonarqube_*": "deny",
-        "read": "allow",
-        "glob": "allow",
-        "grep": "allow",
-        "webfetch": "allow",
+        "read": {
+          "*.env": "deny",
+          "*.env.*": "deny",
+          "*.env.example": "allow"
+        },
         "edit": "deny",
+        "external_directory": "deny",
+        "doom_loop": "deny",
+        "question": "deny",
+        "compress": "deny",
         "bash": {
           "*": "deny"
         },
@@ -237,24 +274,29 @@
     "reviewer": {
       "mode": "subagent",
       "model": "openai/gpt-5.6-sol",
-      "reasoningEffort": "medium",
+      "variant": "deep",
       "prompt": "{file:./agent-prompts/reviewer.md}",
       "description": "Use for deep code/PR review: logic bugs, regressions, duplication, scalability limits, and reliability issues",
       "color": "#e57373",
       "permission": {
-        "chrome-devtools_*": "allow",
-        "trivy_*": "allow",
-        "sonarqube_*": "allow",
-        "read": "allow",
-        "glob": "allow",
-        "grep": "allow",
-        "webfetch": "allow",
+        "chrome-devtools_*": "deny",
+        "playwright_*": "deny",
+        "read": {
+          "*.env": "deny",
+          "*.env.*": "deny",
+          "*.env.example": "allow"
+        },
         "edit": "deny",
+        "external_directory": "deny",
+        "doom_loop": "deny",
+        "question": "deny",
+        "compress": "deny",
         "bash": {
           "*": "deny"
         },
         "task": {
-          "*": "deny"
+          "*": "deny",
+          "browser": "allow"
         },
         "gitea_*": "deny"
       }
@@ -262,38 +304,45 @@
     "verifier": {
       "mode": "subagent",
       "model": "openai/gpt-5.6-terra",
-      "reasoningEffort": "low",
+      "variant": "fast",
       "prompt": "{file:./agent-prompts/verifier.md}",
       "description": "Use when claims need proof: run tests/checks, inspect outputs, and report evidence-based verification results",
       "color": "#4db6ac",
       "permission": {
-        "chrome-devtools_*": "allow",
-        "trivy_*": "allow",
+        "chrome-devtools_*": "deny",
+        "playwright_*": "deny",
         "sonarqube_*": "deny",
-        "read": "allow",
-        "glob": "allow",
-        "grep": "allow",
+        "read": {
+          "*.env": "deny",
+          "*.env.*": "deny",
+          "*.env.example": "allow"
+        },
         "bash": {
           "*": "allow",
-          "git commit*": "ask",
-          "git push*": "ask",
-          "git rebase*": "ask",
-          "git reset*": "ask",
-          "git clean*": "ask",
-          "git restore*": "ask",
-          "git checkout*": "ask",
-          "sudo *": "ask",
-          "su *": "ask",
-          "doas *": "ask",
-          "rm*": "ask",
-          "rmdir*": "ask",
-          "unlink*": "ask",
-          "shred*": "ask"
+          "git commit*": "deny",
+          "git push*": "deny",
+          "git rebase*": "deny",
+          "git reset*": "deny",
+          "git clean*": "deny",
+          "git restore*": "deny",
+          "git checkout*": "deny",
+          "sudo *": "deny",
+          "su *": "deny",
+          "doas *": "deny",
+          "rm*": "deny",
+          "rmdir*": "deny",
+          "unlink*": "deny",
+          "shred*": "deny"
         },
         "edit": "deny",
         "webfetch": "deny",
+        "external_directory": "deny",
+        "doom_loop": "deny",
+        "question": "deny",
+        "compress": "deny",
         "task": {
-          "*": "deny"
+          "*": "deny",
+          "browser": "allow"
         },
         "gitea_*": "deny"
       }
@@ -301,17 +350,20 @@
     "spec-writer": {
       "mode": "subagent",
       "model": "openai/gpt-5.6-terra",
-      "reasoningEffort": "low",
+      "variant": "fast",
       "prompt": "{file:./agent-prompts/spec-writer.md}",
       "description": "Writes and updates local temporary planning specs under .opencode/specs only",
       "hidden": true,
       "permission": {
         "chrome-devtools_*": "deny",
+        "playwright_*": "deny",
         "trivy_*": "deny",
         "sonarqube_*": "deny",
-        "read": "allow",
-        "glob": "allow",
-        "grep": "allow",
+        "read": {
+          "*.env": "deny",
+          "*.env.*": "deny",
+          "*.env.example": "allow"
+        },
         "edit": {
           "*": "deny",
           ".opencode/specs/**": "allow"
@@ -320,6 +372,9 @@
           "*": "deny"
         },
         "external_directory": "deny",
+        "doom_loop": "deny",
+        "question": "deny",
+        "compress": "deny",
         "task": {
           "*": "deny"
         },
@@ -329,16 +384,22 @@
     "general": {
       "mode": "subagent",
       "model": "openai/gpt-5.6-terra",
-      "reasoningEffort": "low",
+      "variant": "fast",
       "prompt": "{file:./agent-prompts/general.md}",
       "description": "Fallback delegated agent for mixed tasks that do not clearly fit investigate, reviewer, or verifier",
       "color": "#90a4ae",
       "permission": {
         "chrome-devtools_*": "deny",
+        "playwright_*": "deny",
         "trivy_*": "deny",
         "sonarqube_*": "deny",
+        "read": {
+          "*.env": "deny",
+          "*.env.*": "deny",
+          "*.env.example": "allow"
+        },
         "bash": {
-          "*": "ask",
+          "*": "deny",
           "git status*": "allow",
           "git log*": "allow",
           "git diff*": "allow",
@@ -355,46 +416,86 @@
           "verifier": "allow"
         },
         "edit": "deny",
+        "external_directory": "deny",
+        "doom_loop": "deny",
+        "question": "deny",
+        "compress": "deny",
         "gitea_*": "deny"
       }
     },
     "worker": {
       "mode": "subagent",
       "model": "openai/gpt-5.6-terra",
-      "reasoningEffort": "none",
+      "variant": "balanced",
       "prompt": "{file:./agent-prompts/worker.md}",
       "description": "Dedicated execution subagent for complex multi-step edits and tool-heavy implementation work",
       "color": "#ffd54f",
       "permission": {
-        "chrome-devtools_*": "allow",
-        "trivy_*": "allow",
+        "chrome-devtools_*": "deny",
+        "playwright_*": "deny",
         "sonarqube_*": "deny",
+        "read": {
+          "*.env": "deny",
+          "*.env.*": "deny",
+          "*.env.example": "allow"
+        },
         "bash": {
           "*": "allow",
-          "git commit*": "ask",
-          "git push*": "ask",
-          "git rebase*": "ask",
-          "git reset*": "ask",
-          "git clean*": "ask",
-          "git restore*": "ask",
-          "rm*": "ask",
-          "rmdir*": "ask",
-          "unlink*": "ask",
-          "shred*": "ask"
+          "git commit*": "deny",
+          "git push*": "deny",
+          "git rebase*": "deny",
+          "git reset*": "deny",
+          "git clean*": "deny",
+          "git restore*": "deny",
+          "rm*": "deny",
+          "rmdir*": "deny",
+          "unlink*": "deny",
+          "shred*": "deny"
         },
         "task": {
           "*": "deny",
           "investigate": "allow",
           "reviewer": "allow",
+          "browser": "allow",
           "verifier": "allow"
         },
-        "edit": "allow",
+        "external_directory": "deny",
+        "doom_loop": "deny",
+        "question": "deny",
+        "compress": "deny",
         "gitea_*": "deny"
+      }
+    },
+    "browser": {
+      "mode": "subagent",
+      "model": "openai/gpt-5.6-terra",
+      "variant": "fast",
+      "prompt": "{file:./agent-prompts/browser.md}",
+      "description": "Use for live URL reproduction, DOM, console, network, browser interactions, screenshots, responsive layout, and browser-visible verification",
+      "color": "#42a5f5",
+      "permission": {
+        "*": "deny",
+        "chrome-devtools_*": "allow",
+        "playwright_*": "allow",
+        "chrome-devtools_upload_file": "deny",
+        "chrome-devtools_evaluate_script": "deny",
+        "playwright_browser_drop": "deny",
+        "playwright_browser_file_upload": "deny",
+        "playwright_browser_evaluate": "deny",
+        "playwright_browser_run_code_unsafe": "deny",
+        "skill": {
+          "browser-devtools-investigation": "allow",
+          "frontend-visual-verification": "allow"
+        },
+        "bash": {
+          "systemctl --user status opencode-chromium-devtools": "allow",
+          "journalctl --user -u opencode-chromium-devtools": "allow"
+        }
       }
     },
     "gitea-repo": {
       "model": "openai/gpt-5.6-terra",
-      "reasoningEffort": "low",
+      "variant": "balanced",
       "prompt": "{file:./agent-prompts/gitea-repo.md}",
       "description": "User-facing Gitea repository management agent for issues, PRs, repo hygiene, and release/changelog workflows",
       "color": "#81c784",
@@ -426,6 +527,7 @@
         "gitea_create_team": "deny",
         "gitea_get_runner_registration_token": "deny",
         "chrome-devtools_*": "deny",
+        "playwright_*": "deny",
         "trivy_*": "deny",
         "sonarqube_*": "deny",
         "read": "allow",
@@ -484,6 +586,44 @@
       "options": {
         "baseURL": "https://ai.int.merlinsoftware.es/v1",
         "apiKey": "{file:/home/miguel/.config/opencode/keys/merlin.key}"
+      },
+      "models": {
+        "gpt-5.6-terra": {
+          "options": {
+            "reasoningEffort": "medium",
+            "textVerbosity": "low"
+          },
+          "variants": {
+            "fast": {
+              "reasoningEffort": "low",
+              "textVerbosity": "low"
+            },
+            "balanced": {
+              "reasoningEffort": "medium",
+              "textVerbosity": "low"
+            },
+            "deep": {
+              "reasoningEffort": "high",
+              "textVerbosity": "medium"
+            }
+          }
+        },
+        "gpt-5.6-sol": {
+          "options": {
+            "reasoningEffort": "medium",
+            "textVerbosity": "low"
+          },
+          "variants": {
+            "balanced": {
+              "reasoningEffort": "medium",
+              "textVerbosity": "low"
+            },
+            "deep": {
+              "reasoningEffort": "high",
+              "textVerbosity": "medium"
+            }
+          }
+        }
       }
     }
   }

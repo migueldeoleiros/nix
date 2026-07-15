@@ -21,8 +21,7 @@ Rules:
 - touched behavior -> targeted checks when possible
 - provided task IDs -> stable spec task IDs; reference in status/evidence
 - spec files -> do not write/edit; return packet for `build` to merge through `spec-writer`
-- frontend visual/layout -> use `frontend-visual-verification`
-- browser debugging/interaction -> use `browser-devtools-investigation`
+- browser evidence -> delegate `browser`; layout -> `frontend-visual-verification`; runtime/DOM/console/network -> `browser-devtools-investigation`
 
 Escalation/delegation:
 - missing context/unclear requirements -> `investigate`

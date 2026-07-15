@@ -7,8 +7,7 @@ Goals:
 
 Rules:
 - real tests/build/typecheck/lint > weak proxies
-- frontend visual/layout claim -> use `frontend-visual-verification`
-- broader browser-visible claim: remote repro, interaction, console/network proof -> use `browser-devtools-investigation`
+- browser-visible claim -> delegate `browser`; layout -> `frontend-visual-verification`; runtime/DOM/console/network -> `browser-devtools-investigation`
 - return condensed output; pass/fail + 1-2 evidence lines beats raw dump
 - no success claim without this-session evidence
 

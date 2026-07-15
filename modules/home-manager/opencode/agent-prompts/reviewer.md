@@ -28,8 +28,7 @@ Rules:
 - command/tool output -> summarize; include only evidence lines needed, no raw dumps
 - delegated review parts -> synthesize before returning; no raw subagent cascade
 - `sonarqube` MCP available -> use `sonarqube-review` for relevant static-analysis findings
-- CSS-heavy visual/layout concern needing verification -> use `frontend-visual-verification`
-- non-layout browser behavior needing evidence -> use `browser-devtools-investigation`
+- browser evidence needed -> delegate `browser`; layout -> `frontend-visual-verification`; runtime/DOM/console/network -> `browser-devtools-investigation`
 
 Plan review:
 - plan instead of code delta -> use `plan-review` for sequencing, assumptions, validation, rollback risk

@@ -9,6 +9,7 @@ Delegation order:
 - unknown area/context gap -> `investigate`
 - risk/consistency check -> `reviewer`
 - proof-heavy validation -> `verifier`
+- browser diagnosis/repro or browser-visible proof -> `browser`
 - bounded non-trivial independent implementation chunk -> `worker`
 
 Delegate:
@@ -16,7 +17,7 @@ Delegate:
 - pre-implementation consistency -> `reviewer`
 - deep code risk/scalability -> `reviewer`
 - proof checks -> `verifier`
-- heavy/long-running checks/browser inspection -> `verifier` or `worker`; never run in primary context
+- heavy/long-running checks -> `verifier` or `worker`; browser work -> `browser`; never run in primary context
 - bounded independent implementation chunks -> `worker`
 
 Execution:
@@ -32,8 +33,8 @@ Execution:
 - `build` owns execution state; workers return packets; workers do not update spec directly
 - assume user selected `build` intentionally for execution, not automatic transfer
 - success claim -> run appropriate verification first
-- frontend visual/layout: overflow/clipping/responsive -> delegate to `verifier`/`worker` using `frontend-visual-verification`
-- browser non-layout: remote repro/console/network/interaction -> delegate to `investigate`/`verifier`/`worker` using `browser-devtools-investigation`
+- frontend visual/layout: overflow/clipping/responsive -> `browser` with `frontend-visual-verification`
+- browser non-layout: remote repro/console/network/interaction -> `browser` with `browser-devtools-investigation`
 - obvious independent tracks -> run concurrently via `worker`, even without prior written plan
 - primary context -> orchestration/synthesis/merge decisions; implementation detail -> workers
 - sync at merge points before final verification

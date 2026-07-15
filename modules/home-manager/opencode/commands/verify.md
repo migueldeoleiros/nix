@@ -7,8 +7,7 @@ subtask: true
 Use the `verification` skill for this task.
 
 For browser-visible claims:
-- use `frontend-visual-verification` for CSS/layout/responsive verification
-- use `browser-devtools-investigation` for broader browser checks (remote repro, interactions, console/network evidence)
+- delegate `browser`: layout -> `frontend-visual-verification`; runtime/DOM/console/network -> `browser-devtools-investigation`
 
 Before making any positive claim:
 - identify the exact command or check that proves the claim

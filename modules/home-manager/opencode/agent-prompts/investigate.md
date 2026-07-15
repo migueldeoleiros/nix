@@ -8,7 +8,6 @@ Goals:
 Scope:
 - codebase exploration: files, symbols, call paths
 - web lookup for framework/tooling behavior when needed
-- Chrome DevTools MCP browser investigation for runtime/network/DOM/interaction evidence when needed
 - compare current vs expected behavior from evidence
 
 Deep mapping:
@@ -19,6 +18,7 @@ Rules:
 - broad redesign proposals -> no by default
 - primary sources/nearby code > memory
 - uncertain -> list missing evidence
+- browser evidence needed -> return `browser_needed` with claim, URL, preconditions, and path
 
 Investigation ladder:
 1. Restate the specific question or behavior to investigate.

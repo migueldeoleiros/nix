@@ -1,129 +1,71 @@
 { config, pkgs, lib, ... }:
 
 let
+  chromiumDevtoolsHost = "127.0.0.1";
+  chromiumDevtoolsPort = 9222;
+  chromiumDevtoolsEndpoint = "http://${chromiumDevtoolsHost}:${toString chromiumDevtoolsPort}";
+  chromiumDevtoolsProfile = "${config.xdg.dataHome}/opencode/chromium-devtools";
+  chromiumDevtoolsService = "opencode-chromium-devtools.service";
+
   ensureChromiumDevtools = pkgs.writeShellApplication {
     name = "opencode-ensure-chromium-devtools";
-    runtimeInputs = with pkgs; [ curl chromium ];
+    runtimeInputs = [ pkgs.curl pkgs.psmisc ];
     text = ''
       set -euo pipefail
 
-      host="''${OPENCODE_DEVTOOLS_HOST:-127.0.0.1}"
-      preferred_port="''${OPENCODE_DEVTOOLS_PORT:-9222}"
-      debug_ports="''${OPENCODE_DEVTOOLS_PORT_CANDIDATES:-$preferred_port 9223 9224 9225}"
-      state_file="''${OPENCODE_DEVTOOLS_STATE_FILE:-/tmp/opencode-chromium-devtools.state}"
-      log_file="''${OPENCODE_DEVTOOLS_LOG_FILE:-/tmp/opencode-chromium-devtools.log}"
+      service=${chromiumDevtoolsService}
+      port=${toString chromiumDevtoolsPort}
 
-      if command -v chromium-browser >/dev/null 2>&1; then
-        browser_bin="chromium-browser"
-      else
-        browser_bin="chromium"
-      fi
+      ${pkgs.systemd}/bin/systemctl --user start "$service"
 
-      target_url="''${OPENCODE_DEVTOOLS_URL:-}"
-      if [ -z "$target_url" ]; then
-        app_host="''${OPENCODE_APP_HOST:-localhost}"
-        app_ports="''${OPENCODE_DEVTOOLS_CANDIDATE_PORTS:-5173 4173 3000 4200 8080 8000}"
-        for candidate_port in $app_ports; do
-          if curl -fsS --max-time 1 "http://$app_host:$candidate_port/" >/dev/null; then
-            target_url="http://$app_host:$candidate_port/"
-            echo "Detected local dev server at $target_url"
-            break
-          fi
-        done
-      fi
+      for _ in {1..50}; do
+        if ! ${pkgs.systemd}/bin/systemctl --user is-active --quiet "$service"; then
+          echo "Managed Chromium service is not active; port $port may already be in use. Inspect: systemctl --user status $service" >&2
+          exit 1
+        fi
 
-      if [ -z "$target_url" ]; then
-        target_url="about:blank"
-        echo "No local dev server detected. Falling back to $target_url"
-      fi
+        main_pid="$(${pkgs.systemd}/bin/systemctl --user show --property=MainPID --value "$service")"
+        listener_pids="$(${pkgs.psmisc}/bin/fuser -n tcp "$port" 2>/dev/null || true)"
+        if [ -z "$listener_pids" ]; then
+          sleep 0.2
+          continue
+        fi
 
-      for debug_port in $debug_ports; do
-        endpoint="http://$host:$debug_port/json/version"
-        if curl -fsS "$endpoint" >/dev/null; then
-          printf 'host=%s\nport=%s\nendpoint=%s\n' "$host" "$debug_port" "$endpoint" > "$state_file"
-          echo "Chromium DevTools endpoint already available at $endpoint"
+        case " $listener_pids " in
+          *" $main_pid "*) ;;
+          *)
+            echo "DevTools port $port is not owned by managed Chromium (service PID $main_pid; listener PID(s): ''${listener_pids:-none}). Port conflict suspected." >&2
+            exit 1
+            ;;
+        esac
+
+        if ${pkgs.curl}/bin/curl -fsS --max-time 1 \
+          ${chromiumDevtoolsEndpoint}/json/version >/dev/null; then
           exit 0
         fi
+        sleep 0.2
       done
 
-      profile_dir="''${OPENCODE_DEVTOOLS_PROFILE_DIR:-$(mktemp -d /tmp/opencode-chromium-profile.XXXXXX)}"
-
-      for debug_port in $debug_ports; do
-        endpoint="http://$host:$debug_port/json/version"
-
-        echo "No DevTools endpoint found. Launching $browser_bin with remote debugging on $host:$debug_port..."
-        printf '\n[%s] Launch command:\n%s --remote-debugging-address=%s --remote-debugging-port=%s --user-data-dir=%s --no-first-run --no-default-browser-check --new-window %s\n' \
-          "$(date -Iseconds)" "$browser_bin" "$host" "$debug_port" "$profile_dir" "$target_url" >> "$log_file"
-
-        nohup "$browser_bin" \
-          --remote-debugging-address="$host" \
-          --remote-debugging-port="$debug_port" \
-          --user-data-dir="$profile_dir" \
-          --no-first-run \
-          --no-default-browser-check \
-          --new-window "$target_url" \
-          >>"$log_file" 2>&1 &
-        launch_pid=$!
-
-        for _ in $(seq 1 50); do
-          if curl -fsS "$endpoint" >/dev/null; then
-            printf 'host=%s\nport=%s\nendpoint=%s\nprofile=%s\npid=%s\n' "$host" "$debug_port" "$endpoint" "$profile_dir" "$launch_pid" > "$state_file"
-            echo "Chromium DevTools endpoint ready at $endpoint"
-            exit 0
-          fi
-          sleep 0.2
-        done
-
-        if kill -0 "$launch_pid" >/dev/null 2>&1; then
-          kill "$launch_pid" >/dev/null 2>&1 || true
-        fi
-      done
-
-      echo "Failed to start a debuggable Chromium instance on ports: $debug_ports" >&2
-      echo "Check $log_file for launch errors" >&2
+      echo "Managed Chromium is active but DevTools endpoint did not become ready: ${chromiumDevtoolsEndpoint}/json/version" >&2
       exit 1
     '';
   };
 
   chromiumDevtoolsMcp = pkgs.writeShellApplication {
     name = "opencode-chromium-devtools-mcp";
-    runtimeInputs = with pkgs; [ curl nodejs ];
+    runtimeInputs = with pkgs; [ nodejs ];
     text = ''
       set -euo pipefail
 
-      host="''${OPENCODE_DEVTOOLS_HOST:-127.0.0.1}"
-      port="''${OPENCODE_DEVTOOLS_PORT:-9222}"
-      state_file="''${OPENCODE_DEVTOOLS_STATE_FILE:-/tmp/opencode-chromium-devtools.state}"
-      probe_ports="''${OPENCODE_DEVTOOLS_PORT_CANDIDATES:-$port 9223 9224 9225}"
+      exec npx -y chrome-devtools-mcp@0.8.0 --browser-url=${chromiumDevtoolsEndpoint}
+    '';
+  };
 
-      if [ -z "''${OPENCODE_DEVTOOLS_PORT:-}" ] && [ -f "$state_file" ]; then
-        while IFS='=' read -r key value; do
-          if [ "$key" = "port" ] && [ -n "$value" ]; then
-            port="$value"
-            break
-          fi
-        done < "$state_file"
-      fi
-
-      endpoint="http://$host:$port/json/version"
-      if ! curl -fsS --max-time 1 "$endpoint" >/dev/null; then
-        for probe_port in $probe_ports; do
-          probe_endpoint="http://$host:$probe_port/json/version"
-          if curl -fsS --max-time 1 "$probe_endpoint" >/dev/null; then
-            port="$probe_port"
-            break
-          fi
-        done
-      fi
-
-      endpoint="http://$host:$port/json/version"
-      if curl -fsS --max-time 1 "$endpoint" >/dev/null; then
-        exec npx -y chrome-devtools-mcp@0.8.0 --browser-url="http://$host:$port"
-      fi
-
-      exec npx -y chrome-devtools-mcp@0.8.0 \
-        --executablePath="${pkgs.chromium}/bin/chromium" \
-        --isolated
+  playwrightMcp = pkgs.writeShellApplication {
+    name = "opencode-playwright-mcp";
+    runtimeInputs = with pkgs; [ nodejs ];
+    text = ''
+      exec npx -y @playwright/mcp@0.0.78 --cdp-endpoint=${chromiumDevtoolsEndpoint}
     '';
   };
 
@@ -223,6 +165,7 @@ in
       trivy
       ensureChromiumDevtools
       chromiumDevtoolsMcp
+      playwrightMcp
       trivyMcp
       giteaMcp
       trivyDockerScan
@@ -274,6 +217,28 @@ in
         force = true;
       };
 
+      "opencode.plugins" = {
+        source = ./plugins;
+        target = ".config/opencode/plugins";
+        recursive = true;
+        force = true;
+      };
+
+    };
+  };
+
+  systemd.user.services.opencode-chromium-devtools = {
+    Unit = {
+      Description = "Chromium DevTools endpoint for OpenCode MCP servers";
+      After = [ "graphical-session.target" ];
+      PartOf = [ "graphical-session.target" ];
+    };
+    Service = {
+      Type = "simple";
+      ExecStart = "${pkgs.chromium}/bin/chromium --remote-debugging-address=${chromiumDevtoolsHost} --remote-debugging-port=${toString chromiumDevtoolsPort} --user-data-dir=${chromiumDevtoolsProfile} --no-first-run --no-default-browser-check about:blank";
+      Restart = "always";
+      RestartSec = 2;
+      TimeoutStopSec = 10;
     };
   };
 }

@@ -20,6 +20,7 @@ Review with a code-review mindset:
 - present findings first, ordered by severity, with file references when available
 - keep summaries brief and secondary to the findings
 - if there are no findings, say that explicitly and note any remaining testing gaps or residual risk
+- browser evidence needed -> delegate `browser`
 
 User request:
 

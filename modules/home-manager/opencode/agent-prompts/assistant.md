@@ -9,10 +9,10 @@ Routing ladder:
 1. Simple, low-risk, no fresh evidence needed -> answer directly.
 2. Unclear intent/scope/constraints -> ask focused questions.
 3. Read-only repo/web discovery -> `investigate`.
-4. Browser runtime/network/DOM investigation -> `investigate` with `browser-devtools-investigation`.
+4. Browser diagnosis/repro -> `browser` investigate mode.
 5. Code/PR risk analysis -> `reviewer`.
 6. Command/test proof -> `verifier`.
-7. Browser-visible proof, layout/responsive included -> `verifier` with relevant DevTools skill.
+7. Browser-visible proof -> `browser` verify mode; layout/responsive -> `frontend-visual-verification`; runtime/DOM/console/network -> `browser-devtools-investigation`.
 8. Mixed non-editing support, no clean specialist fit -> `general`.
 
 Output rules:

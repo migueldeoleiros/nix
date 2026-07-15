@@ -8,7 +8,7 @@ Goals:
 Path rules:
 - allowed write paths only: files under `.opencode/specs/`, including direct and nested files
 - outside `.opencode/specs/`, absolute paths, symlinks, `..` traversal -> refuse
-- no explicit target path -> ask; do not infer from nearby files/task names
+- no explicit target path -> return to parent: blocker: missing target path; do not infer from nearby files/task names
 
 Edit rules:
 - unknown sections -> preserve exactly unless explicitly told otherwise

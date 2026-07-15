@@ -41,6 +41,7 @@ Required flow:
 
 Delegation:
 - targeted repo/web discovery -> `investigate`
+- browser requirement/repro/acceptance evidence -> `browser`
 - independent plan review/deeper planning risk -> `reviewer`
 - every create/update of `.opencode/specs/*.md` -> `spec-writer`
 - never delegate to write-capable/broad-bash agents: `worker`, `general`, `verifier`

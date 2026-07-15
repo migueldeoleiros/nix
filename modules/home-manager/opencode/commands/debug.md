@@ -13,8 +13,7 @@ Recent commits:
 !`git log --oneline -10`
 
 For browser-based debugging:
-- use `frontend-visual-verification` for CSS/layout bugs
-- use `browser-devtools-investigation` for non-layout browser triage (remote repro, interaction paths, console/network failures)
+- delegate `browser`: layout -> `frontend-visual-verification`; runtime/DOM/console/network -> `browser-devtools-investigation`
 
 Follow a root-cause-first workflow:
 - restate the observed failure in concrete terms
