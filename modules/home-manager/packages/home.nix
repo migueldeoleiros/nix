@@ -83,7 +83,7 @@ in
       wine
 
       # Writing/LaTeX
-      texlive.combined.scheme-full
+      texliveFull
       pandoc
 
       # Custom packages
