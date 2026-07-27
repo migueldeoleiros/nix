@@ -236,7 +236,7 @@ in
     Service = {
       Type = "simple";
       ExecStart = "${pkgs.chromium}/bin/chromium --remote-debugging-address=${chromiumDevtoolsHost} --remote-debugging-port=${toString chromiumDevtoolsPort} --user-data-dir=${chromiumDevtoolsProfile} --no-first-run --no-default-browser-check about:blank";
-      Restart = "always";
+      Restart = "on-failure";
       RestartSec = 2;
       TimeoutStopSec = 10;
     };

@@ -23,16 +23,6 @@
       ],
       "timeout": 120000
     },
-    "hr-merlin-context": {
-      "type": "remote",
-      "url": "https://hr-api.merlinsoftware.es/mcp",
-      "enabled": true,
-      "oauth": false,
-      "headers": {
-        "Authorization": "Bearer {file:/home/miguel/.config/opencode/keys/hr-merlin-context.token}"
-      },
-      "timeout": 60000
-    },
     "trivy": {
       "type": "local",
       "enabled": true,
