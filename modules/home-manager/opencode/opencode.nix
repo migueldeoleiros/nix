@@ -154,91 +154,109 @@ let
         "$image"
     '';
   };
+
+  opencodeConfig = lib.recursiveUpdate
+    (builtins.fromJSON (builtins.readFile ./opencode.json))
+    (lib.optionalAttrs config.miguel.opencode.hrMerlinContext.enable {
+      mcp."hr-merlin-context" = {
+        type = "remote";
+        url = "https://hr-api.merlinsoftware.es/mcp";
+        enabled = true;
+        oauth = false;
+        headers.Authorization = "Bearer {file:/home/miguel/.config/opencode/keys/hr-merlin-context.token}";
+        timeout = 60000;
+      };
+    });
 in
 {
-  home = {
-    packages = with pkgs; [
-      opencode
-      nodejs
-      chromium
-      docker-client
-      trivy
-      ensureChromiumDevtools
-      chromiumDevtoolsMcp
-      playwrightMcp
-      trivyMcp
-      giteaMcp
-      trivyDockerScan
-    ];
-
-    file = {
-      "opencode.json" = {
-        source = ./opencode.json;
-        target = ".config/opencode/opencode.json";
-        force = true;
-      };
-
-      "opencode.dcp.json" = {
-        source = ./dcp.json;
-        target = ".config/opencode/dcp.json";
-        force = true;
-      };
-
-      "opencode.gitignore" = {
-        text = ''
-          node_modules
-          package.json
-          package-lock.json
-          bun.lock
-          .gitignore
-        '';
-        target = ".config/opencode/.gitignore";
-        force = true;
-      };
-
-      "opencode.agent-prompts" = {
-        source = ./agent-prompts;
-        target = ".config/opencode/agent-prompts";
-        recursive = true;
-        force = true;
-      };
-
-      "opencode.commands" = {
-        source = ./commands;
-        target = ".config/opencode/commands";
-        recursive = true;
-        force = true;
-      };
-
-      "opencode.skills" = {
-        source = ./skills;
-        target = ".config/opencode/skills";
-        recursive = true;
-        force = true;
-      };
-
-      "opencode.plugins" = {
-        source = ./plugins;
-        target = ".config/opencode/plugins";
-        recursive = true;
-        force = true;
-      };
-
-    };
+  options.miguel.opencode.hrMerlinContext = {
+    enable = lib.mkEnableOption "the hr-merlin-context OpenCode MCP server";
   };
 
-  systemd.user.services.opencode-chromium-devtools = {
-    Unit = {
-      Description = "Chromium DevTools endpoint for OpenCode MCP servers";
-      After = [ "graphical-session.target" ];
-      PartOf = [ "graphical-session.target" ];
+  config = {
+    home = {
+      packages = with pkgs; [
+        opencode
+        nodejs
+        chromium
+        docker-client
+        trivy
+        ensureChromiumDevtools
+        chromiumDevtoolsMcp
+        playwrightMcp
+        trivyMcp
+        giteaMcp
+        trivyDockerScan
+      ];
+
+      file = {
+        "opencode.json" = {
+          text = builtins.toJSON opencodeConfig;
+          target = ".config/opencode/opencode.json";
+          force = true;
+        };
+
+        "opencode.dcp.json" = {
+          source = ./dcp.json;
+          target = ".config/opencode/dcp.json";
+          force = true;
+        };
+
+        "opencode.gitignore" = {
+          text = ''
+            node_modules
+            package.json
+            package-lock.json
+            bun.lock
+            .gitignore
+          '';
+          target = ".config/opencode/.gitignore";
+          force = true;
+        };
+
+        "opencode.agent-prompts" = {
+          source = ./agent-prompts;
+          target = ".config/opencode/agent-prompts";
+          recursive = true;
+          force = true;
+        };
+
+        "opencode.commands" = {
+          source = ./commands;
+          target = ".config/opencode/commands";
+          recursive = true;
+          force = true;
+        };
+
+        "opencode.skills" = {
+          source = ./skills;
+          target = ".config/opencode/skills";
+          recursive = true;
+          force = true;
+        };
+
+        "opencode.plugins" = {
+          source = ./plugins;
+          target = ".config/opencode/plugins";
+          recursive = true;
+          force = true;
+        };
+      };
     };
-    Service = {
-      Type = "simple";
-      ExecStart = "${pkgs.chromium}/bin/chromium --remote-debugging-address=${chromiumDevtoolsHost} --remote-debugging-port=${toString chromiumDevtoolsPort} --user-data-dir=${chromiumDevtoolsProfile} --no-first-run --no-default-browser-check about:blank";
-      Restart = "on-failure";
-      RestartSec = 2;
-      TimeoutStopSec = 10;
+
+    systemd.user.services.opencode-chromium-devtools = {
+      Unit = {
+        Description = "Chromium DevTools endpoint for OpenCode MCP servers";
+        After = [ "graphical-session.target" ];
+        PartOf = [ "graphical-session.target" ];
+      };
+      Service = {
+        Type = "simple";
+        ExecStart = "${pkgs.chromium}/bin/chromium --remote-debugging-address=${chromiumDevtoolsHost} --remote-debugging-port=${toString chromiumDevtoolsPort} --user-data-dir=${chromiumDevtoolsProfile} --no-first-run --no-default-browser-check about:blank";
+        Restart = "on-failure";
+        RestartSec = 2;
+        TimeoutStopSec = 10;
+      };
     };
   };
 }

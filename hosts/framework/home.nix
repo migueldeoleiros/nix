@@ -25,6 +25,8 @@
     import ../../modules/home-manager/vm-browser
   );
 
+  miguel.opencode.hrMerlinContext.enable = true;
+
   home = {
     username = vars.user;
     homeDirectory = "/home/${vars.user}";
