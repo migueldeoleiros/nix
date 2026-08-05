@@ -7,6 +7,7 @@ Nix flake for my NixOS systems and standalone Home Manager machines.
 - `.#miguel@nitro` - NixOS system with Home Manager as a NixOS module. NVIDIA/AMD hybrid laptop. Uses the pinned `nixpkgs-nitro-kernel` input for kernel/firmware support.
 - `.#miguel@framework` - NixOS system with Home Manager as a NixOS module. Framework laptop config for work with Framework-specific hardware modules.
 - `.#miguel@yoga` - standalone Home Manager config for a non-NixOS generic Linux machine. There is no NixOS config for this host.
+- `.#miguel@vm-shell` - minimal standalone Home Manager config for shell-focused Linux VMs.
 
 ## Structure
 
@@ -16,6 +17,7 @@ hosts/                    # per-machine wiring
   nitro/                  # NixOS system + Home Manager user config
   framework/              # NixOS system + Home Manager user config
   yoga/                   # standalone Home Manager only
+  vm-shell/               # minimal standalone Home Manager for Linux VMs
 modules/
   home-manager/           # shared user-level modules
   nixos/                  # shared system-level modules
@@ -38,6 +40,7 @@ Apply standalone Home Manager:
 
 ```bash
 home-manager switch --flake '.#miguel@yoga'
+home-manager switch --flake '.#miguel@vm-shell'
 ```
 
 Update flake inputs:

@@ -78,6 +78,10 @@
         };
       };
 
+      vmShellHost = {
+        hostName = "vm-shell";
+      };
+
       frameworkHost = {
         hostName = "DSK-046";
         mainMonitor = "eDP-1";
@@ -159,6 +163,18 @@
           modules = [
             nixExperimentalFeatures
             ./hosts/yoga/home.nix
+          ];
+        };
+
+        "miguel@vm-shell" = home-manager.lib.homeManagerConfiguration {
+          inherit pkgs;
+          extraSpecialArgs = {
+            inherit vars inputs;
+            host = vmShellHost;
+          };
+          modules = [
+            nixExperimentalFeatures
+            ./hosts/vm-shell/home.nix
           ];
         };
       };
