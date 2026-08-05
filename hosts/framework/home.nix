@@ -21,7 +21,8 @@
     import ../../modules/home-manager/dev/java ++
     import ../../modules/home-manager/dev/mysql ++
     import ../../modules/home-manager/dev/act ++
-    import ../../modules/home-manager/opencode
+    import ../../modules/home-manager/opencode ++
+    import ../../modules/home-manager/vm-browser
   );
 
   home = {
