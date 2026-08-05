@@ -61,4 +61,10 @@ nix build '.#nixosConfigurations."miguel@framework".config.system.build.toplevel
 
 - Hyprland/UI modules depend on host records in `flake.nix` for monitor names, resolutions, keyboard layout, `hasNvidia`, `tabletOutput`, `defaultScreenConfig`, and `batteryId`.
 - Hyprland screen layout is intentionally mutable: generated variables are managed from Home Manager, while the runtime screen layout file is only created when missing so local display changes can survive switches.
-- For API keys that are used by OpenCode or other sofware, you would need to add a file with the key before building.
+- For API keys that are used by OpenCode or other software, you would need to add a file with the key before building.
+
+## vm-shell OpenCode (Inditex)
+
+The `miguel@vm-shell` apply command above selects the Inditex OpenCode profile. It generates `.config/opencode-custom/profile.json` plus shared prompts, commands, skills, and plugins under `.config/opencode-custom`. It leaves model selection to OpenCode: primary agents use the selected/global corporate model and subagents inherit the invoking primary agent's model. Explicit Inditex routes can be added after the corporate quota and model policy are known.
+
+Company-owned `~/.config/opencode`, including `plugins/git-ai.ts`, is not managed and continues to merge with the profile. The company tracker/plugin is a prerequisite; authenticate GitHub Copilot once with `opencode auth login` (or the company-prescribed flow). Do not commit company configuration or secrets.

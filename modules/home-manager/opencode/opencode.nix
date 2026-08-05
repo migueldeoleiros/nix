@@ -1,6 +1,24 @@
 { config, pkgs, lib, ... }:
 
 let
+  modelRoutes = import ./models.nix;
+  profile = config.miguel.opencode.profile;
+  isPersonal = profile == "personal";
+  configDirectory = if isPersonal then "opencode" else "opencode-custom";
+  configFilename = if isPersonal then "opencode.json" else "profile.json";
+  profileRoutes = modelRoutes.${profile};
+  agentRoutes = profileRoutes.agents or { };
+  routeFor = name:
+    if builtins.hasAttr name agentRoutes then agentRoutes.${name}
+    else if isPersonal then
+      throw "OpenCode personal profile is missing a route for agent '${name}' in modules/home-manager/opencode/models.nix"
+    else null;
+  smallModel =
+    if profileRoutes ? smallModel then profileRoutes.smallModel
+    else if isPersonal then
+      throw "OpenCode personal profile is missing smallModel in modules/home-manager/opencode/models.nix"
+    else null;
+
   chromiumDevtoolsHost = "127.0.0.1";
   chromiumDevtoolsPort = 9222;
   chromiumDevtoolsEndpoint = "http://${chromiumDevtoolsHost}:${toString chromiumDevtoolsPort}";
@@ -155,9 +173,21 @@ let
     '';
   };
 
-  opencodeConfig = lib.recursiveUpdate
-    (builtins.fromJSON (builtins.readFile ./opencode.json))
-    (lib.optionalAttrs config.miguel.opencode.hrMerlinContext.enable {
+  baseConfig = builtins.fromJSON (builtins.readFile ./opencode.json);
+  agentConfig = lib.mapAttrs (name: agent:
+    let route = routeFor name;
+    in (removeAttrs agent [ "model" "variant" ])
+      // lib.optionalAttrs (route != null) ({ model = route.model; }
+        // lib.optionalAttrs (route ? variant) { variant = route.variant; })
+  ) baseConfig.agent;
+  sharedConfig = (removeAttrs baseConfig [ "agent" "small_model" "mcp" "provider" ]) // {
+    agent = agentConfig;
+  } // lib.optionalAttrs (smallModel != null) { small_model = smallModel; };
+  profileConfig = sharedConfig // lib.optionalAttrs isPersonal {
+    inherit (baseConfig) mcp provider;
+  };
+  opencodeConfig = lib.recursiveUpdate profileConfig
+    (lib.optionalAttrs (isPersonal && config.miguel.opencode.hrMerlinContext.enable) {
       mcp."hr-merlin-context" = {
         type = "remote";
         url = "https://hr-api.merlinsoftware.es/mcp";
@@ -173,11 +203,15 @@ in
     enable = lib.mkEnableOption "the hr-merlin-context OpenCode MCP server";
   };
 
+  options.miguel.opencode.profile = lib.mkOption {
+    type = lib.types.enum [ "personal" "inditex" ];
+    default = "personal";
+    description = "OpenCode configuration profile.";
+  };
+
   config = {
     home = {
-      packages = with pkgs; [
-        opencode
-        nodejs
+      packages = with pkgs; [ opencode nodejs ] ++ lib.optionals isPersonal [
         chromium
         docker-client
         trivy
@@ -189,16 +223,21 @@ in
         trivyDockerScan
       ];
 
+      sessionVariables = lib.optionalAttrs (!isPersonal) {
+        OPENCODE_CONFIG = "${config.xdg.configHome}/${configDirectory}/${configFilename}";
+        OPENCODE_CONFIG_DIR = "${config.xdg.configHome}/${configDirectory}";
+      };
+
       file = {
         "opencode.json" = {
           text = builtins.toJSON opencodeConfig;
-          target = ".config/opencode/opencode.json";
+          target = ".config/${configDirectory}/${configFilename}";
           force = true;
         };
 
         "opencode.dcp.json" = {
           source = ./dcp.json;
-          target = ".config/opencode/dcp.json";
+          target = ".config/${configDirectory}/dcp.json";
           force = true;
         };
 
@@ -210,41 +249,41 @@ in
             bun.lock
             .gitignore
           '';
-          target = ".config/opencode/.gitignore";
+          target = ".config/${configDirectory}/.gitignore";
           force = true;
         };
 
         "opencode.agent-prompts" = {
           source = ./agent-prompts;
-          target = ".config/opencode/agent-prompts";
+          target = ".config/${configDirectory}/agent-prompts";
           recursive = true;
           force = true;
         };
 
         "opencode.commands" = {
           source = ./commands;
-          target = ".config/opencode/commands";
+          target = ".config/${configDirectory}/commands";
           recursive = true;
           force = true;
         };
 
         "opencode.skills" = {
           source = ./skills;
-          target = ".config/opencode/skills";
+          target = ".config/${configDirectory}/skills";
           recursive = true;
           force = true;
         };
 
         "opencode.plugins" = {
           source = ./plugins;
-          target = ".config/opencode/plugins";
+          target = ".config/${configDirectory}/plugins";
           recursive = true;
           force = true;
         };
       };
     };
 
-    systemd.user.services.opencode-chromium-devtools = {
+    systemd.user.services.opencode-chromium-devtools = lib.mkIf isPersonal {
       Unit = {
         Description = "Chromium DevTools endpoint for OpenCode MCP servers";
         After = [ "graphical-session.target" ];
