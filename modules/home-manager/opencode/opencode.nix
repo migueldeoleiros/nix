@@ -228,6 +228,10 @@ in
         OPENCODE_CONFIG_DIR = "${config.xdg.configHome}/${configDirectory}";
       };
 
+      shellAliases = lib.optionalAttrs (!isPersonal) {
+        opencode = "OPENCODE_CONFIG=${config.xdg.configHome}/${configDirectory}/${configFilename} OPENCODE_CONFIG_DIR=${config.xdg.configHome}/${configDirectory} ${pkgs.opencode}/bin/opencode";
+      };
+
       file = {
         "opencode.json" = {
           text = builtins.toJSON opencodeConfig;

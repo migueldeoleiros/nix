@@ -10,6 +10,9 @@
       syntaxHighlighting.enable = true;
 
       initContent = ''
+        if [ -r "$HOME/.profile" ]; then
+          source "$HOME/.profile"
+        fi
 
        export PATH="$HOME/programs/flutter/bin:$PATH"
        export PATH="$HOME/.local/bin:$PATH"
