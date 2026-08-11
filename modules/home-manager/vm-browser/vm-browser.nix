@@ -30,6 +30,9 @@ let
         -o UserKnownHostsFile=${lib.escapeShellArg cfg.knownHostsFile} \
         -o BatchMode=yes \
         -o IdentitiesOnly=yes \
+        -o ControlMaster=no \
+        -o ControlPath=none \
+        -o ControlPersist=no \
         -o StrictHostKeyChecking=yes \
         -o ExitOnForwardFailure=yes \
         -o ConnectTimeout=10 \
