@@ -2,9 +2,10 @@
 
 {
   # GLPI OAuth credentials live outside git and the Nix store. Create them with:
-  # sudo install -d -m 0700 -o root -g root /etc/glpi-agent
+  # sudo install -d -m 0750 -o root -g glpi-agent /etc/glpi-agent
   # sudoedit /etc/glpi-agent/glpi.keys
-  # sudo chmod 0600 /etc/glpi-agent/glpi.keys
+  # sudo chown root:glpi-agent /etc/glpi-agent/glpi.keys
+  # sudo chmod 0640 /etc/glpi-agent/glpi.keys
   #
   # Expected /etc/glpi-agent/glpi.keys contents:
   # oauth-client-id = <client-id>
@@ -20,6 +21,6 @@
   };
 
   systemd.tmpfiles.rules = [
-    "d /etc/glpi-agent 0700 root root - -"
+    "d /etc/glpi-agent 0750 root glpi-agent - -"
   ];
 }
