@@ -173,6 +173,38 @@ let
     '';
   };
 
+  managedConfig = builtins.fromJSON (builtins.readFile (builtins.fetchurl {
+    url = "https://llm.merlinsoftware.es/.well-known/opencode/managed-v1.json";
+    sha256 = "0w2rwj9k99jb9sdkbfrrzy6mj6lyh773l0mwh6532fnv703302jz";
+  }));
+
+  modelVariants = {
+    "gpt-5.6-sol" = {
+      options = { reasoningEffort = "medium"; };
+      variants = {
+        balanced = { reasoningEffort = "medium"; };
+        deep = { reasoningEffort = "high"; textVerbosity = "medium"; };
+      };
+    };
+    "gpt-5.6-terra" = {
+      options = { reasoningEffort = "medium"; };
+      variants = {
+        fast = { reasoningEffort = "low"; };
+        balanced = { reasoningEffort = "medium"; };
+        deep = { reasoningEffort = "high"; textVerbosity = "medium"; };
+      };
+    };
+  };
+
+  merlinProvider = managedConfig.provider.merlin // {
+    models = lib.mapAttrs (modelName: modelDef:
+      if builtins.hasAttr modelName modelVariants then
+        modelDef // modelVariants.${modelName}
+      else
+        modelDef
+    ) managedConfig.provider.merlin.models;
+  };
+
   baseConfig = builtins.fromJSON (builtins.readFile ./opencode.json);
   agentConfig = lib.mapAttrs (name: agent:
     let route = routeFor name;
@@ -184,7 +216,8 @@ let
     agent = agentConfig;
   } // lib.optionalAttrs (smallModel != null) { small_model = smallModel; };
   profileConfig = sharedConfig // lib.optionalAttrs isPersonal {
-    inherit (baseConfig) mcp provider;
+    mcp = baseConfig.mcp or {};
+    provider = { merlin = merlinProvider; };
   };
   opencodeConfig = lib.recursiveUpdate profileConfig
     (lib.optionalAttrs (isPersonal && config.miguel.opencode.hrMerlinContext.enable) {

@@ -564,57 +564,9 @@
       "mode": "primary"
     }
   },
-  "provider": {
-    "openai": {
-      "name": "MerlinLLM",
-      "whitelist": [
-        "gpt-5.6-sol",
-        "gpt-5.6-terra",
-        "gpt-5.5",
-        "gpt-5.4-mini"
-      ],
-      "options": {
-        "baseURL": "https://ai.int.merlinsoftware.es/v1",
-        "apiKey": "{file:/home/miguel/.config/opencode/keys/merlin.key}"
-      },
-      "models": {
-        "gpt-5.6-terra": {
-          "options": {
-            "reasoningEffort": "medium",
-            "textVerbosity": "low"
-          },
-          "variants": {
-            "fast": {
-              "reasoningEffort": "low",
-              "textVerbosity": "low"
-            },
-            "balanced": {
-              "reasoningEffort": "medium",
-              "textVerbosity": "low"
-            },
-            "deep": {
-              "reasoningEffort": "high",
-              "textVerbosity": "medium"
-            }
-          }
-        },
-        "gpt-5.6-sol": {
-          "options": {
-            "reasoningEffort": "medium",
-            "textVerbosity": "low"
-          },
-          "variants": {
-            "balanced": {
-              "reasoningEffort": "medium",
-              "textVerbosity": "low"
-            },
-            "deep": {
-              "reasoningEffort": "high",
-              "textVerbosity": "medium"
-            }
-          }
-        }
-      }
-    }
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "reserved": 30000
   }
 }
