@@ -69,6 +69,7 @@ in
       hunspellDicts.pt_PT
       mupdf
       direnv
+      mermaid-cli
     ];
 
     home.activation.cloneEmacsConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
