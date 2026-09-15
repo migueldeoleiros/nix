@@ -175,7 +175,7 @@ let
 
   managedConfig = builtins.fromJSON (builtins.readFile (builtins.fetchurl {
     url = "https://llm.merlinsoftware.es/.well-known/opencode/managed-v1.json";
-    sha256 = "0w2rwj9k99jb9sdkbfrrzy6mj6lyh773l0mwh6532fnv703302jz";
+    sha256 = "162azixrh2cygamgccx5fpf5c89j1sfamxa9zy6wa78wdc9c0n38";
   }));
 
   modelVariants = {
