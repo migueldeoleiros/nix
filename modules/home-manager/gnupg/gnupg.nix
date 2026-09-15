@@ -32,6 +32,8 @@ in
   config = lib.mkIf cfg.enable {
     programs.gpg.enable = true;
 
+    home.packages = lib.optionals cfg.graphical [ pkgs.gcr_3 ];
+
     services.gpg-agent = {
       enable = true;
 
