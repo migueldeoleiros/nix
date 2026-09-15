@@ -22,6 +22,9 @@
           size= 11.5;
         };
       };
+      global_shortcuts = {
+        toggle = "";
+      };
       keybinding= "default";
       keybinds= {
       };
