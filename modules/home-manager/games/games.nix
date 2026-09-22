@@ -1,14 +1,15 @@
-{pkgs, config, lib, vars, ...}:
+{pkgs, config, lib, vars, osConfig ? {}, ...}:
 
 {
   home = {
     packages = with pkgs; [
       osu-lazer-bin
-      steam
       # lutris
       gamescope
-      modrinth-app
+      # modrinth-app
       jdk
+    ] ++ lib.optionals (!(lib.attrByPath [ "programs" "steam" "enable" ] false osConfig)) [
+      steam
     ];
   };
 }

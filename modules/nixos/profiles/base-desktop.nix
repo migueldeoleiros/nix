@@ -132,6 +132,10 @@
   };
 
   services = {
+    avahi = {
+      enable = true;
+      openFirewall = true;
+    };
     printing.enable = true;
     pipewire = {
       enable = true;

@@ -13,6 +13,7 @@
       import ../../modules/nixos/flatpak ++
       import ../../modules/nixos/gnupg ++
       import ../../modules/nixos/kdeconnect ++
+      import ../../modules/nixos/games ++
       import ../../modules/nixos/netbird;
 
   services.netbird.enable = true;
