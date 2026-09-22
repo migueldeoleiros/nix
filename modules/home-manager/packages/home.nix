@@ -42,7 +42,6 @@ in
       dbeaver-bin
 
       # Media
-      mpv
       wf-recorder
       slurp
       wl-clipboard
