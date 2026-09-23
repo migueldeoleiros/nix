@@ -175,11 +175,11 @@ let
 
   managedConfig = builtins.fromJSON (builtins.readFile (builtins.fetchurl {
     url = "https://llm.merlinsoftware.es/.well-known/opencode/managed-v1.json";
-    sha256 = "162azixrh2cygamgccx5fpf5c89j1sfamxa9zy6wa78wdc9c0n38";
+    sha256 = "17j2k3d55dnlwbfaafp90axbqdpccsfldwqrhyyz8x6ynmlib3gs";
   }));
 
   modelVariants = {
-    "gpt-5.6-sol" = {
+    "gpt-6-sol" = {
       options = { reasoningEffort = "medium"; };
       variants = {
         balanced = { reasoningEffort = "medium"; };
