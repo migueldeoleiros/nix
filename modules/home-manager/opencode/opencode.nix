@@ -179,7 +179,7 @@ let
   }));
 
   modelVariants = {
-    "gpt-6-sol" = {
+    "gpt-6.1-sol" = {
       options = { reasoningEffort = "medium"; };
       variants = {
         balanced = { reasoningEffort = "medium"; };
