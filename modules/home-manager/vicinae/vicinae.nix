@@ -8,7 +8,13 @@
   };
   programs.vicinae = {
     enable = true;
-    package = inputs.vicinae.packages.${pkgs.stdenv.hostPlatform.system}.default;
+    package = inputs.vicinae.packages.${pkgs.stdenv.hostPlatform.system}.default.override {
+      # Vicinae uses GCC 15; keep Numen on the same libstdc++ ABI.
+      numen = inputs.vicinae.inputs.numen.packages.${pkgs.stdenv.hostPlatform.system}.numen.override {
+        stdenv = pkgs.gcc15Stdenv;
+        withRepl = false;
+      };
+    };
     systemd = {
       enable = true;
       autoStart = true;

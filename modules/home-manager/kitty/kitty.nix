@@ -32,6 +32,7 @@
       visual_bell_duration = "0.0";
 
       # Window
+      remember_window_size = false;
       window_margin_width = 2;
       single_window_margin_width = "-1";
       window_padding_width = 5;
