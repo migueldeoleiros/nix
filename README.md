@@ -1,70 +1,58 @@
 # nix-config
 
-Nix flake for my NixOS systems and standalone Home Manager machines.
+My NixOS and Home Manager configuration.
 
-## Targets
+## Machines
 
-- `.#miguel@nitro` - NixOS system with Home Manager as a NixOS module. NVIDIA/AMD hybrid laptop. Uses the pinned `nixpkgs-nitro-kernel` input for kernel/firmware support.
-- `.#miguel@framework` - NixOS system with Home Manager as a NixOS module. Framework laptop config for work with Framework-specific hardware modules.
-- `.#miguel@yoga` - standalone Home Manager config for a non-NixOS generic Linux machine. There is no NixOS config for this host.
-- `.#miguel@vm-shell` - minimal standalone Home Manager config for shell-focused Linux VMs.
+| Machine | Configuration |
+| --- | --- |
+| Framework | NixOS + Home Manager; current work laptop |
+| Nitro | NixOS + Home Manager; NVIDIA/AMD laptop |
+| Yoga | Standalone Home Manager on Linux |
+| vm-shell | Standalone Home Manager for shell-focused Linux VMs |
 
-## Structure
+## Apply changes
 
-```text
-flake.nix                 # inputs, host records, and flake outputs
-hosts/                    # per-machine wiring
-  nitro/                  # NixOS system + Home Manager user config
-  framework/              # NixOS system + Home Manager user config
-  yoga/                   # standalone Home Manager only
-  vm-shell/               # minimal standalone Home Manager for Linux VMs
-modules/
-  home-manager/           # shared user-level modules
-  nixos/                  # shared system-level modules
-pkgs/                     # custom package builds loaded with pkgs.callPackage
-```
-
-Host files build imports by concatenating module-directory `default.nix` lists. 
-Reusable modules should usually be added to the relevant module directory and its `default.nix`.
-
-## Usage
-
-Rebuild NixOS targets:
+Run from this repository. Choose the command for the machine:
 
 ```bash
-sudo nixos-rebuild switch --flake '.#miguel@nitro'
 sudo nixos-rebuild switch --flake '.#miguel@framework'
-```
-
-Apply standalone Home Manager:
-
-```bash
+sudo nixos-rebuild switch --flake '.#miguel@nitro'
 home-manager switch --flake '.#miguel@yoga'
 home-manager switch --flake '.#miguel@vm-shell'
 ```
 
-Update flake inputs:
+Update packages and check the configuration:
 
 ```bash
 nix flake update
+nix flake check
 ```
 
-Optional checks/builds:
+To build a NixOS configuration without applying it, use `build` instead of `switch`.
+
+## OpenCode and Orca
+
+- Start a profile with `opencode-merlin`, `opencode-personal`, or `opencode-inditex`.
+- `opencode` defaults to Merlin on laptops and Inditex on `vm-shell`.
+- In Orca's **Settings > Agents > OpenCode**, set the command to `opencode-orca`
+  and the default agent to `opencode`. This uses Personal on laptops and Inditex on VMs.
+- Browser tools need Orca running locally or a paired remote environment.
+- After applying OpenCode configuration changes, quit and restart OpenCode.
+
+Sign in to the personal providers once per machine:
 
 ```bash
-nix flake check
-nix build '.#nixosConfigurations."miguel@nitro".config.system.build.toplevel'
-nix build '.#nixosConfigurations."miguel@framework".config.system.build.toplevel'
+opencode-personal auth login --provider opencode-go
+opencode-personal auth login --provider opencode
 ```
 
-## Configuration notes
+Keep credentials out of the repository. SSH, VPN, and Orca pairing are configured separately.
 
-- Hyprland/UI modules depend on host records in `flake.nix` for monitor names, resolutions, keyboard layout, `hasNvidia`, `tabletOutput`, `defaultScreenConfig`, and `batteryId`.
-- Hyprland screen layout is intentionally mutable: generated variables are managed from Home Manager, while the runtime screen layout file is only created when missing so local display changes can survive switches.
-- For API keys that are used by OpenCode or other software, you would need to add a file with the key before building.
+## Layout
 
-## vm-shell OpenCode (Inditex)
-
-The `miguel@vm-shell` apply command above selects the Inditex OpenCode profile. It generates `.config/opencode-custom/profile.json` plus shared prompts, commands, skills, and plugins under `.config/opencode-custom`. It leaves model selection to OpenCode: primary agents use the selected/global corporate model and subagents inherit the invoking primary agent's model. Explicit Inditex routes can be added after the corporate quota and model policy are known.
-
-Company-owned `~/.config/opencode`, including `plugins/git-ai.ts`, is not managed and continues to merge with the profile. The company tracker/plugin is a prerequisite; authenticate GitHub Copilot once with `opencode auth login` (or the company-prescribed flow). Do not commit company configuration or secrets.
+- `hosts/` — machine-specific configuration
+- `modules/home-manager/` — shared apps and user settings
+- `modules/nixos/` — shared system settings
+- `pkgs/` — custom packages
+- `AGENTS.md` — conventions and configuration notes for coding agents
