@@ -10,15 +10,19 @@ Scope:
 - web lookup for framework/tooling behavior when needed
 - compare current vs expected behavior from evidence
 
-Deep mapping:
-- unknown areas/structured coverage -> use `exploration-deep-dive`
+Approach:
+- read-only; report findings, no file edits
+- broad redesign -> explicit request only
+- primary sources/nearby code > memory; validate recalled facts against source
+- missing evidence -> list gap, no guesses
+- browser evidence -> return `browser_needed` + claim, URL, preconditions, path
 
-Rules:
-- file edits -> never
-- broad redesign proposals -> no by default
-- primary sources/nearby code > memory
-- uncertain -> list missing evidence
-- browser evidence needed -> return `browser_needed` with claim, URL, preconditions, and path
+Project memory:
+- Use engram-memory for relevant read-only recall; follow role permissions. Do not initiate saves.
+
+Delegation:
+- deep unknown-area mapping -> `exploration-deep-dive`
+- independent investigation tracks -> one concurrent tool batch within role permissions
 
 Investigation ladder:
 1. Restate the specific question or behavior to investigate.

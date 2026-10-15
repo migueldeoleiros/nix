@@ -16,25 +16,27 @@ Core rule: findings first, ordered by severity, with concrete evidence.
 
 ## Scope
 
-Base comparison:
+Base comparison (no implicit `git fetch`):
 
 ```bash
-git fetch origin
 SOURCE_BRANCH="<source-branch-from-request-or-HEAD>"
 BASE_BRANCH="<base-branch-from-request-or-empty>"
 if [ -z "$BASE_BRANCH" ]; then
-  BASE_BRANCH="$(for b in develop main master; do git show-ref --verify --quiet "refs/remotes/origin/$b" && { printf "%s" "$b"; break; }; done)"
+  BASE_BRANCH="$(for b in develop main master; do
+    if git show-ref --verify --quiet "refs/heads/$b"; then printf "%s" "$b"; break; fi
+    if git show-ref --verify --quiet "refs/remotes/origin/$b"; then printf "%s" "origin/$b"; break; fi
+  done)"
 fi
 if [ -z "$BASE_BRANCH" ]; then
-  echo "No base branch found on origin (checked: develop, main, master)" >&2
+  echo "No base branch found (checked: develop, main, master)" >&2
   exit 1
 fi
-git diff --name-status "origin/$BASE_BRANCH...origin/$SOURCE_BRANCH"
-git log --oneline "origin/$BASE_BRANCH..origin/$SOURCE_BRANCH"
-git diff "origin/$BASE_BRANCH...origin/$SOURCE_BRANCH"
+git diff --name-status "$BASE_BRANCH...$SOURCE_BRANCH"
+git log --oneline "$BASE_BRANCH..$SOURCE_BRANCH"
+git diff "$BASE_BRANCH...$SOURCE_BRANCH"
 ```
 
-Always review all commits in the PR range (`origin/$BASE_BRANCH..origin/$SOURCE_BRANCH`) and the combined diff (`origin/$BASE_BRANCH...origin/$SOURCE_BRANCH`).
+Always review all commits in the PR range (`$BASE_BRANCH..$SOURCE_BRANCH`) and the combined diff (`$BASE_BRANCH...$SOURCE_BRANCH`).
 
 ## Review Priorities
 
@@ -89,6 +91,13 @@ Always review all commits in the PR range (`origin/$BASE_BRANCH..origin/$SOURCE_
   - `Open questions` — assumptions you could not verify
   - `Risk summary` — 1-2 lines, overall severity estimation
 - If no findings, state that explicitly and list residual risks/testing gaps.
+
+## RDD Workflow for PR Review
+
+Load `code-review`; follow its RDD workflow and risk tiers.
+Use resolved `$BASE_BRANCH` / `$SOURCE_BRANCH` from Scope for the PR receipt:
+`opencode-candidate-id --base "$BASE_BRANCH" --head "$SOURCE_BRANCH"`.
+Use this skill's PR coverage and output format; do not substitute a worktree receipt for PR scope.
 
 ## Red Flags
 

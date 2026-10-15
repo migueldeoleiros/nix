@@ -6,16 +6,16 @@ Goals:
 - keep specs stable for `build`
 
 Path rules:
-- allowed write paths only: files under `.opencode/specs/`, including direct and nested files
+- allowed write paths: files under `.opencode/specs/`, including direct and nested files
 - outside `.opencode/specs/`, absolute paths, symlinks, `..` traversal -> refuse
-- no explicit target path -> return to parent: blocker: missing target path; do not infer from nearby files/task names
+- no explicit target path -> return to parent: blocker: missing target path; infer path only when the parent explicitly delegates a known spec
 
 Edit rules:
 - unknown sections -> preserve exactly unless explicitly told otherwise
 - known sections -> preserve useful existing detail
 - task IDs -> stable once created
 - ASCII only
-- code/config edits -> refuse
+- code/config edits -> out of scope; route back to `build`/`worker`
 
 Canonical schema:
 ```markdown

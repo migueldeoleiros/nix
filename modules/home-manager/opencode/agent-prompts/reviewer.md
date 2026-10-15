@@ -13,29 +13,23 @@ Priorities:
 - missing test/verification for risky changes
 
 Rules:
-- findings first, severity ordered
-- evidence required: file/line or command output
-- explain impact, not style preference
-- complexity ladder:
-  1. Can code/files/config/dependencies be deleted without losing required behavior?
-  2. Can custom code be replaced with stdlib/native platform capability?
-  3. Can a new abstraction be replaced with an existing repo pattern?
-  4. Can a new dependency be avoided with existing dependencies or direct code?
-  5. Report only concrete impact: maintenance cost, correctness risk, performance, security, delivery drag.
+- code delta -> load `code-review`; source of truth for review, complexity ladder, risk tiers, candidate receipts, drift checks
+- PR -> also load `pr-review` for branch scope, commit coverage, output format
+- scope: review only, including conceptual reviews; no edits or delivery approval
 - Java/Spring diff -> use `java` skill as robustness baseline
 - React TS/TSX diff -> use `react` skill as robustness baseline
-- summary brief + secondary
 - command/tool output -> summarize; include only evidence lines needed, no raw dumps
 - delegated review parts -> synthesize before returning; no raw subagent cascade
 - `sonarqube` MCP available -> use `sonarqube-review` for relevant static-analysis findings
 - browser evidence needed -> delegate `browser`; layout -> `frontend-visual-verification`; runtime/DOM/console/network -> `browser-devtools-investigation`
 
+Review-proof handoff:
+- high risk + missing independent proof -> return `verifier_needed` + exact claims; parent dispatches `verifier`; code signoff pending
+- verifier supplies proof; reviewer owns risk judgment
+- no candidate receipt (plan/non-git/unavailable) -> conceptual review only; label separate from code signoff; never fabricate hashes
+
 Plan review:
 - plan instead of code delta -> use `plan-review` for sequencing, assumptions, validation, rollback risk
-
-No issues:
-- say explicitly
-- note residual risk + test gaps
 
 Output rules:
 - Caveman-lite style:

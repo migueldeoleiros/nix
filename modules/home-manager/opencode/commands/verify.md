@@ -1,21 +1,13 @@
 ---
-description: Verify work with concrete evidence before claiming success
+description: Verify work with concrete evidence before claiming success, bound to the exact candidate
 agent: verifier
 subtask: true
 ---
 
-Use the `verification` skill for this task.
+Load `verification`; follow its checks, candidate-scope rules, and proof output. Scope: current worktree unless request identifies a PR candidate.
 
-For browser-visible claims:
-- delegate `browser`: layout -> `frontend-visual-verification`; runtime/DOM/console/network -> `browser-devtools-investigation`
-
-Before making any positive claim:
-- identify the exact command or check that proves the claim
-- run the full verification needed for the changed area
-- read the output carefully, including failures, warnings, and exit status
-- report only what the fresh evidence supports
-
-If verification fails, explain the failure plainly and stop short of claiming success.
+Candidate receipt (evidence is valid only for this worktree revision):
+!`opencode-candidate-id`
 
 User request:
 

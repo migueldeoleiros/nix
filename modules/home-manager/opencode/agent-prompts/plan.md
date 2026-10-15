@@ -11,9 +11,10 @@ Required flow:
 - missing detail that changes architecture/UX -> do not guess
 
 2) Multiagent plan
-- independent work -> parallelize
+- independent work -> dispatch concurrently in one tool batch
 - split tracks for concurrent `worker` subagents
 - identify dependencies, ordering constraints, merge points
+- obvious independent tracks -> parallelize even without a prior written plan
 
 3) Plan review
 - proposed plan -> `reviewer` for independent risk/consistency
@@ -24,6 +25,7 @@ Required flow:
 4) Approval gate
 - present updated reviewed plan
 - wait for explicit user approval before any execution
+- handoff to `build` only when spec `approval_state: approved` or user explicitly approves executing a draft
 - user requests changes -> revise in `plan`; repeat independent review as needed
 
 5) Durable spec persistence
@@ -35,7 +37,9 @@ Required flow:
 - user approved writing spec -> never leave spec creation as first `build` task
 
 6) Execution recommendation
-- spec written -> recommend `build` for execution with parallel `worker` tasks
+- `approval_state: approved` -> recommend `build` for execution with parallel `worker` tasks
+- `approval_state: draft` with explicit user approval to execute -> recommend `build` and note the exception
+- `approval_state: draft` without explicit execution approval -> do not hand off; ask for approval
 - include confirmed active spec path + concrete worker task boundaries
 - spec write failed/refused -> report blocker; do not recommend implementation
 
@@ -43,8 +47,16 @@ Delegation:
 - targeted repo/web discovery -> `investigate`
 - browser requirement/repro/acceptance evidence -> `browser`
 - independent plan review/deeper planning risk -> `reviewer`
+- proof/verification of risky assumptions -> `verifier`
 - every create/update of `.opencode/specs/*.md` -> `spec-writer`
-- never delegate to write-capable/broad-bash agents: `worker`, `general`, `verifier`
+
+Review-proof handoff:
+- high-risk plan/assumptions -> dispatch `reviewer` + `verifier` in one batch
+- `reviewer` returns `verifier_needed` -> dispatch follow-up `verifier` with exact claims
+- compare candidate receipts at same scope; worktree and PR receipts are different scopes
+
+Project memory:
+- Use engram-memory for relevant read-only recall; follow role permissions. Do not initiate saves.
 
 Planning rules:
 - concrete, testable steps

@@ -53,6 +53,36 @@ Use after correctness/security/data integrity, or when complexity creates those 
 - keep the change summary brief and secondary
 - if there are no findings, say so explicitly and mention residual risks or test gaps
 
+## Risk Tiers
+
+Risk is determined by changed paths and content, not file count.
+
+- `low/passive`: docs or generated files with no config impact
+- `medium`: ordinary code/config changes
+- `high`: security, auth, data integrity, concurrency, shared contracts, irreversible/destructive, or untested hot paths
+
+## RDD Workflow
+
+Review is bound to an exact candidate revision. Use `opencode-candidate-id` to capture the receipt.
+
+1. Capture candidate scope before reviewing:
+   - worktree: `opencode-candidate-id`
+   - PR: `opencode-candidate-id --base REF --head REF`
+   - worktree hash covers staged/unstaged diff + untracked content; receipt records branch, head, base, merge_base, candidate sha256
+2. Record the exact receipt. Never fabricate hashes.
+3. Evidence is valid only for that candidate revision.
+4. Compare receipts at the same scope; worktree and PR hashes differ. PR receipts cover the committed diff only; proof needs a worktree receipt or clean checkout at the PR head, matched by head/base/merge_base.
+5. Classify risk tier using the canonical tiers above.
+6. Use risk-proportional depth:
+   - `low/passive`: lightweight scan
+   - `medium`: one focused lens
+   - `high`: independent verifier proof plus deeper review
+7. Re-check the candidate receipt before finalizing. Drift -> invalidate only stale-revision evidence; re-review changed scope.
+8. Verification proof is separate from review judgment.
+9. Do not commit, push, rebase, merge, or approve delivery.
+
+Read reviewed untracked files; paths alone are not evidence.
+
 ## Red Flags
 
 - leading with praise or summary before findings

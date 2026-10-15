@@ -1,50 +1,24 @@
 ---
-description: Review PR with findings-first output and scalability focus
+description: Review PR with findings-first output and scalability focus, bound to the exact candidate
 agent: reviewer
 subtask: true
 ---
 
-Use the `pr-review` skill for this task.
+Load `code-review` + `pr-review`; follow shared RDD rules and PR coverage/output format.
 
-Review workflow:
-- follow the `pr-review` skill process and output format as the source of truth
-- output findings in compact, structured format (severity + title, evidence, impact, fix)
-- use `$1` as the base branch and `$2` as the source branch
-- if `$1` is empty, default the base branch to `develop`
-- if `$2` is empty, compare `HEAD` against the base branch
-- prioritize correctness, regressions, scalability/performance risks, and missing safeguards
-- include test/verification gaps for risky changes
-- present findings first, ordered by severity, with concrete file references
-- keep the summary brief and secondary
+Scope:
+- `$1` = base; empty -> first existing `develop`, `main`, `master` (local then `origin/` per branch); none -> fail
+- `$2` = source; empty -> `HEAD`
 
-Baseline repository context:
+Candidate context (initial receipt + snapshots; re-check receipt before findings):
+!`sh -ec 'BASE="$1"; if [ -z "$BASE" ]; then for b in develop main master; do if git show-ref --verify --quiet "refs/heads/$b"; then BASE="$b"; break; fi; if git show-ref --verify --quiet "refs/remotes/origin/$b"; then BASE="origin/$b"; break; fi; done; fi; [ -n "$BASE" ] || { echo "error: no base branch found (checked: develop, main, master)" >&2; exit 1; }; SOURCE="${2:-HEAD}"; printf "base=%s\nsource=%s\n\n" "$BASE" "$SOURCE"; opencode-candidate-id --base "$BASE" --head "$SOURCE"; printf "\n--- status ---\n"; git status --short -uall --ignore-submodules=none; printf "\n--- changed files ---\n"; git diff --name-status "$BASE...$SOURCE" --ignore-submodules=none; printf "\n--- commits ---\n"; git log --oneline "$BASE..$SOURCE"; printf "\n--- diff ---\n"; git diff "$BASE...$SOURCE" --no-ext-diff --no-textconv --no-color --ignore-submodules=none' _ "$1" "$2"`
 
-Current git status:
-!`git status --short`
-
-Resolved base/source:
-!`BASE="$1"; [ -n "$BASE" ] || BASE="develop"; SOURCE="$2"; [ -n "$SOURCE" ] || SOURCE="HEAD"; printf 'base=%s\nsource=%s\n' "$BASE" "$SOURCE"`
-
-Current branch:
-!`git branch --show-current`
-
-Recent commits against base branch:
-!`BASE="$1"; [ -n "$BASE" ] || BASE="develop"; SOURCE="$2"; [ -n "$SOURCE" ] || SOURCE="HEAD"; git log --oneline "origin/$BASE..$SOURCE" 2>/dev/null || git log --oneline "$BASE..$SOURCE" 2>/dev/null || true`
-
-Changed files against base branch:
-!`BASE="$1"; [ -n "$BASE" ] || BASE="develop"; SOURCE="$2"; [ -n "$SOURCE" ] || SOURCE="HEAD"; git diff --name-status "origin/$BASE...$SOURCE" 2>/dev/null || git diff --name-status "$BASE...$SOURCE" 2>/dev/null || true`
-
-Diff against base branch:
-!`BASE="$1"; [ -n "$BASE" ] || BASE="develop"; SOURCE="$2"; [ -n "$SOURCE" ] || SOURCE="HEAD"; git diff "origin/$BASE...$SOURCE" 2>/dev/null || git diff "$BASE...$SOURCE" 2>/dev/null || true`
-
-If the shell context is empty or branch resolution is ambiguous, resolve the base/source pair explicitly before writing findings.
+If base resolution fails, report it explicitly before writing findings.
 
 Usage examples:
-- `/pr-review` (review current branch against develop)
+- `/pr-review` (review current branch against develop/main/master)
 - `/pr-review develop` (review current branch against develop)
-- `/pr-review develop feature/manual-editing` (review feature/manual-editing against develop)
-
-If there are no findings, state that explicitly and include residual risks or testing gaps.
+- `/pr-review origin/develop feature/manual-editing` (review feature/manual-editing against origin/develop)
 
 User request:
 

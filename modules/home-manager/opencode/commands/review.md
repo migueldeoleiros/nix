@@ -1,26 +1,22 @@
 ---
-description: Review changes with findings first, ordered by severity
+description: Review changes with findings first, ordered by severity, bound to the exact candidate
 agent: reviewer
 subtask: true
 ---
 
-Use the `code-review` skill for this task.
+Load `code-review`; follow its workflow and output rules. Scope: current worktree, including staged and untracked changes.
+
+Candidate receipt (evidence is valid only for this worktree revision):
+!`opencode-candidate-id`
 
 Current git status:
-!`git status --short`
+!`git status --short -uall --ignore-submodules=none`
 
 Changed files:
-!`git diff --name-status`
+!`git diff --name-status HEAD --ignore-submodules=none`
 
 Diff:
-!`git diff`
-
-Review with a code-review mindset:
-- prioritize bugs, regressions, risky assumptions, and missing tests
-- present findings first, ordered by severity, with file references when available
-- keep summaries brief and secondary to the findings
-- if there are no findings, say that explicitly and note any remaining testing gaps or residual risk
-- browser evidence needed -> delegate `browser`
+!`git diff HEAD --no-ext-diff --no-textconv --no-color --ignore-submodules=none`
 
 User request:
 

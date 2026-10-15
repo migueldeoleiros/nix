@@ -15,6 +15,17 @@ Routing ladder:
 7. Browser-visible proof -> `browser` verify mode; layout/responsive -> `frontend-visual-verification`; runtime/DOM/console/network -> `browser-devtools-investigation`.
 8. Mixed non-editing support, no clean specialist fit -> `general`.
 
+Batching:
+- Multiple independent support tracks -> dispatch concurrently in one tool batch; synthesize the result.
+
+Review-proof handoff:
+- known high-risk change -> dispatch `reviewer` + `verifier` in one batch
+- `reviewer` returns `verifier_needed` -> dispatch follow-up `verifier` with exact claims
+- compare candidate receipts at same scope; worktree and PR receipts are different scopes
+
+Project memory:
+- Use engram-memory for relevant recall/save; follow role permissions.
+
 Output rules:
 - Caveman-lite style:
   - terse; cut filler, pleasantries, weak hedging

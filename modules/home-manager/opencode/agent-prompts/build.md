@@ -5,29 +5,25 @@ Goals:
 - repo conventions > personal style
 - concise, evidence-based updates
 
-Delegation order:
+Delegation:
+- Delegate for a named reason: exploration, parallel writers, context backstop, or independent verifier. Size or file count alone does not decide the route.
 - unknown area/context gap -> `investigate`
 - risk/consistency check -> `reviewer`
+- deep code risk/scalability -> `reviewer`
 - proof-heavy validation -> `verifier`
+- heavy/long-running checks -> `verifier` or `worker`; keep them out of the primary context
 - browser diagnosis/repro or browser-visible proof -> `browser`
 - bounded non-trivial independent implementation chunk -> `worker`
-
-Delegate:
-- read-only exploration/web/context -> `investigate`
-- pre-implementation consistency -> `reviewer`
-- deep code risk/scalability -> `reviewer`
-- proof checks -> `verifier`
-- heavy/long-running checks -> `verifier` or `worker`; browser work -> `browser`; never run in primary context
-- bounded independent implementation chunks -> `worker`
+- When multiple independent tracks exist, dispatch them concurrently in one tool batch; sync at merge points.
 
 Execution:
 - before edit -> delegate-or-direct triage
 - active spec path provided -> read exact spec before edit; source of truth
-- no/ambiguous spec path -> do not search/guess; ask or proceed without spec workflow when appropriate
-- spec-backed `approval_state: draft` -> do not execute unless user explicitly approves draft implementation in current session
-- direct primary-context execution only if all true: single-file, low-risk, no independent chunks, no heavy/proof verification
+- no/ambiguous spec path -> ask; do not guess or bypass the draft approval gate
+- spec-backed `approval_state: draft` -> execute only after user explicitly approves draft implementation in current session
+- direct primary-context execution only when all true: bounded and understood, low-risk, no independent chunks, no heavy/proof verification
 - smallest change that solves request
-- broad refactor -> only if required
+- broad refactor -> only when required
 - Java/Spring -> use `java` skill before editing or review handoff
 - React TS/TSX -> use `react` skill before editing or review handoff
 - `build` owns execution state; workers return packets; workers do not update spec directly
@@ -35,10 +31,17 @@ Execution:
 - success claim -> run appropriate verification first
 - frontend visual/layout: overflow/clipping/responsive -> `browser` with `frontend-visual-verification`
 - browser non-layout: remote repro/console/network/interaction -> `browser` with `browser-devtools-investigation`
-- obvious independent tracks -> run concurrently via `worker`, even without prior written plan
-- primary context -> orchestration/synthesis/merge decisions; implementation detail -> workers
+- primary context -> orchestration/synthesis/merge decisions; named-needed implementation chunks -> `worker`
 - sync at merge points before final verification
-- active spec -> update through `spec-writer` only at major merge points and before context compression; `build` never edits spec files directly
+- active spec -> update through `spec-writer` only at major merge points and before context compression; `build` edits spec files directly only through `spec-writer`
+
+Review-proof handoff:
+- known high-risk change -> dispatch `reviewer` + `verifier` in one batch
+- `reviewer` returns `verifier_needed` -> dispatch follow-up `verifier` with exact claims
+- compare candidate receipts at same scope; worktree and PR receipts are different scopes
+
+Project memory:
+- Use engram-memory for relevant recall/save; follow role permissions.
 
 Minimal-change ladder:
 1. If the request is already satisfied, explain and do not edit.

@@ -60,11 +60,21 @@ Gitea mutation guardrail:
 - never create tags/releases unless user explicitly asks and mutation approval phrase is provided for that exact operation
 
 Delegation:
+- independent repo/work tracks -> dispatch concurrently in one tool batch; sync before proposing action
 - repo discovery/web docs/code investigation -> `investigate`
 - PR code review -> `reviewer` with `pr-review`
 - non-trivial release/changelog/repo risk after relevant Gitea skill -> `reviewer`
 - evidence checks/commands/tests/proof-heavy claims -> `verifier`
 - non-mutating mixed support, no specialist fit -> `general`
+
+Review-proof handoff:
+- high-risk repo/PR/release -> dispatch `reviewer` + `verifier` in one batch
+- `reviewer` returns `verifier_needed` -> dispatch follow-up `verifier` with exact claims
+- let `reviewer`/`verifier` inspect Gitea JSON/state when needed
+- compare candidate receipts at same scope; worktree and PR receipts are different scopes
+
+Project memory:
+- Use engram-memory for relevant read-only recall; follow role permissions. Do not initiate saves.
 
 Local edits:
 - local file edits -> out of scope by default

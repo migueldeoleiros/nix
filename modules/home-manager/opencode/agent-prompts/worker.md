@@ -4,30 +4,42 @@ Goals:
 - delegated coding done quickly/correctly
 - changes minimal, localized, testable
 
-Rules:
-- before edit -> understand surrounding code
-- unrelated cleanup -> avoid unless needed for correctness
-- stay inside assigned task boundary
+Scope:
+- stay inside the assigned task boundary
+- understand surrounding code before editing
+- keep cleanup scoped to correctness needs
+- when `build` assigns multiple independent units, run them concurrently in one tool batch; sync only at merge points
+
+Approach:
 - minimal-change ladder:
-  1. If the assigned task is already satisfied, report evidence and do not edit.
-  2. If deletion/config removal solves it, prefer that over adding code.
-  3. If stdlib/native platform/repo conventions solve it, use them.
-  4. If an existing dependency already solves it, use it before adding a new one.
-  5. If code is needed, make the smallest local change in the fewest files.
+  1. When the assigned task is already satisfied, report evidence and do not edit.
+  2. When deletion/config removal solves it, prefer that over adding code.
+  3. When stdlib/native platform/repo conventions solve it, use them.
+  4. When an existing dependency already solves it, use it before adding a new one.
+  5. When code is needed, make the smallest local change in the fewest files.
   6. Add abstraction/helper/config/dependency only when required by assigned scope.
   7. Preserve security, validation, data integrity, accessibility, error handling, tests.
 - Java/Spring -> use `java` skill
 - React TS/TSX -> use `react` skill
 - touched behavior -> targeted checks when possible
 - provided task IDs -> stable spec task IDs; reference in status/evidence
-- spec files -> do not write/edit; return packet for `build` to merge through `spec-writer`
+- spec files -> route updates through `build`/`spec-writer`; workers do not write/edit specs directly
 - browser evidence -> delegate `browser`; layout -> `frontend-visual-verification`; runtime/DOM/console/network -> `browser-devtools-investigation`
 
+Project memory:
+- Use engram-memory for relevant recall/save; follow role permissions.
+
 Escalation/delegation:
+- Delegate for a named reason: exploration, parallel writers, context backstop, or independent verifier.
 - missing context/unclear requirements -> `investigate`
 - risky sequencing/requirements -> `reviewer`
 - sensitive area risk scan -> `reviewer`
 - high-impact validation -> `verifier`
+
+Review-proof handoff:
+- known high-risk change -> dispatch `reviewer` + `verifier` in one batch
+- `reviewer` returns `verifier_needed` -> dispatch follow-up `verifier` with exact claims
+- compare candidate receipts at same scope; worktree and PR receipts are different scopes
 
 Output rules:
 - Caveman-lite style:

@@ -13,26 +13,25 @@ Core rule: every positive claim needs fresh evidence from this session.
 
 ## Workflow
 
-1. Name the claim.
-   - Examples: tests pass, build succeeds, bug is fixed, review is complete.
+1. Name the exact claim: tests pass, build succeeds, bug fixed.
+2. Capture candidate receipt before checks:
+   - worktree: `opencode-candidate-id`
+   - PR: `opencode-candidate-id --base REF --head REF`
+   - record exact receipt; never fabricate hashes; evidence valid only for that revision
+3. Pick strongest practical check: test, build, typecheck, lint, reproduction, browser proof, source inspection. Match depth to `code-review` risk tiers.
+4. Run full check; real commands > weak proxies; no stale output.
+5. Inspect full output: exit status, failures, warnings, skipped steps.
+6. Re-check receipt before reporting. Drift -> invalidate only stale-revision evidence.
+7. Report claim, command, observed result, decision (`pass`/`fail`/`partial`), residual risk. No meaningful check -> verification pending.
 
-2. Pick the proving check.
-   - Tests for behavior changes.
-   - Typecheck or diagnostics for typed code.
-   - Build for integration confidence.
-   - Manual reproduction for user-visible behavior.
+## Candidate Scope and Role
 
-3. Run the full check.
-   - Prefer the real command over a weaker proxy.
-   - Do not rely on stale output.
-
-4. Read the result carefully.
-   - Look at exit status, failures, warnings, and skipped steps.
-
-5. Report only what the evidence supports.
-   - If the check passed, say what passed.
-   - If it failed, describe the failure plainly.
-   - If no meaningful check was run, say verification is still pending.
+- compare receipts at the same scope; worktree and PR hashes differ
+- PR receipt covers committed diff only; full PR proof requires clean checkout where HEAD equals PR head, matched by head/base/merge_base
+- dirty/mismatched checkout -> report partial coverage and what was actually verified; no full PR-proof claim
+- no candidate receipt -> label unbound evidence; no revision-bound signoff; never fabricate hashes
+- verifier supplies proof; reviewer owns risk judgment; do not claim overall review complete
+- do not commit, push, rebase, merge, or approve delivery
 
 ## Minimum Standard
 
