@@ -8,22 +8,6 @@
     "@mohak34/opencode-notifier"
   ],
   "mcp": {
-    "chrome-devtools": {
-      "type": "local",
-      "enabled": true,
-      "command": [
-        "opencode-chromium-devtools-mcp"
-      ],
-      "timeout": 120000
-    },
-    "playwright": {
-      "type": "local",
-      "enabled": true,
-      "command": [
-        "opencode-playwright-mcp"
-      ],
-      "timeout": 120000
-    },
     "trivy": {
       "type": "local",
       "enabled": true,
@@ -72,8 +56,6 @@
       "description": "Lightweight primary workflow for simple, low-risk tasks",
       "color": "#9ccc65",
       "permission": {
-        "chrome-devtools_*": "deny",
-        "playwright_*": "deny",
         "trivy_*": "deny",
         "sonarqube_*": "deny",
         "read": {
@@ -97,7 +79,15 @@
           "*": "deny"
         },
         "edit": "ask",
-        "gitea_*": "deny"
+        "gitea_*": "deny",
+        "engram_mem_*": "deny",
+        "engram_mem_context": "allow",
+        "engram_mem_search": "allow",
+        "engram_mem_get_observation": "allow",
+        "engram_mem_suggest_topic_key": "allow",
+        "engram_mem_current_project": "allow",
+        "codegraph_*": "deny",
+        "context7_*": "deny"
       },
       "mode": "primary"
     },
@@ -108,13 +98,8 @@
       "description": "User-facing collaborative workflow for questions, analysis, and guided task support",
       "color": "#4fc3f7",
       "permission": {
-        "chrome-devtools_*": "deny",
-        "playwright_*": "deny",
-        "trivy_*": "allow",
         "sonarqube_*": "deny",
-        "edit": "allow",
         "bash": {
-          "*": "allow",
           "git commit*": "ask",
           "git push*": "ask",
           "git rebase*": "ask",
@@ -138,7 +123,8 @@
           "browser": "allow",
           "general": "allow"
         },
-        "gitea_*": "deny"
+        "gitea_*": "deny",
+        "engram_mem_save_prompt": "deny"
       },
       "mode": "primary"
     },
@@ -149,9 +135,6 @@
       "description": "Primary implementation agent; delegate discovery to investigate, risk analysis to reviewer, and proof checks to verifier",
       "color": "#ffb74d",
       "permission": {
-        "chrome-devtools_*": "deny",
-        "playwright_*": "deny",
-        "trivy_*": "allow",
         "sonarqube_*": "deny",
         "task": {
           "*": "deny",
@@ -164,7 +147,6 @@
           "general": "allow"
         },
         "bash": {
-          "*": "allow",
           "git status*": "allow",
           "git log*": "allow",
           "git diff*": "allow",
@@ -188,8 +170,8 @@
           "unlink*": "ask",
           "shred*": "ask"
         },
-        "edit": "allow",
-        "gitea_*": "deny"
+        "gitea_*": "deny",
+        "engram_mem_save_prompt": "deny"
       },
       "mode": "primary"
     },
@@ -200,14 +182,8 @@
       "description": "Read-only planning workflow for scope clarification, sequencing, and risk-aware execution plans",
       "color": "#ba68c8",
       "permission": {
-        "chrome-devtools_*": "deny",
-        "playwright_*": "deny",
         "trivy_*": "deny",
         "sonarqube_*": "deny",
-        "read": "allow",
-        "glob": "allow",
-        "grep": "allow",
-        "list": "allow",
         "task": {
           "*": "deny",
           "investigate": "allow",
@@ -215,7 +191,6 @@
           "browser": "allow",
           "spec-writer": "allow"
         },
-        "skill": "allow",
         "edit": "deny",
         "bash": {
           "*": "deny",
@@ -227,8 +202,13 @@
           "git diff*": "allow",
           "rg *": "allow"
         },
-        "webfetch": "allow",
-        "gitea_*": "deny"
+        "gitea_*": "deny",
+        "engram_mem_*": "deny",
+        "engram_mem_context": "allow",
+        "engram_mem_search": "allow",
+        "engram_mem_get_observation": "allow",
+        "engram_mem_suggest_topic_key": "allow",
+        "engram_mem_current_project": "allow"
       },
       "mode": "primary"
     },
@@ -240,8 +220,6 @@
       "description": "Use for fast read-only research, repo exploration, and web lookups before implementation decisions",
       "color": "#64b5f6",
       "permission": {
-        "chrome-devtools_*": "deny",
-        "playwright_*": "deny",
         "sonarqube_*": "deny",
         "read": {
           "*.env": "deny",
@@ -259,7 +237,13 @@
         "task": {
           "*": "deny"
         },
-        "gitea_*": "deny"
+        "gitea_*": "deny",
+        "engram_mem_*": "deny",
+        "engram_mem_context": "allow",
+        "engram_mem_search": "allow",
+        "engram_mem_get_observation": "allow",
+        "engram_mem_suggest_topic_key": "allow",
+        "engram_mem_current_project": "allow"
       }
     },
     "reviewer": {
@@ -270,8 +254,6 @@
       "description": "Use for deep code/PR review: logic bugs, regressions, duplication, scalability limits, and reliability issues",
       "color": "#e57373",
       "permission": {
-        "chrome-devtools_*": "deny",
-        "playwright_*": "deny",
         "read": {
           "*.env": "deny",
           "*.env.*": "deny",
@@ -283,13 +265,20 @@
         "question": "deny",
         "compress": "deny",
         "bash": {
-          "*": "deny"
+          "*": "deny",
+          "opencode-candidate-id*": "allow"
         },
         "task": {
           "*": "deny",
           "browser": "allow"
         },
-        "gitea_*": "deny"
+        "gitea_*": "deny",
+        "engram_mem_*": "deny",
+        "engram_mem_context": "allow",
+        "engram_mem_search": "allow",
+        "engram_mem_get_observation": "allow",
+        "engram_mem_suggest_topic_key": "allow",
+        "engram_mem_current_project": "allow"
       }
     },
     "verifier": {
@@ -300,8 +289,6 @@
       "description": "Use when claims need proof: run tests/checks, inspect outputs, and report evidence-based verification results",
       "color": "#4db6ac",
       "permission": {
-        "chrome-devtools_*": "deny",
-        "playwright_*": "deny",
         "sonarqube_*": "deny",
         "read": {
           "*.env": "deny",
@@ -309,7 +296,6 @@
           "*.env.example": "allow"
         },
         "bash": {
-          "*": "allow",
           "git commit*": "deny",
           "git push*": "deny",
           "git rebase*": "deny",
@@ -335,7 +321,13 @@
           "*": "deny",
           "browser": "allow"
         },
-        "gitea_*": "deny"
+        "gitea_*": "deny",
+        "engram_mem_*": "deny",
+        "engram_mem_context": "allow",
+        "engram_mem_search": "allow",
+        "engram_mem_get_observation": "allow",
+        "engram_mem_suggest_topic_key": "allow",
+        "engram_mem_current_project": "allow"
       }
     },
     "spec-writer": {
@@ -346,8 +338,6 @@
       "description": "Writes and updates local temporary planning specs under .opencode/specs only",
       "hidden": true,
       "permission": {
-        "chrome-devtools_*": "deny",
-        "playwright_*": "deny",
         "trivy_*": "deny",
         "sonarqube_*": "deny",
         "read": {
@@ -369,7 +359,13 @@
         "task": {
           "*": "deny"
         },
-        "gitea_*": "deny"
+        "gitea_*": "deny",
+        "engram_mem_*": "deny",
+        "engram_mem_context": "allow",
+        "engram_mem_search": "allow",
+        "engram_mem_get_observation": "allow",
+        "engram_mem_suggest_topic_key": "allow",
+        "engram_mem_current_project": "allow"
       }
     },
     "general": {
@@ -380,8 +376,6 @@
       "description": "Fallback delegated agent for mixed tasks that do not clearly fit investigate, reviewer, or verifier",
       "color": "#90a4ae",
       "permission": {
-        "chrome-devtools_*": "deny",
-        "playwright_*": "deny",
         "trivy_*": "deny",
         "sonarqube_*": "deny",
         "read": {
@@ -411,7 +405,13 @@
         "doom_loop": "deny",
         "question": "deny",
         "compress": "deny",
-        "gitea_*": "deny"
+        "gitea_*": "deny",
+        "engram_mem_*": "deny",
+        "engram_mem_context": "allow",
+        "engram_mem_search": "allow",
+        "engram_mem_get_observation": "allow",
+        "engram_mem_suggest_topic_key": "allow",
+        "engram_mem_current_project": "allow"
       }
     },
     "worker": {
@@ -422,8 +422,6 @@
       "description": "Dedicated execution subagent for complex multi-step edits and tool-heavy implementation work",
       "color": "#ffd54f",
       "permission": {
-        "chrome-devtools_*": "deny",
-        "playwright_*": "deny",
         "sonarqube_*": "deny",
         "read": {
           "*.env": "deny",
@@ -431,7 +429,6 @@
           "*.env.example": "allow"
         },
         "bash": {
-          "*": "allow",
           "git commit*": "deny",
           "git push*": "deny",
           "git rebase*": "deny",
@@ -454,7 +451,8 @@
         "doom_loop": "deny",
         "question": "deny",
         "compress": "deny",
-        "gitea_*": "deny"
+        "gitea_*": "deny",
+        "engram_mem_save_prompt": "deny"
       }
     },
     "browser": {
@@ -462,27 +460,9 @@
       "model": "openai/gpt-5.6-terra",
       "variant": "fast",
       "prompt": "{file:./agent-prompts/browser.md}",
-      "description": "Use for live URL reproduction, DOM, console, network, browser interactions, screenshots, responsive layout, and browser-visible verification",
+      "description": "Use Orca CLI for browser navigation, DOM, console, network, interactions, screenshots, and browser-visible verification",
       "color": "#42a5f5",
-      "permission": {
-        "*": "deny",
-        "chrome-devtools_*": "allow",
-        "playwright_*": "allow",
-        "chrome-devtools_upload_file": "deny",
-        "chrome-devtools_evaluate_script": "deny",
-        "playwright_browser_drop": "deny",
-        "playwright_browser_file_upload": "deny",
-        "playwright_browser_evaluate": "deny",
-        "playwright_browser_run_code_unsafe": "deny",
-        "skill": {
-          "browser-devtools-investigation": "allow",
-          "frontend-visual-verification": "allow"
-        },
-        "bash": {
-          "systemctl --user status opencode-chromium-devtools": "allow",
-          "journalctl --user -u opencode-chromium-devtools": "allow"
-        }
-      }
+      "permission": "allow"
     },
     "gitea-repo": {
       "model": "openai/gpt-5.6-terra",
@@ -517,14 +497,14 @@
         "gitea_edit_org": "deny",
         "gitea_create_team": "deny",
         "gitea_get_runner_registration_token": "deny",
-        "chrome-devtools_*": "deny",
-        "playwright_*": "deny",
         "trivy_*": "deny",
         "sonarqube_*": "deny",
-        "read": "allow",
-        "glob": "allow",
-        "grep": "allow",
-        "webfetch": "allow",
+        "engram_mem_*": "deny",
+        "engram_mem_context": "allow",
+        "engram_mem_search": "allow",
+        "engram_mem_get_observation": "allow",
+        "engram_mem_suggest_topic_key": "allow",
+        "engram_mem_current_project": "allow",
         "edit": "deny",
         "bash": {
           "*": "ask",

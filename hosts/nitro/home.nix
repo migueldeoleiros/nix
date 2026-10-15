@@ -21,13 +21,19 @@
       import ../../modules/home-manager/dev/rust ++
       import ../../modules/home-manager/dev/nodejs ++
       import ../../modules/home-manager/dev/java ++
-      import ../../modules/home-manager/opencode
-  );
+       import ../../modules/home-manager/opencode
+   );
+
+  miguel.opencode = {
+    profile = "merlin";
+    enabledProfiles = [ "merlin" "personal" "inditex" ];
+  };
 
   home = {
     username = vars.user;
     homeDirectory = "/home/${vars.user}";
     stateVersion = "25.11";
+    packages = [ pkgs.stablyai-orca ];
   };
 
   xdg.portal = {

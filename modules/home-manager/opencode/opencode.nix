@@ -2,90 +2,23 @@
 
 let
   modelRoutes = import ./models.nix;
-  profile = config.miguel.opencode.profile;
-  isPersonal = profile == "personal";
-  configDirectory = if isPersonal then "opencode" else "opencode-custom";
-  configFilename = if isPersonal then "opencode.json" else "profile.json";
-  profileRoutes = modelRoutes.${profile};
-  agentRoutes = profileRoutes.agents or { };
-  routeFor = name:
-    if builtins.hasAttr name agentRoutes then agentRoutes.${name}
-    else if isPersonal then
-      throw "OpenCode personal profile is missing a route for agent '${name}' in modules/home-manager/opencode/models.nix"
-    else null;
-  smallModel =
-    if profileRoutes ? smallModel then profileRoutes.smallModel
-    else if isPersonal then
-      throw "OpenCode personal profile is missing smallModel in modules/home-manager/opencode/models.nix"
-    else null;
+  cfg = config.miguel.opencode;
 
-  chromiumDevtoolsHost = "127.0.0.1";
-  chromiumDevtoolsPort = 9222;
-  chromiumDevtoolsEndpoint = "http://${chromiumDevtoolsHost}:${toString chromiumDevtoolsPort}";
-  chromiumDevtoolsProfile = "${config.xdg.dataHome}/opencode/chromium-devtools";
-  chromiumDevtoolsService = "opencode-chromium-devtools.service";
+  makeEngramProfile = import ./engram.nix { inherit config pkgs lib; };
+  makeCodegraphProfile = import ./codegraph.nix { inherit pkgs lib; };
+  context7 = import ./context7.nix;
+  opencodeCandidateId = pkgs.callPackage ./candidate-id.nix { };
 
-  ensureChromiumDevtools = pkgs.writeShellApplication {
-    name = "opencode-ensure-chromium-devtools";
-    runtimeInputs = [ pkgs.curl pkgs.psmisc ];
-    text = ''
-      set -euo pipefail
-
-      service=${chromiumDevtoolsService}
-      port=${toString chromiumDevtoolsPort}
-
-      ${pkgs.systemd}/bin/systemctl --user start "$service"
-
-      for _ in {1..50}; do
-        if ! ${pkgs.systemd}/bin/systemctl --user is-active --quiet "$service"; then
-          echo "Managed Chromium service is not active; port $port may already be in use. Inspect: systemctl --user status $service" >&2
-          exit 1
-        fi
-
-        main_pid="$(${pkgs.systemd}/bin/systemctl --user show --property=MainPID --value "$service")"
-        listener_pids="$(${pkgs.psmisc}/bin/fuser -n tcp "$port" 2>/dev/null || true)"
-        if [ -z "$listener_pids" ]; then
-          sleep 0.2
-          continue
-        fi
-
-        case " $listener_pids " in
-          *" $main_pid "*) ;;
-          *)
-            echo "DevTools port $port is not owned by managed Chromium (service PID $main_pid; listener PID(s): ''${listener_pids:-none}). Port conflict suspected." >&2
-            exit 1
-            ;;
-        esac
-
-        if ${pkgs.curl}/bin/curl -fsS --max-time 1 \
-          ${chromiumDevtoolsEndpoint}/json/version >/dev/null; then
-          exit 0
-        fi
-        sleep 0.2
-      done
-
-      echo "Managed Chromium is active but DevTools endpoint did not become ready: ${chromiumDevtoolsEndpoint}/json/version" >&2
-      exit 1
-    '';
+  profilePaths = {
+    merlin = { directory = "opencode-merlin"; filename = "opencode.json"; };
+    personal = { directory = "opencode-personal"; filename = "opencode.json"; };
+    inditex = { directory = "opencode-inditex"; filename = "profile.json"; };
   };
+  profileConfigDirectory = profile:
+    "${config.xdg.configHome}/${profilePaths.${profile}.directory}";
 
-  chromiumDevtoolsMcp = pkgs.writeShellApplication {
-    name = "opencode-chromium-devtools-mcp";
-    runtimeInputs = with pkgs; [ nodejs ];
-    text = ''
-      set -euo pipefail
-
-      exec npx -y chrome-devtools-mcp@0.8.0 --browser-url=${chromiumDevtoolsEndpoint}
-    '';
-  };
-
-  playwrightMcp = pkgs.writeShellApplication {
-    name = "opencode-playwright-mcp";
-    runtimeInputs = with pkgs; [ nodejs ];
-    text = ''
-      exec npx -y @playwright/mcp@0.0.78 --cdp-endpoint=${chromiumDevtoolsEndpoint}
-    '';
-  };
+  engramProfiles = lib.genAttrs cfg.enabledProfiles makeEngramProfile;
+  codegraphProfiles = lib.genAttrs cfg.enabledProfiles makeCodegraphProfile;
 
   trivyMcp = pkgs.writeShellApplication {
     name = "opencode-trivy-mcp";
@@ -205,80 +138,131 @@ let
     ) managedConfig.provider.merlin.models;
   };
 
+  personalProvider = {
+    "opencode-go" = {
+      whitelist = [ "glm-5.3-flash" "kimi-k2.7-code" "minimax-m3" ];
+    };
+    "opencode" = {
+      whitelist = [ "big-pickle" ];
+    };
+    "openai" = {
+      whitelist = [ "gpt-6.1-sol" "gpt-6-luna" ];
+    };
+  };
+
   baseConfig = builtins.fromJSON (builtins.readFile ./opencode.json);
-  agentConfig = lib.mapAttrs (name: agent:
-    let route = routeFor name;
-    in (removeAttrs agent [ "model" "variant" ])
-      // lib.optionalAttrs (route != null) ({ model = route.model; }
-        // lib.optionalAttrs (route ? variant) { variant = route.variant; })
-  ) baseConfig.agent;
-  sharedConfig = (removeAttrs baseConfig [ "agent" "small_model" "mcp" "provider" ]) // {
-    agent = agentConfig;
-  } // lib.optionalAttrs (smallModel != null) { small_model = smallModel; };
-  profileConfig = sharedConfig // lib.optionalAttrs isPersonal {
-    mcp = baseConfig.mcp or {};
-    provider = { merlin = merlinProvider; };
-  };
-  opencodeConfig = lib.recursiveUpdate profileConfig
-    (lib.optionalAttrs (isPersonal && config.miguel.opencode.hrMerlinContext.enable) {
-      mcp."hr-merlin-context" = {
-        type = "remote";
-        url = "https://hr-api.merlinsoftware.es/mcp";
-        enabled = true;
-        oauth = false;
-        headers.Authorization = "Bearer {file:/home/miguel/.config/opencode/keys/hr-merlin-context.token}";
-        timeout = 60000;
+  opencodeConfigFor = profile:
+    let
+      profileRoutes = modelRoutes.${profile};
+      agentRoutes = profileRoutes.agents or { };
+      routeFor = name:
+        if builtins.hasAttr name agentRoutes then agentRoutes.${name}
+        else if profile != "inditex" then
+          throw "OpenCode ${profile} profile is missing a route for agent '${name}' in modules/home-manager/opencode/models.nix"
+        else null;
+      smallModel =
+        if profileRoutes ? smallModel then profileRoutes.smallModel
+        else if profile != "inditex" then
+          throw "OpenCode ${profile} profile is missing smallModel in modules/home-manager/opencode/models.nix"
+        else null;
+      agentConfig = lib.mapAttrs (name: agent:
+        let route = routeFor name;
+        in (removeAttrs agent [ "model" "variant" ])
+          // lib.optionalAttrs (route != null) ({ model = route.model; }
+            // lib.optionalAttrs (route ? variant) { variant = route.variant; })
+      ) baseConfig.agent;
+      sharedConfig = (removeAttrs baseConfig [ "agent" "small_model" "mcp" "provider" ]) // {
+        agent = agentConfig;
+      } // lib.optionalAttrs (smallModel != null) { small_model = smallModel; };
+      baseMcpFor = profile:
+        if profile == "merlin" then baseConfig.mcp or { }
+        else if profile == "personal" then removeAttrs (baseConfig.mcp or { }) [ "hr-merlin-context" ]
+        else { };
+      mcpAdditions = profile: {
+        engram = engramProfiles.${profile}.mcp;
+        codegraph = codegraphProfiles.${profile}.mcp;
+        context7 = context7.mcp.context7;
       };
-    });
-in
-{
-  options.miguel.opencode.hrMerlinContext = {
-    enable = lib.mkEnableOption "the hr-merlin-context OpenCode MCP server";
+      profileConfig = sharedConfig
+        // lib.optionalAttrs (profile == "merlin") {
+          provider = { merlin = merlinProvider; };
+        }
+        // lib.optionalAttrs (profile == "personal") {
+          provider = personalProvider;
+        }
+        // {
+          mcp = baseMcpFor profile // mcpAdditions profile;
+        };
+    in lib.recursiveUpdate profileConfig
+      (lib.optionalAttrs (profile == "merlin" && cfg.hrMerlinContext.enable) {
+        mcp."hr-merlin-context" = {
+          type = "remote";
+          url = "https://hr-api.merlinsoftware.es/mcp";
+          enabled = true;
+          oauth = false;
+          headers.Authorization = "Bearer {file:/home/miguel/.config/opencode/keys/hr-merlin-context.token}";
+          timeout = 60000;
+        };
+      });
+
+  profilePackages = profile: with pkgs;
+    [ opencode nodejs opencodeCandidateId stablyai-orca ]
+    ++ lib.optionals (profile == "merlin" || profile == "personal") [
+      docker-client
+      trivy
+      trivyMcp
+      giteaMcp
+      trivyDockerScan
+    ]
+    ++ [
+      engramProfiles.${profile}.engramPackage
+      engramProfiles.${profile}.wrapper
+      codegraphProfiles.${profile}.codegraphPackage
+      codegraphProfiles.${profile}.wrapper
+    ];
+  opencodeLauncher = profile:
+    let
+      profilePath = profilePaths.${profile};
+      configDirectory = profileConfigDirectory profile;
+    in pkgs.writeShellApplication {
+      name = "opencode-${profile}";
+      text = ''
+        unset OPENCODE_CONFIG OPENCODE_CONFIG_DIR OPENCODE_CONFIG_CONTENT
+        export OPENCODE_CONFIG_DIR=${lib.escapeShellArg configDirectory}
+        ${lib.optionalString (profilePath.filename == "profile.json")
+          "export OPENCODE_CONFIG=${lib.escapeShellArg "${configDirectory}/${profilePath.filename}"}"}
+        exec ${pkgs.opencode}/bin/opencode "$@"
+      '';
+    };
+  orcaProfile = if lib.elem "personal" cfg.enabledProfiles then "personal" else "inditex";
+  opencodeOrca = pkgs.writeShellApplication {
+    name = "opencode-orca";
+    text = ''
+      exec ${opencodeLauncher orcaProfile}/bin/opencode-${orcaProfile} "$@"
+    '';
   };
-
-  options.miguel.opencode.profile = lib.mkOption {
-    type = lib.types.enum [ "personal" "inditex" ];
-    default = "personal";
-    description = "OpenCode configuration profile.";
-  };
-
-  config = {
-    home = {
-      packages = with pkgs; [ opencode nodejs ] ++ lib.optionals isPersonal [
-        chromium
-        docker-client
-        trivy
-        ensureChromiumDevtools
-        chromiumDevtoolsMcp
-        playwrightMcp
-        trivyMcp
-        giteaMcp
-        trivyDockerScan
-      ];
-
-      sessionVariables = lib.optionalAttrs (!isPersonal) {
-        OPENCODE_CONFIG = "${config.xdg.configHome}/${configDirectory}/${configFilename}";
-        OPENCODE_CONFIG_DIR = "${config.xdg.configHome}/${configDirectory}";
-      };
-
-      shellAliases = lib.optionalAttrs (!isPersonal) {
-        opencode = "OPENCODE_CONFIG=${config.xdg.configHome}/${configDirectory}/${configFilename} OPENCODE_CONFIG_DIR=${config.xdg.configHome}/${configDirectory} ${pkgs.opencode}/bin/opencode";
-      };
-
-      file = {
-        "opencode.json" = {
-          text = builtins.toJSON opencodeConfig;
-          target = ".config/${configDirectory}/${configFilename}";
+  profileFiles = lib.concatMap (profile:
+    let profilePath = profilePaths.${profile};
+    in [
+      {
+        name = "opencode-${profile}.${profilePath.filename}";
+        value = {
+          text = builtins.toJSON (opencodeConfigFor profile);
+          target = ".config/${profilePath.directory}/${profilePath.filename}";
           force = true;
         };
-
-        "opencode.dcp.json" = {
+      }
+      {
+        name = "opencode-${profile}.dcp.json";
+        value = {
           source = ./dcp.json;
-          target = ".config/${configDirectory}/dcp.json";
+          target = ".config/${profilePath.directory}/dcp.json";
           force = true;
         };
-
-        "opencode.gitignore" = {
+      }
+      {
+        name = "opencode-${profile}.gitignore";
+        value = {
           text = ''
             node_modules
             package.json
@@ -286,53 +270,81 @@ in
             bun.lock
             .gitignore
           '';
-          target = ".config/${configDirectory}/.gitignore";
+          target = ".config/${profilePath.directory}/.gitignore";
           force = true;
         };
-
-        "opencode.agent-prompts" = {
+      }
+      {
+        name = "opencode-${profile}.agent-prompts";
+        value = {
           source = ./agent-prompts;
-          target = ".config/${configDirectory}/agent-prompts";
+          target = ".config/${profilePath.directory}/agent-prompts";
           recursive = true;
           force = true;
         };
-
-        "opencode.commands" = {
+      }
+      {
+        name = "opencode-${profile}.commands";
+        value = {
           source = ./commands;
-          target = ".config/${configDirectory}/commands";
+          target = ".config/${profilePath.directory}/commands";
           recursive = true;
           force = true;
         };
-
-        "opencode.skills" = {
+      }
+      {
+        name = "opencode-${profile}.skills";
+        value = {
           source = ./skills;
-          target = ".config/${configDirectory}/skills";
+          target = ".config/${profilePath.directory}/skills";
           recursive = true;
           force = true;
         };
+      }
+    ]) cfg.enabledProfiles;
+in
+{
+  options.miguel.opencode.hrMerlinContext = {
+    enable = lib.mkEnableOption "the hr-merlin-context OpenCode MCP server";
+  };
 
-        "opencode.plugins" = {
-          source = ./plugins;
-          target = ".config/${configDirectory}/plugins";
-          recursive = true;
-          force = true;
-        };
-      };
-    };
+  options.miguel.opencode.profile = lib.mkOption {
+    type = lib.types.enum [ "merlin" "personal" "inditex" ];
+    default = "merlin";
+    description = "OpenCode configuration profile.";
+  };
 
-    systemd.user.services.opencode-chromium-devtools = lib.mkIf isPersonal {
-      Unit = {
-        Description = "Chromium DevTools endpoint for OpenCode MCP servers";
-        After = [ "graphical-session.target" ];
-        PartOf = [ "graphical-session.target" ];
+  options.miguel.opencode.enabledProfiles = lib.mkOption {
+    type = lib.types.listOf (lib.types.enum [ "merlin" "personal" "inditex" ]);
+    default = [ cfg.profile ];
+    description = "OpenCode profiles to materialize.";
+  };
+
+  config = {
+    assertions = [
+      {
+        assertion = lib.elem cfg.profile cfg.enabledProfiles;
+        message = "miguel.opencode.enabledProfiles must contain miguel.opencode.profile.";
+      }
+      {
+        assertion = !cfg.hrMerlinContext.enable
+          || (cfg.profile == "merlin" && lib.elem "merlin" cfg.enabledProfiles);
+        message = "miguel.opencode.hrMerlinContext requires profile = \"merlin\" and merlin in enabledProfiles.";
+      }
+    ];
+
+    home = {
+      packages = lib.unique (
+        lib.concatMap profilePackages cfg.enabledProfiles
+        ++ lib.map opencodeLauncher cfg.enabledProfiles
+        ++ lib.optionals (lib.elem "personal" cfg.enabledProfiles || lib.elem "inditex" cfg.enabledProfiles) [ opencodeOrca ]
+      );
+
+      shellAliases = {
+        opencode = "opencode-${cfg.profile}";
       };
-      Service = {
-        Type = "simple";
-        ExecStart = "${pkgs.chromium}/bin/chromium --remote-debugging-address=${chromiumDevtoolsHost} --remote-debugging-port=${toString chromiumDevtoolsPort} --user-data-dir=${chromiumDevtoolsProfile} --no-first-run --no-default-browser-check about:blank";
-        Restart = "on-failure";
-        RestartSec = 2;
-        TimeoutStopSec = 10;
-      };
+
+      file = lib.listToAttrs profileFiles;
     };
   };
 }

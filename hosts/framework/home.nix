@@ -27,12 +27,17 @@
     import ../../modules/home-manager/vm-browser
   );
 
-  miguel.opencode.hrMerlinContext.enable = true;
+  miguel.opencode = {
+    profile = "merlin";
+    enabledProfiles = [ "merlin" "personal" "inditex" ];
+    hrMerlinContext.enable = true;
+  };
 
   home = {
     username = vars.user;
     homeDirectory = "/home/${vars.user}";
     stateVersion = "25.11";
+    packages = [ pkgs.stablyai-orca ];
   };
 
   xdg.portal = {

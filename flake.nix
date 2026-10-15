@@ -34,6 +34,11 @@
       pkgs = import nixpkgs {
         inherit system;
         config.allowUnfree = true;
+        overlays = [
+          (final: prev: {
+            stablyai-orca = final.callPackage ./pkgs/orca-ide.nix { };
+          })
+        ];
       };
 
       vars = {

@@ -9,8 +9,14 @@
     import ../../modules/home-manager/neovim ++
     import ../../modules/home-manager/dev/rust ++
     import ../../modules/home-manager/dev/nodejs ++
-    import ../../modules/home-manager/dev/java
+    import ../../modules/home-manager/dev/java ++
+    import ../../modules/home-manager/opencode
   );
+
+  miguel.opencode = {
+    profile = "inditex";
+    enabledProfiles = [ "inditex" ];
+  };
 
   home = {
     username = vars.user;
