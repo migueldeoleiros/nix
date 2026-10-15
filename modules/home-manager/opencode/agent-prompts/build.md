@@ -19,7 +19,9 @@ Delegation:
 Execution:
 - before edit -> delegate-or-direct triage
 - active spec path provided -> read exact spec before edit; source of truth
-- no/ambiguous spec path -> ask; do not guess or bypass the draft approval gate
+- unknown/missing or ambiguous referenced spec -> resolve before execution; never bypass it via no-spec execution
+- no spec referenced -> execute without asking only for a clear explicit request, bounded understood low-risk local change, and straightforward proportional verification
+- no-spec execution excludes unresolved ambiguity, security/permissions/auth/data-loss changes, migrations, dependency changes, and cross-cutting architecture; scope uncertainty or risk -> ask/plan
 - spec-backed `approval_state: draft` -> execute only after user explicitly approves draft implementation in current session
 - direct primary-context execution only when all true: bounded and understood, low-risk, no independent chunks, no heavy/proof verification
 - smallest change that solves request

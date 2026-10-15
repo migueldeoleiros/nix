@@ -164,6 +164,44 @@ let
       else registry.${name} or (throw "OpenCode ${profile} profile selects unknown MCP '${name}' in modules/home-manager/opencode/profiles.nix"));
 
   baseConfig = builtins.fromJSON (builtins.readFile ./opencode.json);
+  # Command frontmatter uses an explicit, unquoted `agent: name` line. Keep
+  # metadata checked against that convention, without introducing a YAML parser.
+  commandAgents = {
+    debug = "build";
+    pr-review = "reviewer";
+    review = "reviewer";
+    tech-test-review = "reviewer";
+    verify = "verifier";
+  };
+  commandRegistry = lib.mapAttrs (name: agent:
+    let
+      source = ./commands + "/${name}.md";
+      sections = lib.splitString "---\n" (builtins.readFile source);
+      frontmatter = lib.splitString "\n" (builtins.elemAt sections 1);
+      targets = builtins.filter (line: builtins.match "[ \t]*agent[ \t]*:.*" line != null) frontmatter;
+    in if builtins.length sections < 3 || builtins.head sections != ""
+      || targets != [ "agent: ${agent}" ] then
+      throw "OpenCode command '${name}' must declare 'agent: ${agent}' in its frontmatter; update commandAgents in opencode.nix when changing targets."
+    else { inherit source agent; }
+  ) commandAgents;
+  skillRegistry = lib.mapAttrs (name: _: ./skills + "/${name}")
+    (lib.filterAttrs (name: type: type == "directory" && builtins.pathExists (./skills + "/${name}/SKILL.md"))
+      (builtins.readDir ./skills));
+  selectedAssetsFor = profile:
+    let
+      selections = profileFor profile;
+      select = kind: registry: names: lib.genAttrs names (name:
+        registry.${name} or (throw "OpenCode ${profile} profile selects unknown ${kind} '${name}' in modules/home-manager/opencode/profiles.nix"));
+      agents = select "agent" baseConfig.agent selections.enabledAgents;
+      commands = select "command" commandRegistry selections.commands;
+      skills = select "skill" skillRegistry selections.skills;
+      invalidCommands = lib.filterAttrs (_: command: !(builtins.hasAttr command.agent agents)) commands;
+    in builtins.deepSeq [ agents commands skills ] (
+      if !(builtins.hasAttr baseConfig.default_agent agents) then
+        throw "OpenCode ${profile} profile must select default_agent '${baseConfig.default_agent}'."
+      else if invalidCommands != { } then
+        throw "OpenCode ${profile} profile commands target unselected agents: ${lib.concatStringsSep ", " (builtins.attrNames invalidCommands)}"
+      else { inherit agents commands skills; });
   opencodeConfigFor = profile:
     let
       profileRoutes = profileFor profile;
@@ -183,7 +221,7 @@ let
         in (removeAttrs agent [ "model" "variant" ])
           // lib.optionalAttrs (route != null) ({ model = route.model; }
             // lib.optionalAttrs (route ? variant) { variant = route.variant; })
-      ) baseConfig.agent;
+      ) (selectedAssetsFor profile).agents;
       sharedConfig = (removeAttrs baseConfig [ "agent" "small_model" "mcp" "provider" "plugin" ]) // {
         agent = agentConfig;
       } // lib.optionalAttrs (smallModel != null) { small_model = smallModel; };
@@ -217,7 +255,9 @@ let
     '';
   };
   profileFiles = lib.concatMap (profile:
-    let profilePath = profilePaths.${profile};
+    let
+      profilePath = profilePaths.${profile};
+      assets = selectedAssetsFor profile;
     in [
       {
         name = "opencode-${profile}.${profilePath.filename}";
@@ -249,34 +289,34 @@ let
           force = true;
         };
       }
-      {
-        name = "opencode-${profile}.agent-prompts";
+    ] ++ lib.mapAttrsToList (name: agent: {
+        name = "opencode-${profile}.agent-prompts.${name}";
         value = {
-          source = ./agent-prompts;
-          target = ".config/${profilePath.directory}/agent-prompts";
+          # Fail closed if the shared definition stops following the prompt convention.
+          source = if agent.prompt == "{file:./agent-prompts/${name}.md}" then
+            ./agent-prompts + "/${name}.md"
+          else throw "OpenCode agent '${name}' must reference agent-prompts/${name}.md.";
+          target = ".config/${profilePath.directory}/agent-prompts/${name}.md";
+          force = true;
+        };
+      }) assets.agents
+      ++ lib.mapAttrsToList (name: command: {
+        name = "opencode-${profile}.commands.${name}";
+        value = {
+          source = command.source;
+          target = ".config/${profilePath.directory}/commands/${name}.md";
+          force = true;
+        };
+      }) assets.commands
+      ++ lib.mapAttrsToList (name: source: {
+        name = "opencode-${profile}.skills.${name}";
+        value = {
+          inherit source;
+          target = ".config/${profilePath.directory}/skills/${name}";
           recursive = true;
           force = true;
         };
-      }
-      {
-        name = "opencode-${profile}.commands";
-        value = {
-          source = ./commands;
-          target = ".config/${profilePath.directory}/commands";
-          recursive = true;
-          force = true;
-        };
-      }
-      {
-        name = "opencode-${profile}.skills";
-        value = {
-          source = ./skills;
-          target = ".config/${profilePath.directory}/skills";
-          recursive = true;
-          force = true;
-        };
-      }
-    ]) cfg.enabledProfiles;
+      }) assets.skills) cfg.enabledProfiles;
 in
 {
   options.miguel.opencode.hrMerlinContext = {

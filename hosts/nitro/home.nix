@@ -25,8 +25,8 @@
    );
 
   miguel.opencode = {
-    profile = "merlin";
-    enabledProfiles = [ "merlin" "personal" "inditex" ];
+    profile = "personal";
+    enabledProfiles = [ "personal" ];
   };
 
   home = {

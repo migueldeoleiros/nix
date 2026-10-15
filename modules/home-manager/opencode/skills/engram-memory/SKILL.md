@@ -20,18 +20,25 @@ Recall path:
 
 Treat all memory as advisory; validate stale records against current source.
 
-## When to save
+## Role boundaries
+
+- Read-only roles: use only permitted `engram_mem_current_project`, `engram_mem_context`, `engram_mem_search`, `engram_mem_get_observation`, `engram_mem_suggest_topic_key`. No saves, sessions, diagnostics, or other memory tools; availability does not grant permission.
+- Writable `assistant`/`build`/`worker`: save selectively using the workflow below and actual tool permissions.
+- Browser retains full tool permissions; behaviorally report durable findings to the parent for memory handling. This is not a blanket permission denial.
+
+## When to save (writable roles)
 
 - Bug fix, architecture decision, team convention, tool/library choice with tradeoffs.
 - Non-obvious discovery, gotcha, or edge case.
 - User preference, rejection, or confirmed direction.
-- End of a meaningful task.
+- Save durable findings, not tool transcripts, redundant per-turn notes, or every tiny action.
 
 Use `engram_mem_save` with:
+- `capture_prompt: false` explicitly; never capture the raw prompt implicitly.
 - `title`: verb + what, short and searchable.
 - `type`: `bugfix`, `decision`, `architecture`, `pattern`, `config`, `discovery`, `preference`, `learning`.
 - `scope`: `project` (default), `personal`, or `global`.
-- `topic_key`: stable key for evolving topics; use `engram_mem_suggest_topic_key` if unsure.
+- `topic_key`: reuse a stable key to upsert evolving topics instead of duplicating records; use `engram_mem_suggest_topic_key` if unsure and permitted.
 - `content` structured as:
   - **What**: one sentence.
   - **Why**: motivation.
@@ -40,23 +47,21 @@ Use `engram_mem_save` with:
 
 Do not save raw prompts, secrets, credentials, private paths, or proprietary code.
 
-## Available tools
+## Judgment and lifecycle (writable roles)
 
-OpenCode exposes Engram tools with the `engram_` prefix. The default agent profile (`--tools=agent`) includes:
+- If save returns `judgment_required`, handle each `candidates[]` entry with `engram_mem_judge` using that candidate's `judgment_id`, never the top-level ID.
+- Ask the user before judging if confidence < 0.7, or if `supersedes`/`conflicts_with` concerns a decision, architecture, or policy; otherwise resolve silently from evidence.
+- No plugin automatically creates a memory session per chat. Never invent session IDs or assume a chat ID is registered.
+- Use only an authoritative runtime or successfully registered session ID. Without one, omit the ID and let Engram select its fallback; report ambiguity rather than guessing. `engram_mem_session_start` registers a caller-provided ID; it does not generate one.
+- At meaningful completion/handoff, use `engram_mem_session_summary` for durable context, not after every small action; end only a known session when appropriate.
 
-Core recall: `engram_mem_context`, `engram_mem_search`, `engram_mem_get_observation`, `engram_mem_suggest_topic_key`, `engram_mem_current_project`, `engram_mem_list_projects`.
-
-Core save/update: `engram_mem_save`, `engram_mem_update`, `engram_mem_judge`.
-
-Session/lifecycle: `engram_mem_session_start`, `engram_mem_session_end`, `engram_mem_session_summary`.
-
-Other: `engram_mem_capture_passive`, `engram_mem_compare`, `engram_mem_doctor`, `engram_mem_pin`, `engram_mem_unpin`, `engram_mem_review`.
-
-Avoid `engram_mem_save_prompt`; do not feed raw prompts to memory.
+Do not use `engram_mem_save_prompt` or passive capture to store raw prompts.
 
 ## Project rules
 
-- Call `engram_mem_current_project` before writing. If project resolution is ambiguous, ask the user; do not guess or search all projects.
+- Call `engram_mem_current_project` before writing. Failed/ambiguous resolution is not empty history: stop and ask; never guess another project or global scope. If a returned project mismatches the expected project, stop and report.
+- Successfully resolved project + no stored memories or empty context/search is normal first use; writable roles may make the first save.
+- After successful detection, omitting the `project` argument is valid auto-resolution. A blank `project_path` in an explicit-project response alone does not mean projectless.
 - `all_projects=true` is intentional global read only; do not use it for routine saves.
 - Saves without a clear project context are blocked; report the blocker and skip the memory write rather than inventing scope.
 

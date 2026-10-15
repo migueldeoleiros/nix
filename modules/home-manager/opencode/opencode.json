@@ -3,6 +3,9 @@
   "default_agent": "assistant",
   "subagent_depth": 3,
   "small_model": "opencode/big-pickle",
+  "permission": {
+    "compress": "allow"
+  },
   "agent": {
     "quick": {
       "model": "opencode/big-pickle",
@@ -185,7 +188,6 @@
         "external_directory": "deny",
         "doom_loop": "deny",
         "question": "deny",
-        "compress": "deny",
         "bash": {
           "*": "deny"
         },
@@ -218,7 +220,6 @@
         "external_directory": "deny",
         "doom_loop": "deny",
         "question": "deny",
-        "compress": "deny",
         "bash": {
           "*": "deny",
           "opencode-candidate-id*": "allow"
@@ -271,7 +272,6 @@
         "external_directory": "deny",
         "doom_loop": "deny",
         "question": "deny",
-        "compress": "deny",
         "task": {
           "*": "deny",
           "browser": "allow"
@@ -310,7 +310,6 @@
         "external_directory": "deny",
         "doom_loop": "deny",
         "question": "deny",
-        "compress": "deny",
         "task": {
           "*": "deny"
         },
@@ -359,7 +358,6 @@
         "external_directory": "deny",
         "doom_loop": "deny",
         "question": "deny",
-        "compress": "deny",
         "gitea_*": "deny",
         "engram_mem_*": "deny",
         "engram_mem_context": "allow",
@@ -405,7 +403,6 @@
         "external_directory": "deny",
         "doom_loop": "deny",
         "question": "deny",
-        "compress": "deny",
         "gitea_*": "deny",
         "engram_mem_save_prompt": "deny"
       }

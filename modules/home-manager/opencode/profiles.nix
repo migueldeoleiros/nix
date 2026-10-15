@@ -1,6 +1,16 @@
 { lib, hrMerlinContextEnabled }:
 
 let
+  commonAgents = [
+    "quick" "assistant" "build" "plan" "investigate" "reviewer" "verifier"
+    "spec-writer" "general" "worker" "browser"
+  ];
+  commonCommands = [ "debug" "pr-review" "review" "tech-test-review" "verify" ];
+  commonSkills = [
+    "browser-devtools-investigation" "code-review" "codegraph-context7" "debugging"
+    "engram-memory" "exploration-deep-dive" "frontend-visual-verification" "java"
+    "plan-review" "pr-review" "react" "skill-maintenance" "tech-test-review" "verification"
+  ];
   managedConfig = builtins.fromJSON (builtins.readFile (builtins.fetchurl {
     url = "https://llm.merlinsoftware.es/.well-known/opencode/managed-v1.json";
     sha256 = "1bd5hclcaz3lm8k68h6snlf50fp5gjlqqn2i598gp0wanqgyzq6s";
@@ -24,6 +34,12 @@ let
   };
 in {
   merlin = {
+    enabledAgents = commonAgents ++ [ "gitea-repo" ];
+    commands = commonCommands;
+    skills = commonSkills ++ [
+      "gitea-ci-investigation" "gitea-issue-triage" "gitea-pr-management"
+      "gitea-release-changelog" "sonarqube-review"
+    ];
     externalModels = false;
     mcp = [ "gitea" "sonarqube" "trivy" "engram" "codegraph" "context7" ]
       ++ lib.optional hrMerlinContextEnabled "hr-merlin-context";
@@ -53,6 +69,9 @@ in {
   };
 
   personal = {
+    enabledAgents = commonAgents;
+    commands = commonCommands;
+    skills = commonSkills;
     externalModels = false;
     mcp = [ "engram" "codegraph" "context7" ];
     plugins = [ "opencode-vibeguard" "@tarquinen/opencode-dcp" "@mohak34/opencode-notifier" ];
@@ -79,6 +98,9 @@ in {
   };
 
   inditex = {
+    enabledAgents = commonAgents;
+    commands = commonCommands;
+    skills = commonSkills;
     # Other models/providers remain externally selected by corporate configuration.
     externalModels = true;
     mcp = [ "engram" "codegraph" "context7" ];
