@@ -1,8 +1,13 @@
 { config, pkgs, lib, ... }:
 
 let
-  modelRoutes = import ./models.nix;
   cfg = config.miguel.opencode;
+  profiles = import ./profiles.nix {
+    inherit lib;
+    hrMerlinContextEnabled = cfg.hrMerlinContext.enable;
+  };
+  profileFor = profile:
+    profiles.${profile} or (throw "OpenCode profile '${profile}' is missing from modules/home-manager/opencode/profiles.nix");
 
   makeEngramProfile = import ./engram.nix { inherit config pkgs lib; };
   makeCodegraphProfile = import ./codegraph.nix { inherit pkgs lib; };
@@ -106,64 +111,72 @@ let
     '';
   };
 
-  managedConfig = builtins.fromJSON (builtins.readFile (builtins.fetchurl {
-    url = "https://llm.merlinsoftware.es/.well-known/opencode/managed-v1.json";
-    sha256 = "1bd5hclcaz3lm8k68h6snlf50fp5gjlqqn2i598gp0wanqgyzq6s";
-  }));
-
-  modelVariants = {
-    "gpt-6.1-sol" = {
-      options = { reasoningEffort = "medium"; };
-      variants = {
-        balanced = { reasoningEffort = "medium"; };
-        deep = { reasoningEffort = "high"; textVerbosity = "medium"; };
+  # Definitions and supporting packages live together; profiles only select names.
+  mcpRegistryFor = profile: {
+    gitea = {
+      mcp = { type = "local"; enabled = true; command = [ "opencode-gitea-mcp" ]; timeout = 60000; };
+      packages = [ giteaMcp ];
+    };
+    sonarqube = {
+      mcp = {
+        type = "local";
+        enabled = true;
+        command = [ "docker" "run" "--init" "--rm" "--network=host" "-i"
+          "-e" "SONARQUBE_TOKEN" "-e" "SONARQUBE_URL" "mcp/sonarqube" ];
+        environment = {
+          SONARQUBE_TOKEN = "{file:/home/miguel/.config/opencode/keys/sonarqube.key}";
+          SONARQUBE_URL = "{file:/home/miguel/.config/opencode/keys/sonarqube.url}";
+        };
+        timeout = 60000;
       };
+      packages = [ pkgs.docker-client ];
     };
-    "gpt-5.6-terra" = {
-      options = { reasoningEffort = "medium"; };
-      variants = {
-        fast = { reasoningEffort = "low"; };
-        balanced = { reasoningEffort = "medium"; };
-        deep = { reasoningEffort = "high"; textVerbosity = "medium"; };
+    trivy = {
+      mcp = { type = "local"; enabled = true; command = [ "opencode-trivy-mcp" ]; timeout = 120000; };
+      packages = [ pkgs.trivy trivyMcp trivyDockerScan pkgs.docker-client ];
+    };
+    engram = {
+      mcp = engramProfiles.${profile}.mcp;
+      packages = [ engramProfiles.${profile}.engramPackage engramProfiles.${profile}.wrapper ];
+    };
+    codegraph = {
+      mcp = codegraphProfiles.${profile}.mcp;
+      packages = [ codegraphProfiles.${profile}.codegraphPackage codegraphProfiles.${profile}.wrapper ];
+    };
+    context7 = { mcp = context7.mcp.context7; packages = [ ]; };
+    "hr-merlin-context" = {
+      mcp = {
+        type = "remote";
+        url = "https://hr-api.merlinsoftware.es/mcp";
+        enabled = true;
+        oauth = false;
+        headers.Authorization = "Bearer {file:/home/miguel/.config/opencode/keys/hr-merlin-context.token}";
+        timeout = 60000;
       };
+      packages = [ ];
     };
   };
-
-  merlinProvider = managedConfig.provider.merlin // {
-    models = lib.mapAttrs (modelName: modelDef:
-      if builtins.hasAttr modelName modelVariants then
-        modelDef // modelVariants.${modelName}
-      else
-        modelDef
-    ) managedConfig.provider.merlin.models;
-  };
-
-  personalProvider = {
-    "opencode-go" = {
-      whitelist = [ "glm-5.3-flash" "kimi-k2.7-code" "minimax-m3" ];
-    };
-    "opencode" = {
-      whitelist = [ "big-pickle" ];
-    };
-    "openai" = {
-      whitelist = [ "gpt-6.1-sol" "gpt-6-luna" ];
-    };
-  };
+  selectedServersFor = profile:
+    let registry = mcpRegistryFor profile;
+    in lib.genAttrs (profileFor profile).mcp (name:
+      if name == "hr-merlin-context" && !(profile == "merlin" && cfg.hrMerlinContext.enable) then
+        throw "OpenCode hr-merlin-context requires the merlin profile and miguel.opencode.hrMerlinContext.enable."
+      else registry.${name} or (throw "OpenCode ${profile} profile selects unknown MCP '${name}' in modules/home-manager/opencode/profiles.nix"));
 
   baseConfig = builtins.fromJSON (builtins.readFile ./opencode.json);
   opencodeConfigFor = profile:
     let
-      profileRoutes = modelRoutes.${profile};
+      profileRoutes = profileFor profile;
       agentRoutes = profileRoutes.agents or { };
       routeFor = name:
         if builtins.hasAttr name agentRoutes then agentRoutes.${name}
-        else if profile != "inditex" then
-          throw "OpenCode ${profile} profile is missing a route for agent '${name}' in modules/home-manager/opencode/models.nix"
+        else if !profileRoutes.externalModels then
+          throw "OpenCode ${profile} profile is missing a route for agent '${name}' in modules/home-manager/opencode/profiles.nix"
         else null;
       smallModel =
         if profileRoutes ? smallModel then profileRoutes.smallModel
-        else if profile != "inditex" then
-          throw "OpenCode ${profile} profile is missing smallModel in modules/home-manager/opencode/models.nix"
+        else if !profileRoutes.externalModels then
+          throw "OpenCode ${profile} profile is missing smallModel in modules/home-manager/opencode/profiles.nix"
         else null;
       agentConfig = lib.mapAttrs (name: agent:
         let route = routeFor name;
@@ -171,55 +184,17 @@ let
           // lib.optionalAttrs (route != null) ({ model = route.model; }
             // lib.optionalAttrs (route ? variant) { variant = route.variant; })
       ) baseConfig.agent;
-      sharedConfig = (removeAttrs baseConfig [ "agent" "small_model" "mcp" "provider" ]) // {
+      sharedConfig = (removeAttrs baseConfig [ "agent" "small_model" "mcp" "provider" "plugin" ]) // {
         agent = agentConfig;
       } // lib.optionalAttrs (smallModel != null) { small_model = smallModel; };
-      baseMcpFor = profile:
-        if profile == "merlin" then baseConfig.mcp or { }
-        else if profile == "personal" then removeAttrs (baseConfig.mcp or { }) [ "hr-merlin-context" ]
-        else { };
-      mcpAdditions = profile: {
-        engram = engramProfiles.${profile}.mcp;
-        codegraph = codegraphProfiles.${profile}.mcp;
-        context7 = context7.mcp.context7;
-      };
-      profileConfig = sharedConfig
-        // lib.optionalAttrs (profile == "merlin") {
-          provider = { merlin = merlinProvider; };
-        }
-        // lib.optionalAttrs (profile == "personal") {
-          provider = personalProvider;
-        }
-        // {
-          mcp = baseMcpFor profile // mcpAdditions profile;
-        };
-    in lib.recursiveUpdate profileConfig
-      (lib.optionalAttrs (profile == "merlin" && cfg.hrMerlinContext.enable) {
-        mcp."hr-merlin-context" = {
-          type = "remote";
-          url = "https://hr-api.merlinsoftware.es/mcp";
-          enabled = true;
-          oauth = false;
-          headers.Authorization = "Bearer {file:/home/miguel/.config/opencode/keys/hr-merlin-context.token}";
-          timeout = 60000;
-        };
-      });
+    in sharedConfig // {
+      plugin = profileRoutes.plugins;
+      mcp = lib.mapAttrs (_: server: server.mcp) (selectedServersFor profile);
+    } // lib.optionalAttrs (profileRoutes ? provider) { provider = profileRoutes.provider; };
 
   profilePackages = profile: with pkgs;
     [ opencode nodejs opencodeCandidateId stablyai-orca ]
-    ++ lib.optionals (profile == "merlin" || profile == "personal") [
-      docker-client
-      trivy
-      trivyMcp
-      giteaMcp
-      trivyDockerScan
-    ]
-    ++ [
-      engramProfiles.${profile}.engramPackage
-      engramProfiles.${profile}.wrapper
-      codegraphProfiles.${profile}.codegraphPackage
-      codegraphProfiles.${profile}.wrapper
-    ];
+    ++ lib.concatMap (server: server.packages) (lib.attrValues (selectedServersFor profile));
   opencodeLauncher = profile:
     let
       profilePath = profilePaths.${profile};
