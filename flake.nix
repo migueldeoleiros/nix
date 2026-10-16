@@ -4,6 +4,11 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
+    opencode-v2 = {
+      url = "github:anomalyco/opencode/4617210822bdbb31e5749751afbfb4584ccedac8";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -35,6 +40,7 @@
         inherit system;
         config.allowUnfree = true;
         overlays = [
+          inputs.opencode-v2.overlays.default
           (final: prev: {
             stablyai-orca = final.callPackage ./pkgs/orca-ide.nix { };
           })

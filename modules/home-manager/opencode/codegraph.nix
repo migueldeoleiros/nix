@@ -26,8 +26,8 @@ in
 
   mcp = {
     type = "local";
-    enabled = true;
+    disabled = false;
     command = [ "${wrapper}/bin/codegraph-${profile}-mcp" ];
-    timeout = 60000;
+    timeout = { catalog = 60000; execution = 60000; };
   };
 }

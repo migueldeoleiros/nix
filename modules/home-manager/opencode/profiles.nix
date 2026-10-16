@@ -11,25 +11,28 @@ let
     "engram-memory" "exploration-deep-dive" "frontend-visual-verification" "java"
     "plan-review" "pr-review" "react" "skill-maintenance" "tech-test-review" "verification"
   ];
+  # V1-only vibeguard is disabled; automatic secret redaction is unavailable.
+  commonPlugins = [ "@tarquinen/opencode-dcp@3.2.0" "@mohak34/opencode-notifier@1.0.0" ];
   managedConfig = builtins.fromJSON (builtins.readFile (builtins.fetchurl {
     url = "https://llm.merlinsoftware.es/.well-known/opencode/managed-v1.json";
     sha256 = "1bd5hclcaz3lm8k68h6snlf50fp5gjlqqn2i598gp0wanqgyzq6s";
   }));
+  managedProvider = managedConfig.provider.merlin;
   modelVariants = {
     "gpt-6.1-sol" = {
-      options = { reasoningEffort = "medium"; };
-      variants = {
-        balanced = { reasoningEffort = "medium"; };
-        deep = { reasoningEffort = "high"; textVerbosity = "medium"; };
-      };
+      settings = { reasoningEffort = "medium"; };
+      variants = [
+        { id = "balanced"; settings = { reasoningEffort = "medium"; }; }
+        { id = "deep"; settings = { reasoningEffort = "high"; textVerbosity = "medium"; }; }
+      ];
     };
     "gpt-5.6-terra" = {
-      options = { reasoningEffort = "medium"; };
-      variants = {
-        fast = { reasoningEffort = "low"; };
-        balanced = { reasoningEffort = "medium"; };
-        deep = { reasoningEffort = "high"; textVerbosity = "medium"; };
-      };
+      settings = { reasoningEffort = "medium"; };
+      variants = [
+        { id = "fast"; settings = { reasoningEffort = "low"; }; }
+        { id = "balanced"; settings = { reasoningEffort = "medium"; }; }
+        { id = "deep"; settings = { reasoningEffort = "high"; textVerbosity = "medium"; }; }
+      ];
     };
   };
 in {
@@ -43,28 +46,34 @@ in {
     externalModels = false;
     mcp = [ "gitea" "sonarqube" "trivy" "engram" "codegraph" "context7" ]
       ++ lib.optional hrMerlinContextEnabled "hr-merlin-context";
-    plugins = [ "opencode-vibeguard" "@tarquinen/opencode-dcp" "@mohak34/opencode-notifier" ];
-    provider.merlin = managedConfig.provider.merlin // {
-      models = lib.mapAttrs (modelName: modelDef:
-        if builtins.hasAttr modelName modelVariants then
-          modelDef // modelVariants.${modelName}
-        else modelDef
-      ) managedConfig.provider.merlin.models;
+    plugins = commonPlugins;
+    # Convert the complete fixed-hash V1 entry; do not mix nested V1/V2 fields.
+    providers.merlin = {
+      name = managedProvider.name;
+      package = "aisdk:${managedProvider.npm}";
+      settings.baseURL = managedProvider.options.baseURL;
+      headers = managedProvider.options.headers;
+      models = lib.mapAttrs (modelName: modelDef: {
+        inherit (modelDef) name limit;
+        capabilities = modelDef.modalities;
+        # V1 attachment has no native equivalent; input modalities are retained.
+        settings = modelDef.options;
+      } // (modelVariants.${modelName} or {})) managedProvider.models;
     };
     smallModel = "merlin/gpt-6-luna";
     agents = {
       quick = { model = "opencode/big-pickle"; };
-      assistant = { model = "merlin/gpt-6.1-sol"; variant = "balanced"; };
-      build = { model = "merlin/gpt-6.1-sol"; variant = "balanced"; };
-      plan = { model = "merlin/gpt-6.1-sol"; variant = "balanced"; };
-      investigate = { model = "merlin/gpt-5.6-terra"; variant = "fast"; };
-      reviewer = { model = "merlin/gpt-6.1-sol"; variant = "deep"; };
-      verifier = { model = "merlin/gpt-5.6-terra"; variant = "fast"; };
-      "spec-writer" = { model = "merlin/gpt-5.6-terra"; variant = "fast"; };
-      general = { model = "merlin/gpt-5.6-terra"; variant = "fast"; };
-      worker = { model = "merlin/gpt-5.6-terra"; variant = "balanced"; };
-      browser = { model = "merlin/gpt-5.6-terra"; variant = "fast"; };
-      "gitea-repo" = { model = "merlin/gpt-5.6-terra"; variant = "balanced"; };
+      assistant = { model = "merlin/gpt-6.1-sol#balanced"; };
+      build = { model = "merlin/gpt-6.1-sol#balanced"; };
+      plan = { model = "merlin/gpt-6.1-sol#balanced"; };
+      investigate = { model = "merlin/gpt-5.6-terra#fast"; };
+      reviewer = { model = "merlin/gpt-6.1-sol#deep"; };
+      verifier = { model = "merlin/gpt-5.6-terra#fast"; };
+      "spec-writer" = { model = "merlin/gpt-5.6-terra#fast"; };
+      general = { model = "merlin/gpt-5.6-terra#fast"; };
+      worker = { model = "merlin/gpt-5.6-terra#balanced"; };
+      browser = { model = "merlin/gpt-5.6-terra#fast"; };
+      "gitea-repo" = { model = "merlin/gpt-5.6-terra#balanced"; };
     };
   };
 
@@ -74,12 +83,8 @@ in {
     skills = commonSkills;
     externalModels = false;
     mcp = [ "engram" "codegraph" "context7" ];
-    plugins = [ "opencode-vibeguard" "@tarquinen/opencode-dcp" "@mohak34/opencode-notifier" ];
-    provider = {
-      "opencode-go".whitelist = [ "glm-5.3-flash" "kimi-k2.7-code" "minimax-m3" ];
-      "opencode".whitelist = [ "big-pickle" ];
-      "openai".whitelist = [ "gpt-6.1-sol" "gpt-6-luna" ];
-    };
+    plugins = commonPlugins;
+    # V2 has no per-model whitelist; the wider Personal picker is intentional.
     smallModel = "opencode-go/glm-5.3-flash";
     agents = {
       quick = { model = "opencode/big-pickle"; };
@@ -104,7 +109,7 @@ in {
     # Other models/providers remain externally selected by corporate configuration.
     externalModels = true;
     mcp = [ "engram" "codegraph" "context7" ];
-    plugins = [ "opencode-vibeguard" "@tarquinen/opencode-dcp" "@mohak34/opencode-notifier" ];
+    plugins = commonPlugins;
     agents.quick = { model = "opencode/big-pickle"; };
   };
 }

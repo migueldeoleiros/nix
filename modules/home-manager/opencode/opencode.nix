@@ -17,7 +17,7 @@ let
   profilePaths = {
     merlin = { directory = "opencode-merlin"; filename = "opencode.json"; };
     personal = { directory = "opencode-personal"; filename = "opencode.json"; };
-    inditex = { directory = "opencode-inditex"; filename = "profile.json"; };
+    inditex = { directory = "opencode-inditex"; filename = "opencode.json"; };
   };
   profileConfigDirectory = profile:
     "${config.xdg.configHome}/${profilePaths.${profile}.directory}";
@@ -114,25 +114,25 @@ let
   # Definitions and supporting packages live together; profiles only select names.
   mcpRegistryFor = profile: {
     gitea = {
-      mcp = { type = "local"; enabled = true; command = [ "opencode-gitea-mcp" ]; timeout = 60000; };
+      mcp = { type = "local"; disabled = false; command = [ "opencode-gitea-mcp" ]; timeout = { catalog = 60000; execution = 60000; }; };
       packages = [ giteaMcp ];
     };
     sonarqube = {
       mcp = {
         type = "local";
-        enabled = true;
+        disabled = false;
         command = [ "docker" "run" "--init" "--rm" "--network=host" "-i"
           "-e" "SONARQUBE_TOKEN" "-e" "SONARQUBE_URL" "mcp/sonarqube" ];
         environment = {
           SONARQUBE_TOKEN = "{file:/home/miguel/.config/opencode/keys/sonarqube.key}";
           SONARQUBE_URL = "{file:/home/miguel/.config/opencode/keys/sonarqube.url}";
         };
-        timeout = 60000;
+        timeout = { catalog = 60000; execution = 60000; };
       };
       packages = [ pkgs.docker-client ];
     };
     trivy = {
-      mcp = { type = "local"; enabled = true; command = [ "opencode-trivy-mcp" ]; timeout = 120000; };
+      mcp = { type = "local"; disabled = false; command = [ "opencode-trivy-mcp" ]; timeout = { catalog = 120000; execution = 120000; }; };
       packages = [ pkgs.trivy trivyMcp trivyDockerScan pkgs.docker-client ];
     };
     engram = {
@@ -148,10 +148,10 @@ let
       mcp = {
         type = "remote";
         url = "https://hr-api.merlinsoftware.es/mcp";
-        enabled = true;
+        disabled = false;
         oauth = false;
         headers.Authorization = "Bearer {file:/home/miguel/.config/opencode/keys/hr-merlin-context.token}";
-        timeout = 60000;
+        timeout = { catalog = 60000; execution = 60000; };
       };
       packages = [ ];
     };
@@ -192,7 +192,7 @@ let
       selections = profileFor profile;
       select = kind: registry: names: lib.genAttrs names (name:
         registry.${name} or (throw "OpenCode ${profile} profile selects unknown ${kind} '${name}' in modules/home-manager/opencode/profiles.nix"));
-      agents = select "agent" baseConfig.agent selections.enabledAgents;
+      agents = select "agent" baseConfig.agents selections.enabledAgents;
       commands = select "command" commandRegistry selections.commands;
       skills = select "skill" skillRegistry selections.skills;
       invalidCommands = lib.filterAttrs (_: command: !(builtins.hasAttr command.agent agents)) commands;
@@ -218,33 +218,59 @@ let
         else null;
       agentConfig = lib.mapAttrs (name: agent:
         let route = routeFor name;
-        in (removeAttrs agent [ "model" "variant" ])
-          // lib.optionalAttrs (route != null) ({ model = route.model; }
-            // lib.optionalAttrs (route ? variant) { variant = route.variant; })
+        in (removeAttrs agent [ "model" ])
+          // lib.optionalAttrs (route != null) { model = route.model; }
       ) (selectedAssetsFor profile).agents;
-      sharedConfig = (removeAttrs baseConfig [ "agent" "small_model" "mcp" "provider" "plugin" ]) // {
-        agent = agentConfig;
-      } // lib.optionalAttrs (smallModel != null) { small_model = smallModel; };
+      sharedConfig = (removeAttrs baseConfig [ "agents" "mcp" "providers" "plugins" ]) // {
+        # Title is an upstream internal agent, not a selected managed prompt asset.
+        agents = agentConfig // lib.optionalAttrs (smallModel != null) { title.model = smallModel; };
+      };
     in sharedConfig // {
-      plugin = profileRoutes.plugins;
-      mcp = lib.mapAttrs (_: server: server.mcp) (selectedServersFor profile);
-    } // lib.optionalAttrs (profileRoutes ? provider) { provider = profileRoutes.provider; };
+      plugins = profileRoutes.plugins;
+      mcp.servers = lib.mapAttrs (_: server:
+        server.mcp // lib.optionalAttrs (server.mcp.type == "local") {
+          # MCP tools keep their normal data roots, not OpenCode's private roots.
+          environment = (server.mcp.environment or { }) // {
+            XDG_DATA_HOME = config.xdg.dataHome;
+            XDG_STATE_HOME = config.xdg.stateHome;
+            XDG_CACHE_HOME = config.xdg.cacheHome;
+          };
+        }) (selectedServersFor profile);
+    } // lib.optionalAttrs (profileRoutes ? providers) { providers = profileRoutes.providers; };
 
   profilePackages = profile: with pkgs;
     [ opencode nodejs opencodeCandidateId stablyai-orca ]
     ++ lib.concatMap (server: server.packages) (lib.attrValues (selectedServersFor profile));
+  # Reuse the pinned CLI's parser, but copy just this dependency-free package so
+  # launcher runtime references do not retain the entire upstream node_modules.
+  launcherJsoncParser = pkgs.runCommand "opencode-launcher-jsonc-parser" { } ''
+    mkdir -p "$out"
+    cp -RL ${pkgs.opencode.node_modules}/packages/cli/node_modules/jsonc-parser/. "$out/"
+  '';
   opencodeLauncher = profile:
     let
-      profilePath = profilePaths.${profile};
       configDirectory = profileConfigDirectory profile;
     in pkgs.writeShellApplication {
       name = "opencode-${profile}";
       text = ''
-        unset OPENCODE_CONFIG OPENCODE_CONFIG_DIR OPENCODE_CONFIG_CONTENT
+        unset OPENCODE_CONFIG OPENCODE_CONFIG_DIR OPENCODE_CONFIG_CONTENT OPENCODE_DB
+        # Like the server overlay, inherited client overlays belong to neither profile.
+        unset OPENCODE_CLI_CONFIG_CONTENT
         export OPENCODE_CONFIG_DIR=${lib.escapeShellArg configDirectory}
-        ${lib.optionalString (profilePath.filename == "profile.json")
-          "export OPENCODE_CONFIG=${lib.escapeShellArg "${configDirectory}/${profilePath.filename}"}"}
-        exec ${pkgs.opencode}/bin/opencode "$@"
+        export XDG_DATA_HOME=${lib.escapeShellArg "${config.xdg.dataHome}/opencode-v2/${profile}"}
+        export XDG_STATE_HOME=${lib.escapeShellArg "${config.xdg.stateHome}/opencode-v2/${profile}"}
+        export XDG_CACHE_HOME=${lib.escapeShellArg "${config.xdg.cacheHome}/opencode-v2/${profile}"}
+        cli_overlay="$(${pkgs.nodejs}/bin/node ${./launcher-helper.mjs} plugins "$OPENCODE_CONFIG_DIR/cli.json" ${launcherJsoncParser})"
+        export OPENCODE_CLI_CONFIG_CONTENT="$cli_overlay"
+
+        # service.json and cli.json remain writable, client-owned preferences.
+        # Only commands supporting private servers receive the flag (before --).
+        insert="$(${pkgs.nodejs}/bin/node ${./launcher-helper.mjs} standalone "$@")"
+        args=("$@")
+        if (( insert >= 0 )); then
+          args=("''${args[@]:0:insert}" --standalone "''${args[@]:insert}")
+        fi
+        exec ${pkgs.opencode}/bin/opencode "''${args[@]}"
       '';
     };
   orcaProfile = if lib.elem "personal" cfg.enabledProfiles then "personal" else "inditex";
@@ -293,7 +319,7 @@ let
         name = "opencode-${profile}.agent-prompts.${name}";
         value = {
           # Fail closed if the shared definition stops following the prompt convention.
-          source = if agent.prompt == "{file:./agent-prompts/${name}.md}" then
+          source = if agent.system == "{file:./agent-prompts/${name}.md}" then
             ./agent-prompts + "/${name}.md"
           else throw "OpenCode agent '${name}' must reference agent-prompts/${name}.md.";
           target = ".config/${profilePath.directory}/agent-prompts/${name}.md";
