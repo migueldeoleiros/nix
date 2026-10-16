@@ -2,6 +2,7 @@ local home = os.getenv("HOME")
 local config_dir = home .. "/.config/hypr"
 
 -- Monitor config is mutable: Home Manager creates screen.lua once, runtime scripts rewrite it.
+dofile(config_dir .. "/screen_conf/monitors.lua")
 dofile(config_dir .. "/screen_conf/screen.lua")
 dofile(config_dir .. "/hyprland-host.lua")
 
@@ -19,7 +20,10 @@ local function move_current_workspace_to_next_monitor()
     end
 
     table.sort(monitors, function(a, b)
-        return a.id < b.id
+        local ar = MONITOR_ORDER[a.name] or 1000000
+        local br = MONITOR_ORDER[b.name] or 1000000
+        if ar == br then return a.name < b.name end
+        return ar < br
     end)
 
     for i, monitor in ipairs(monitors) do
@@ -33,7 +37,7 @@ end
 
 hl.on("hyprland.start", function()
     hl.exec_cmd("dunst")
-    hl.exec_cmd("bash " .. config_dir .. "/scripts/open_bar.sh")
+    refresh_monitor_bar()
     hl.exec_cmd("emacs --daemon")
     hl.exec_cmd("pypr")
     hl.exec_cmd("syncthing")

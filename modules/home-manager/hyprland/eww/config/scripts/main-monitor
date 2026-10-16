@@ -1,9 +1,0 @@
-#!/bin/sh
-
-hyprctl -j monitors | jq -r '
-    ["@B_MONITOR@", "@C_MONITOR@", "@A_MONITOR@"] as $preferred
-    | map(select(.name as $name | $preferred | index($name)))
-    | sort_by(.name as $name | $preferred | index($name))
-    | first
-    | .id // 0
-'

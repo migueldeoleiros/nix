@@ -2,6 +2,9 @@
 
 let
   toLua = builtins.toJSON;
+  monitorCandidates = role:
+    "{ " + lib.concatMapStringsSep ", " toLua
+      (host.monitors.${role}.candidates or [ host.monitors.${role}.name ]) + " }";
 in
 {
   home = {
@@ -29,6 +32,7 @@ in
       procps
       gnused
       coreutils
+      util-linux # flock: serialize bar reopen requests
       gawk
       alsa-utils
       unixtools.ifconfig
@@ -38,6 +42,7 @@ in
       ".config/pypr/config.toml".source = ./pyprland.toml;
       ".config/hypr/hyprlock.conf".source = ./hyprlock.conf;
       ".config/hypr/scripts".source = ./scripts;
+      ".config/hypr/screen_conf/monitors.lua".source = ./screen_conf/monitors.lua;
 
       # Screen configuration (individual files since variables are generated)
       ".config/hypr/screen_conf/screen_on_right.lua".source = ./screen_conf/screen_on_right.lua;
@@ -70,16 +75,20 @@ in
       ".config/hypr/screen_conf/variables.lua" = {
         force = true;
         text = ''
-          A_MONITOR = ${toLua host.monitors.a.name} -- laptop
+          -- First connected, unassigned candidate wins, in A -> B -> C order.
+          MONITOR_CANDIDATES = {
+              ${monitorCandidates "a"},
+              ${monitorCandidates "b"},
+              ${monitorCandidates "c"},
+          }
+          A_MONITOR, B_MONITOR, C_MONITOR = resolve_monitor_roles()
           A_RES_X = ${toLua (toString host.monitors.a.resX)}
           A_RES_Y = ${toLua (toString host.monitors.a.resY)}
           A_SCALE = ${host.monitors.a.scale}
 
-          B_MONITOR = ${toLua host.monitors.b.name}
           B_RES_X = ${toLua (toString host.monitors.b.resX)}
           B_RES_Y = ${toLua (toString host.monitors.b.resY)}
 
-          C_MONITOR = ${toLua host.monitors.c.name}
           C_RES_X = ${toLua (toString host.monitors.c.resX)}
           C_RES_Y = ${toLua (toString host.monitors.c.resY)}
 

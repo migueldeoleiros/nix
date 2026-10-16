@@ -101,8 +101,6 @@
 
       frameworkHost = {
         hostName = "DSK-046";
-        mainMonitor = "eDP-1";
-        secondMonitor = "DP-10";
         hasNvidia = false;
         tabletOutput = "eDP-1";
         defaultScreenConfig = "custom_three_right.conf";
@@ -113,9 +111,20 @@
           options = "ctrl:nocaps";
         };
         monitors = {
-          a = { name = "eDP-1"; resX = 2256; resY = 1504; scale = "1.175"; };
-          b = { name = "DP-10"; resX = 2560; resY = 1440; };
-          c = { name = "DP-4"; resX = 2560; resY = 1440; };
+          # Candidates are tried in order; a connected display fills at most one slot.
+          # Add other desk/dock displays to these lists, identified by EDID, not port.
+          a = {
+            candidates = [ "desc:BOE 0x0BCA" ];
+            resX = 2256; resY = 1504; scale = "1.175";
+          };
+          b = {
+            candidates = [ "desc:Philips Consumer Electronics Company PHL 245E1 0x00007D81" ];
+            resX = 2560; resY = 1440;
+          };
+          c = {
+            candidates = [ "desc:HP Inc. HP 24mq CNC21915YZ" ];
+            resX = 2560; resY = 1440;
+          };
         };
       };
 

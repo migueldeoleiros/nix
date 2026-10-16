@@ -52,24 +52,29 @@
        ))
 
 (deflisten workspaces "scripts/workspaces")
+(defvar monitor_roles "{}")
 (defwidget workspaces []
   (box :orientation "h" :class "button"
        :space-evenly false
        :halign "center"
        (for entry in { workspaces ?: "[]" }
-            (button
+             (workspace-button :entry entry :monitor {monitor_roles[entry.monitor] ?: -1})
+             )
+        )
+  )
+
+(defwidget workspace-button [entry monitor]
+             (button
              :onclick "hyprctl dispatch 'hl.dsp.focus({ workspace = ${entry.id} })'"
 
-             :class "${entry.monitor} ${
-             entry.id == entry.active ? "wsp-${entry.monitor}-active"
-             : (entry.windows >= 1 ? "wsp-${entry.monitor}-inactive"
+             :class "${monitor} ${
+             entry.id == entry.active ? "wsp-${monitor}-active"
+             : (entry.windows >= 1 ? "wsp-${monitor}-inactive"
                : "wsp-empty")
            }"
 
              { entry.name }
-             )
-            )
-       )
+  )
   )
 
 
