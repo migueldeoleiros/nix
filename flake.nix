@@ -118,7 +118,10 @@
             resX = 2256; resY = 1504; scale = "1.175";
           };
           b = {
-            candidates = [ "desc:Philips Consumer Electronics Company PHL 245E1 0x00007D81" ];
+            candidates = [
+              "desc:Philips Consumer Electronics Company PHL 245E1 0x00007D81"
+              "desc:Samsung Electric Company S24F350 H4ZR201339"
+            ];
             resX = 2560; resY = 1440;
           };
           c = {

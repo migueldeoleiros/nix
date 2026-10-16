@@ -19,16 +19,29 @@ local function connected_monitors()
     return monitors
 end
 
+local function matches_candidate(monitor, candidate)
+    if candidate:sub(1, 5) == "desc:" then
+        return monitor.description:sub(1, #candidate - 5) == candidate:sub(6)
+    end
+    return candidate == monitor.name
+end
+
+local function is_listed(monitor)
+    for _, candidates in ipairs(MONITOR_CANDIDATES) do
+        for _, candidate in ipairs(candidates) do
+            if matches_candidate(monitor, candidate) then return true end
+        end
+    end
+    return false
+end
+
 function resolve_monitor_roles()
     local monitors, slots, used = connected_monitors(), {}, {}
     MONITOR_ORDER = {}
     for role, candidates in ipairs(MONITOR_CANDIDATES) do
         for _, candidate in ipairs(candidates) do
             for _, monitor in ipairs(monitors) do
-                local matches = candidate:sub(1, 5) == "desc:"
-                    and monitor.description:sub(1, #candidate - 5) == candidate:sub(6)
-                    or candidate == monitor.name
-                if matches and not used[monitor.name] then
+                if matches_candidate(monitor, candidate) and not used[monitor.name] then
                     slots[role], used[monitor.name] = monitor.name, true
                     MONITOR_ORDER[monitor.name] = role - 1
                     break
@@ -37,11 +50,11 @@ function resolve_monitor_roles()
             if slots[role] then break end
         end
     end
-    -- Clear previous slot/mirror rules before applying the selected preset.
-    -- This also restores a lower-priority candidate to an ordinary extra output.
+    -- Reset stale preset rules. Listed-but-unselected candidates still extend;
+    -- only displays absent from every list mirror A (or extend if A is absent).
     for i, monitor in ipairs(monitors) do
         hl.monitor({ output = monitor.name, mode = "preferred", position = "auto-right",
-            scale = 1, transform = 0, mirror = "" })
+            scale = 1, transform = 0, mirror = not is_listed(monitor) and slots[1] or "" })
         if not used[monitor.name] then MONITOR_ORDER[monitor.name] = 3 + i end
     end
     return slots[1], slots[2], slots[3]

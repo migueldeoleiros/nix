@@ -7,5 +7,5 @@ for _, output in pairs({ a = A_MONITOR, b = B_MONITOR, c = C_MONITOR }) do
         slot_monitor(output, { mode = "preferred", position = "auto-right", scale = 1, mirror = primary })
     end
 end
--- Only assigned slots mirror; unfamiliar/unused displays still extend right.
+-- Start unseen outputs extended; the hotplug resolver mirrors unknowns onto A.
 hl.monitor({ output = "", mode = "preferred", position = "auto-right", scale = 1 })

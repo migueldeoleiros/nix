@@ -40,6 +40,35 @@ assert(MONITOR_ORDER[portrait.name] == 2 and MONITOR_ORDER[office.name] >= 3)
 assert(rules[office.name].mirror == "" and rules[office.name].transform == 0)
 assert(monitor_bar_state():match("^DP%-11\n"))
 
+-- Unknown displays mirror A, but a listed lower-priority candidate still extends.
+local unknown = display("HDMI-A-2", "Unknown projector")
+monitors = { unknown, office, home, panel, portrait }
+resolve()
+assert(rules[unknown.name].mirror == panel.name)
+assert(rules[office.name].mirror == "")
+assert(rules[home.name].mirror == "" and rules[portrait.name].mirror == "")
+
+-- Mirrored unknowns are rediscovered via A and keep mirroring on reload.
+panel.mirrors, unknown.is_mirror = { unknown }, true
+monitors = { panel, home, office, portrait }
+resolve()
+assert(rules[unknown.name].mirror == panel.name)
+panel.mirrors, unknown.is_mirror = {}, false
+
+-- A disappearing clears the unknown's stale mirror; A returning restores it.
+monitors = { unknown, home }
+resolve()
+assert(A_MONITOR == nil and rules[unknown.name].mirror == "")
+monitors = { unknown, home, panel }
+resolve()
+assert(rules[unknown.name].mirror == panel.name)
+
+-- Adding that display to any candidate list makes it known, even if not selected.
+table.insert(MONITOR_CANDIDATES[2], "desc:Unknown projector")
+resolve()
+assert(B_MONITOR == home.name and rules[unknown.name].mirror == "")
+table.remove(MONITOR_CANDIDATES[2])
+
 -- Connector churn does not change the physical display's role.
 home.name = "DP-99"
 resolve()
@@ -97,4 +126,4 @@ callbacks["monitor.added"]()
 callbacks["monitor.removed"]()
 dofile = real_dofile
 assert(replayed == 2)
-print("PASS: monitor candidates, churn, overlap, mirrors, extras, debounce, hotplug")
+print("PASS: monitor candidates, churn, overlap, unknown mirrors, extras, debounce, hotplug")
