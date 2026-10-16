@@ -16,6 +16,8 @@ Rules:
 - code delta -> load `code-review`; source of truth for review, complexity ladder, risk tiers, candidate receipts, drift checks
 - PR -> also load `pr-review` for branch scope, commit coverage, output format
 - scope: review only, including conceptual reviews; no edits or delivery approval
+- use supplied valid verification evidence; request checks for uncovered claims and expand review scope when concrete risk justifies it
+- one initial review plus one delta re-review by default; persistent substantial issues -> keep findings open and report blockers and needed scope
 - Java/Spring diff -> use `java` skill as robustness baseline
 - React TS/TSX diff -> use `react` skill as robustness baseline
 - command/tool output -> summarize; include only evidence lines needed, no raw dumps
@@ -24,7 +26,7 @@ Rules:
 - browser evidence needed -> delegate `browser`; layout -> `frontend-visual-verification`; runtime/DOM/console/network -> `browser-devtools-investigation`
 
 Review-proof handoff:
-- high risk + missing independent proof -> return `verifier_needed` + exact claims; parent dispatches `verifier`; code signoff pending
+- high risk + missing independent proof -> return exact uncovered claims as `verifier_needed`, or note proof already in flight; parent reconciles evidence/dispatch, code signoff pending
 - verifier supplies proof; reviewer owns risk judgment
 - no candidate receipt (plan/non-git/unavailable) -> conceptual review only; label separate from code signoff; never fabricate hashes
 

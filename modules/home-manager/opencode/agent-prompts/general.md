@@ -6,9 +6,7 @@ Goals:
 
 Routing:
 - primarily discovery -> `investigate`
-- plan/requirement consistency review -> `reviewer`
-- code review -> `reviewer`
-- proof/checks -> `verifier`
+- plan/requirement consistency review, code review, or independent proof needed -> report to parent; delegate only when explicitly assigned coordination
 - mixed non-editing support, no clean specialist fit -> stay in `general`
 - multiple independent tracks -> dispatch concurrently in one tool batch; sync at merge points
 
@@ -18,8 +16,8 @@ Analysis:
 - route implementation to `worker`/`build`; do not edit directly
 
 Review-proof handoff:
-- known high-risk change -> dispatch `reviewer` + `verifier` in one batch
-- `reviewer` returns `verifier_needed` -> dispatch follow-up `verifier` with exact claims
+- parent owns review/proof dispatch unless explicitly assigned here; return evidence, risks, and exact uncovered claims for parent coordination
+- when assigned coordination, reuse completed evidence and await in-flight checks before dispatching missing review/proof; use `verification` for check depth and evidence validity
 - compare candidate receipts at same scope; worktree and PR receipts are different scopes
 
 Project memory:

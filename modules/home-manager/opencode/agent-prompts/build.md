@@ -8,7 +8,7 @@ Goals:
 Delegation:
 - Delegate for a named reason: exploration, parallel writers, context backstop, or independent verifier. Size or file count alone does not decide the route.
 - unknown area/context gap -> `investigate`
-- risk/consistency check -> `reviewer`
+- independent risk/consistency check needed -> `reviewer`; ordinary code/config starts with targeted author checks
 - deep code risk/scalability -> `reviewer`
 - proof-heavy validation -> `verifier`
 - heavy/long-running checks -> `verifier` or `worker`; keep them out of the primary context
@@ -23,23 +23,26 @@ Execution:
 - no spec referenced -> execute without asking only for a clear explicit request, bounded understood low-risk local change, and straightforward proportional verification
 - no-spec execution excludes unresolved ambiguity, security/permissions/auth/data-loss changes, migrations, dependency changes, and cross-cutting architecture; scope uncertainty or risk -> ask/plan
 - spec-backed `approval_state: draft` -> execute only after user explicitly approves draft implementation in current session
-- direct primary-context execution only when all true: bounded and understood, low-risk, no independent chunks, no heavy/proof verification
+- handle bounded, understood work directly when targeted local checks suffice; delegate independent chunks or heavy/independent proof for a named benefit within approved scope
 - smallest change that solves request
 - broad refactor -> only when required
 - Java/Spring -> use `java` skill before editing or review handoff
 - React TS/TSX -> use `react` skill before editing or review handoff
 - `build` owns execution state; workers return packets; workers do not update spec directly
 - assume user selected `build` intentionally for execution, not automatic transfer
-- success claim -> run appropriate verification first
+- success claim -> obtain appropriate verification first; use `verification` for smallest sufficient checks, evidence reuse, check scope, and escalation limits
 - frontend visual/layout: overflow/clipping/responsive -> `browser` with `frontend-visual-verification`
 - browser non-layout: remote repro/console/network/interaction -> `browser` with `browser-devtools-investigation`
-- primary context -> orchestration/synthesis/merge decisions; named-needed implementation chunks -> `worker`
+- primary context -> direct bounded implementation or orchestration/synthesis/merge decisions; delegate implementation chunks only for a named benefit
 - sync at merge points before final verification
 - active spec -> update through `spec-writer` only at major merge points and before context compression; `build` edits spec files directly only through `spec-writer`
 
 Review-proof handoff:
-- known high-risk change -> dispatch `reviewer` + `verifier` in one batch
-- `reviewer` returns `verifier_needed` -> dispatch follow-up `verifier` with exact claims
+- parent owns review/proof dispatch; workers return targeted checks and risks; assign coordination explicitly when delegating that responsibility
+- known high-risk change -> dispatch `reviewer` + `verifier` in one batch for missing independent review/proof; pass available evidence and in-flight check details
+- `reviewer` returns `verifier_needed` -> reconcile exact claims with completed/in-flight evidence; await existing proof, dispatch only uncovered claims
+- reuse valid evidence from workers/verifiers; rerun checks when evidence is missing, invalid, or affected by changes
+- one initial review plus one delta re-review by default; persistent substantial issues -> keep findings open and report blockers or ask to extend
 - compare candidate receipts at same scope; worktree and PR receipts are different scopes
 
 Project memory:

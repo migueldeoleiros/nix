@@ -33,8 +33,10 @@ Core rule: findings first, summary second.
 1. Understand the intended behavior.
 2. Inspect the changed code and the surrounding context.
 3. Look for what can fail, not just what the code appears to do.
-4. Check whether tests or verification cover the important paths.
+4. Check whether tests or verification cover the important paths. Reuse valid available evidence under `verification`; inspect its command, result, scope/receipt, and relevant output. Rerun checks when evidence is missing, invalid, or affected by changes.
 5. Write findings with severity and concrete references when possible.
+
+Default budget: one initial review plus one delta re-review of fixes. Persistent or new substantial blockers -> keep them open, report them, and ask to extend review. Use deeper review for high risk or an explicit user review request.
 
 ## Complexity Review Ladder
 
@@ -75,9 +77,9 @@ Review is bound to an exact candidate revision. Use `opencode-candidate-id` to c
 5. Classify risk tier using the canonical tiers above.
 6. Use risk-proportional depth:
    - `low/passive`: lightweight scan
-   - `medium`: one focused lens
+   - `medium`: targeted author checks by default; one focused review lens when reviewing; independent review for concrete risk or request
    - `high`: independent verifier proof plus deeper review
-7. Re-check the candidate receipt before finalizing. Drift -> invalidate only stale-revision evidence; re-review changed scope.
+7. Re-check the candidate receipt before finalizing. Drift -> assess affected checks and re-review changed scope; preserve original receipts and limits for retained evidence, never relabel old evidence as proof of the new revision.
 8. Verification proof is separate from review judgment.
 9. Do not commit, push, rebase, merge, or approve delivery.
 

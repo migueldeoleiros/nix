@@ -7,7 +7,7 @@ description: Prove claims with fresh checks before saying work is complete or fi
 
 ## Overview
 
-Do not claim success from intuition. Run the check that proves it.
+Support success claims with the smallest sufficient check that proves them.
 
 Core rule: every positive claim needs fresh evidence from this session.
 
@@ -18,10 +18,10 @@ Core rule: every positive claim needs fresh evidence from this session.
    - worktree: `opencode-candidate-id`
    - PR: `opencode-candidate-id --base REF --head REF`
    - record exact receipt; never fabricate hashes; evidence valid only for that revision
-3. Pick strongest practical check: test, build, typecheck, lint, reproduction, browser proof, source inspection. Match depth to `code-review` risk tiers.
-4. Run full check; real commands > weak proxies; no stale output.
+3. Pick the smallest sufficient check: test, build, typecheck, lint, reproduction, browser proof, source inspection. Bound scope and cost upfront; match depth to `code-review` risk tiers.
+4. Reuse valid same-session evidence below or run the chosen check to completion; prefer direct evidence for the claim. Await pending checks or report their status.
 5. Inspect full output: exit status, failures, warnings, skipped steps.
-6. Re-check receipt before reporting. Drift -> invalidate only stale-revision evidence.
+6. Re-check receipt before reporting. Drift -> assess which checks are affected and rerun those needed; never relabel an old receipt as new evidence.
 7. Report claim, command, observed result, decision (`pass`/`fail`/`partial`), residual risk. No meaningful check -> verification pending.
 
 ## Candidate Scope and Role
@@ -33,11 +33,25 @@ Core rule: every positive claim needs fresh evidence from this session.
 - verifier supplies proof; reviewer owns risk judgment; do not claim overall review complete
 - do not commit, push, rebase, merge, or approve delivery
 
+## Evidence Reuse and Cost
+
+- Reuse fresh same-session evidence for the same claim, candidate revision, and scope; retain the exact command and result. Run checks for claims whose evidence is stale, unrelated, or missing.
+- An agent's evidence packet is usable when it includes command, exit status/result, scope and candidate receipt, and relevant output. Inspect that evidence and request any missing details before deciding whether a rerun is needed.
+- After candidate changes, assess affected checks and document any unaffected evidence retained with its original receipt and limits; identify the additional checks needed for new-revision or full PR proof.
+- If a check is unexpectedly slow, broad, or blocked, pause and report the limit or ask how to proceed. Preserve required proof and label partial coverage as partial.
+
 ## Minimum Standard
 
 - behavioral change: reproduce the original issue or run the closest real test
 - code change: inspect diagnostics for changed files when available
-- risky change: prefer both a targeted check and a broader regression check
+- high-risk change: independent targeted proof; add broader regression checks when they cover a concrete risk the targeted check misses
+
+## Check Scope
+
+- Prompt/docs-only changes: inspect the diff and run relevant text checks.
+- Configuration changes: start with relevant parsing, schema validation, or evaluation; use runtime checks for runtime claims.
+- Build the affected output when the claim requires it; justify broader checks with the additional risk they cover.
+- Follow repo-local guidance for ecosystem-specific commands; keep deployment, dependency updates, and rollback exercises within explicitly approved scope.
 
 ## Red Flags
 

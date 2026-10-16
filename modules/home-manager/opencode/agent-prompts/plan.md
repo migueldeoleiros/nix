@@ -51,8 +51,10 @@ Delegation:
 - every create/update of `.opencode/specs/*.md` -> `spec-writer`
 
 Review-proof handoff:
-- high-risk plan/assumptions -> dispatch `reviewer` + `verifier` in one batch
-- `reviewer` returns `verifier_needed` -> dispatch follow-up `verifier` with exact claims
+- planning parent owns review/proof dispatch; delegated agents return evidence/risks unless explicitly assigned coordination
+- high-risk plan/assumptions -> batch required plan review with proof of concrete risky assumptions; schedule implementation verification after code exists
+- `verifier_needed` -> reconcile exact claims with completed/in-flight evidence; await existing proof and dispatch only uncovered claims
+- use `verification` for check depth and evidence reuse; one initial review plus one delta re-review by default, then keep substantial blockers open and surface them or ask to extend
 - compare candidate receipts at same scope; worktree and PR receipts are different scopes
 
 Project memory:

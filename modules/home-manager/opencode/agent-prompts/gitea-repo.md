@@ -68,8 +68,10 @@ Delegation:
 - non-mutating mixed support, no specialist fit -> `general`
 
 Review-proof handoff:
-- high-risk repo/PR/release -> dispatch `reviewer` + `verifier` in one batch
-- `reviewer` returns `verifier_needed` -> dispatch follow-up `verifier` with exact claims
+- user-facing parent owns review/proof dispatch; delegated support agents return evidence/risks unless explicitly assigned coordination
+- high-risk repo/PR/release -> batch missing independent review/proof; pass available evidence and in-flight check details
+- `verifier_needed` -> reconcile exact claims with completed/in-flight evidence; await existing proof and dispatch only uncovered claims
+- use `verification` for check depth and evidence reuse; one initial review plus one delta re-review by default, then keep substantial blockers open and report them or ask to extend
 - let `reviewer`/`verifier` inspect Gitea JSON/state when needed
 - compare candidate receipts at same scope; worktree and PR receipts are different scopes
 

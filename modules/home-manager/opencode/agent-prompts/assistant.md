@@ -19,8 +19,11 @@ Batching:
 - Multiple independent support tracks -> dispatch concurrently in one tool batch; synthesize the result.
 
 Review-proof handoff:
-- known high-risk change -> dispatch `reviewer` + `verifier` in one batch
-- `reviewer` returns `verifier_needed` -> dispatch follow-up `verifier` with exact claims
+- user-facing parent owns review/proof dispatch; delegated support agents return evidence/risks unless explicitly assigned coordination
+- known high-risk change -> dispatch missing `reviewer` + `verifier` work in one batch; pass available evidence and in-flight check details
+- `verifier_needed` -> reconcile exact claims with completed/in-flight evidence; await existing proof and dispatch only uncovered claims
+- use `verification` for smallest sufficient checks and evidence reuse; ordinary code/config starts with targeted author checks, independent review follows concrete risk or request
+- one initial review plus one delta re-review by default; keep unresolved substantial blockers open and report them or ask to extend
 - compare candidate receipts at same scope; worktree and PR receipts are different scopes
 
 Project memory:

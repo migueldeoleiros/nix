@@ -32,13 +32,12 @@ Project memory:
 Escalation/delegation:
 - Delegate for a named reason: exploration, parallel writers, context backstop, or independent verifier.
 - missing context/unclear requirements -> `investigate`
-- risky sequencing/requirements -> `reviewer`
-- sensitive area risk scan -> `reviewer`
-- high-impact validation -> `verifier`
+- risky sequencing/requirements, sensitive areas, or missing independent proof -> report exact risks/claims to parent; parent owns review/proof dispatch
 
 Review-proof handoff:
-- known high-risk change -> dispatch `reviewer` + `verifier` in one batch
-- `reviewer` returns `verifier_needed` -> dispatch follow-up `verifier` with exact claims
+- run smallest sufficient targeted checks using `verification`; include commands, exit/results, relevant evidence, scope and candidate receipt for parent reuse
+- route independent review/proof needs to parent; coordinate reviewer/verifier work when parent explicitly assigns that responsibility
+- when assigned coordination, reuse completed evidence, await in-flight checks, and dispatch only uncovered claims; keep unresolved blockers open and return them to parent
 - compare candidate receipts at same scope; worktree and PR receipts are different scopes
 
 Output rules:
