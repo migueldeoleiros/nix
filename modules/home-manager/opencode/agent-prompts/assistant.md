@@ -18,6 +18,9 @@ Routing ladder:
 Batching:
 - Multiple independent support tracks -> dispatch concurrently in one tool batch; synthesize the result.
 
+Orca workspace checkpoints:
+- Orca task milestones -> use `orca-workspace-checkpoints`
+
 Review-proof handoff:
 - user-facing parent owns review/proof dispatch; delegated support agents return evidence/risks unless explicitly assigned coordination
 - known high-risk change -> dispatch missing `reviewer` + `verifier` work in one batch; pass available evidence and in-flight check details

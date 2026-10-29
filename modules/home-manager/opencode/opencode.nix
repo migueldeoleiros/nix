@@ -260,7 +260,7 @@ let
         export XDG_DATA_HOME=${lib.escapeShellArg "${config.xdg.dataHome}/opencode-v2/${profile}"}
         export XDG_STATE_HOME=${lib.escapeShellArg "${config.xdg.stateHome}/opencode-v2/${profile}"}
         export XDG_CACHE_HOME=${lib.escapeShellArg "${config.xdg.cacheHome}/opencode-v2/${profile}"}
-        cli_overlay="$(${pkgs.nodejs}/bin/node ${./launcher-helper.mjs} plugins "$OPENCODE_CONFIG_DIR/cli.json" ${launcherJsoncParser})"
+        cli_overlay="$(${pkgs.nodejs}/bin/node ${./launcher-helper.mjs} plugins "$OPENCODE_CONFIG_DIR/cli.json" ${launcherJsoncParser} ${lib.escapeShellArg "${config.xdg.configHome}/opencode/plugins/orca-opencode2-status-tui"})"
         export OPENCODE_CLI_CONFIG_CONTENT="$cli_overlay"
 
         # service.json and cli.json remain writable, client-owned preferences.

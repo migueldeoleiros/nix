@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 
 // Keep this dispatch table aligned with the pinned CLI's commands/commands.ts.
@@ -40,7 +40,7 @@ function standalone(args) {
   return insert;
 }
 
-function plugins(path, parserPath) {
+function plugins(path, parserPath, orcaPlugin) {
   // Same parser/options as the pinned CLI's config/config.ts parseRecord.
   const { parse } = createRequire(import.meta.url)(parserPath);
   let config;
@@ -60,12 +60,20 @@ function plugins(path, parserPath) {
   }
   // Arrays replace rather than merge in OPENCODE_CLI_CONFIG_CONTENT. Preserve
   // every existing directive/package; only supply the default when absent.
-  return { plugins: [...(config.plugins ?? ["*"]), "-opencode.notifications"] };
+  const directives = [...(config.plugins ?? ["*"]), "-opencode.notifications"];
+  // Orca installs its pane-local V2 hook outside our isolated profile dirs.
+  // Load the TUI directory, not the server hook or tui.js file. Put it first so
+  // client-owned disable directives still win. Outside Orca, leave profiles alone.
+  if (process.env.ORCA_OPENCODE_AGENT === "opencode2" && process.env.ORCA_PANE_KEY
+    && orcaPlugin && existsSync(`${orcaPlugin}/tui.js`)) {
+    directives.unshift(orcaPlugin);
+  }
+  return { plugins: directives };
 }
 
 try {
   const [mode, ...args] = process.argv.slice(2);
-  if (mode === "plugins") process.stdout.write(JSON.stringify(plugins(args[0], args[1])));
+  if (mode === "plugins") process.stdout.write(JSON.stringify(plugins(args[0], args[1], args[2])));
   else if (mode === "standalone") process.stdout.write(String(standalone(args)));
   else throw new Error("Unknown OpenCode launcher helper mode.");
 } catch (error) {

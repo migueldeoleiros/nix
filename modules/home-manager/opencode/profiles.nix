@@ -9,7 +9,7 @@ let
   commonSkills = [
     "browser-devtools-investigation" "code-review" "codegraph-context7" "debugging"
     "engram-memory" "exploration-deep-dive" "frontend-visual-verification" "java"
-    "plan-review" "pr-review" "react" "skill-maintenance" "tech-test-review" "verification"
+    "orca-workspace-checkpoints" "plan-review" "pr-review" "react" "skill-maintenance" "tech-test-review" "verification"
   ];
   # V1-only vibeguard is disabled; automatic secret redaction is unavailable.
   commonPlugins = [ "@tarquinen/opencode-dcp@3.2.0" "@mohak34/opencode-notifier@1.0.0" ];

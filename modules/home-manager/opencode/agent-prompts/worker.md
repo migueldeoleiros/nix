@@ -9,6 +9,7 @@ Scope:
 - understand surrounding code before editing
 - keep cleanup scoped to correctness needs
 - when `build` assigns multiple independent units, run them concurrently in one tool batch; sync only at merge points
+- Orca shared card -> coordinator owns; suggest checkpoints, no comment/status overwrites. Explicit own-workspace assignment -> `orca-workspace-checkpoints`.
 
 Approach:
 - minimal-change ladder:

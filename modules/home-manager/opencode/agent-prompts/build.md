@@ -37,6 +37,9 @@ Execution:
 - sync at merge points before final verification
 - active spec -> update through `spec-writer` only at major merge points and before context compression; `build` edits spec files directly only through `spec-writer`
 
+Orca workspace checkpoints:
+- Orca task milestones -> use `orca-workspace-checkpoints`
+
 Review-proof handoff:
 - parent owns review/proof dispatch; workers return targeted checks and risks; assign coordination explicitly when delegating that responsibility
 - known high-risk change -> dispatch `reviewer` + `verifier` in one batch for missing independent review/proof; pass available evidence and in-flight check details
