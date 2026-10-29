@@ -42,6 +42,15 @@
         overlays = [
           inputs.opencode-v2.overlays.default
           (final: prev: {
+            # Upstream fix: https://github.com/NixOS/nixpkgs/pull/576488
+            # The patched vendored Node crashes before CodeGraph starts.
+            # Remove once the nixpkgs pin includes that fix.
+            codegraph = prev.codegraph.overrideAttrs (old: {
+              postInstall = (old.postInstall or "") + ''
+                rm "$out/lib/codegraph/node"
+                ln -s ${final.lib.getExe final.nodejs-slim} "$out/lib/codegraph/node"
+              '';
+            });
             stablyai-orca = final.callPackage ./pkgs/orca-ide.nix { };
           })
         ];
