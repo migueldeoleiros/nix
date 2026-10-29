@@ -78,9 +78,20 @@
           options = "ctrl:nocaps,compose:ralt";
         };
         monitors = {
-          a = { name = "eDP-1"; resX = 1920; resY = 1080; scale = "1"; };
-          b = { name = "HDMI-A-1"; resX = 2560; resY = 1440; };
-          c = { name = "DVI-I-1"; resX = 1080; resY = 1920; };
+          # Candidates are tried in order; a connected display fills at most one slot.
+          # Add other desk/dock displays to these lists, identified by EDID, not port.
+          a = {
+              candidates = [ "desc:Najing CEC Panda FPD Technology CO. ltd 0x004D" ];
+              resX = 1920; resY = 1080; scale = "1"; 
+          };
+          b = {
+              candidates = [ "desc:Microstep MSI MP273QP PB6H014500041" ];
+              resX = 2560; resY = 1440; 
+          };
+          c = {
+              candidates = [ "desc:Samsung Electric Company S24F350 H4ZR201339" ];
+              resX = 1080; resY = 1920; 
+          };
         };
       };
 
@@ -120,8 +131,6 @@
           options = "ctrl:nocaps";
         };
         monitors = {
-          # Candidates are tried in order; a connected display fills at most one slot.
-          # Add other desk/dock displays to these lists, identified by EDID, not port.
           a = {
             candidates = [ "desc:BOE 0x0BCA" ];
             resX = 2256; resY = 1504; scale = "1.175";
