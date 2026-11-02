@@ -1,42 +1,56 @@
 ---
 name: pr-review
-description: Review PR commits against develop, focus on hidden risks, scalability, and high-impact mistakes
+description: Review full PR delta; find hidden risks, scaling failures, high-impact mistakes
 ---
 
 # PR Review
 
 ## Overview
 
-Review the full PR delta using branches inferred from the user request when provided.
-Preferred phrasing is `<source-branch> into <base-branch>`.
-If only one branch is provided, treat it as the base and compare it against `HEAD`.
-If no branch is provided, compare `HEAD` against the first existing branch in this order: `develop`, `main`, `master`.
+Review full PR delta. Infer branches from user request.
+Prefer `<source-branch> into <base-branch>`.
+One branch given: base = given branch; source = `HEAD`.
+No branches: source = `HEAD`; base = first existing `develop`, `main`, `master`.
 
-Core rule: findings first, ordered by severity, with concrete evidence.
+Core rule: findings first. Severity order. Concrete evidence.
 
 ## Scope
 
-Base comparison (no implicit `git fetch`):
+Fetch remote first. Use `git fetch`, not `git pull`; no local merge/rebase.
+Default remote: `origin`. Different PR remote: use that.
+Fetch fails: report; ask before stale-ref review.
+Local commits: keep `HEAD`. Named branches: prefer fresh remote-tracking refs.
+Explicit local-only review: keep local refs.
+
+Fetch, then compare:
 
 ```bash
+REMOTE="origin" # Replace with the PR remote when different.
+git fetch "$REMOTE" || exit 1
 SOURCE_BRANCH="<source-branch-from-request-or-HEAD>"
 BASE_BRANCH="<base-branch-from-request-or-empty>"
 if [ -z "$BASE_BRANCH" ]; then
   BASE_BRANCH="$(for b in develop main master; do
+    if git show-ref --verify --quiet "refs/remotes/$REMOTE/$b"; then printf "%s" "$REMOTE/$b"; break; fi
     if git show-ref --verify --quiet "refs/heads/$b"; then printf "%s" "$b"; break; fi
-    if git show-ref --verify --quiet "refs/remotes/origin/$b"; then printf "%s" "origin/$b"; break; fi
   done)"
 fi
 if [ -z "$BASE_BRANCH" ]; then
   echo "No base branch found (checked: develop, main, master)" >&2
   exit 1
 fi
+for var in SOURCE_BRANCH BASE_BRANCH; do
+  branch="${!var}"
+  if [ "$branch" != HEAD ] && git show-ref --verify --quiet "refs/remotes/$REMOTE/$branch"; then
+    printf -v "$var" '%s' "$REMOTE/$branch"
+  fi
+done
 git diff --name-status "$BASE_BRANCH...$SOURCE_BRANCH"
 git log --oneline "$BASE_BRANCH..$SOURCE_BRANCH"
 git diff "$BASE_BRANCH...$SOURCE_BRANCH"
 ```
 
-Always review all commits in the PR range (`$BASE_BRANCH..$SOURCE_BRANCH`) and the combined diff (`$BASE_BRANCH...$SOURCE_BRANCH`).
+Review every PR commit (`$BASE_BRANCH..$SOURCE_BRANCH`) plus net diff (`$BASE_BRANCH...$SOURCE_BRANCH`).
 
 ## Review Priorities
 
@@ -59,49 +73,49 @@ Always review all commits in the PR range (`$BASE_BRANCH..$SOURCE_BRANCH`) and t
    - risky paths changed without meaningful tests or reproducible checks
 
 6. Maintainability
-   - only after functional and risk concerns are covered
+    - last; correctness and risks first
 
 ## Process
 
-1. Understand intended behavior from commits/PR description.
-2. Compare each commit to the evolving branch state, then inspect full net diff.
-3. Look for hidden failure modes at load and at boundary conditions.
-4. Validate assumptions against nearby code and existing tests.
-5. Record findings with severity, file reference, and why it matters.
+1. Read commits/PR description. Establish intent.
+2. Review each commit against evolving branch state. Then full net diff.
+3. Check load failures, boundary cases, hidden risks.
+4. Check assumptions against nearby code and tests.
+5. Record severity, file reference, impact.
 
-## What To Call Out Explicitly
+## Call Out
 
-- Hot paths that may degrade at 10x traffic or data volume.
-- Places where complexity grows with input size unexpectedly.
-- Missing safeguards (limits, pagination, circuit breakers, deadlines).
-- State transitions that can drift under retries/concurrency.
-- Large PRs where split/ordering of commits hides regressions.
+- Hot paths failing at 10x traffic/data.
+- Unexpected complexity growth with input size.
+- Missing limits, pagination, circuit breakers, deadlines.
+- State drift under retries/concurrency.
+- Regressions hidden by large PRs or commit ordering.
 
 ## Output Format
 
-- Findings first, ordered: `high` -> `medium` -> `low` -> `info` or `low` risk.
-- Format each finding as a compact block:
+- Findings first: `high` -> `medium` -> `low` -> `info` or `low` risk.
+- Each finding: compact block.
   - ``<severity>` <short title>``
   - `Evidence:` 1-3 file:line references (max 3)
-  - `Impact:` one sentence (what breaks now or later)
-  - `Fix:` one sentence (brief fix direction)
-- Keep each finding to 4 bullets max.
-- Do not combine independent regressions into one finding.
-- After findings, add separate sections:
-  - `Open questions` — assumptions you could not verify
-  - `Risk summary` — 1-2 lines, overall severity estimation
-- If no findings, state that explicitly and list residual risks/testing gaps.
+  - `Impact:` one sentence; what breaks now/later
+  - `Fix:` one sentence; fix direction
+- Max 4 bullets per finding.
+- Independent regressions: separate findings.
+- After findings:
+  - `Open questions` — unverified assumptions
+  - `Risk summary` — 1-2 lines; overall severity
+- No findings: say so. List residual risks/testing gaps.
 
 ## RDD Workflow for PR Review
 
 Load `code-review`; follow its RDD workflow and risk tiers.
-Use resolved `$BASE_BRANCH` / `$SOURCE_BRANCH` from Scope for the PR receipt:
+PR receipt: use resolved `$BASE_BRANCH` / `$SOURCE_BRANCH` from Scope.
 `opencode-candidate-id --base "$BASE_BRANCH" --head "$SOURCE_BRANCH"`.
-Use this skill's PR coverage and output format; do not substitute a worktree receipt for PR scope.
+Keep this skill's PR coverage and output format. No worktree receipt for PR scope.
 
 ## Red Flags
 
-- reviewing only changed files without considering call sites
-- relying on one commit diff and missing net effect of the branch
-- focusing on style while skipping scaling or correctness risks
-- saying "looks fine" without evidence or verification paths
+- Changed files only; call sites ignored.
+- One commit only; branch net effect missed.
+- Style focus; scaling/correctness skipped.
+- "Looks fine" without evidence or verification paths.
