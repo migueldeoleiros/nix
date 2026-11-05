@@ -8,6 +8,20 @@
     {"action": "compress", "resource": "*", "effect": "allow"}
   ],
   "agents": {
+    "email": {
+      "mode": "primary",
+      "system": "{file:./agent-prompts/email.md}",
+      "description": "Compose outgoing emails, show the full message for review, send only after explicit approval",
+      "color": "#26a69a",
+      "permissions": [
+        {"action": "*", "resource": "*", "effect": "deny"},
+        {"action": "question", "resource": "*", "effect": "allow"},
+        {"action": "compress", "resource": "*", "effect": "allow"},
+        {"action": "email_list_available_accounts", "resource": "*", "effect": "allow"},
+        {"action": "email_list_allowed_recipients", "resource": "*", "effect": "allow"},
+        {"action": "email_send_email", "resource": "*", "effect": "ask"}
+      ]
+    },
     "quick": {
       "mode": "primary",
       "request": {

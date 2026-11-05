@@ -12,6 +12,7 @@ let
   makeEngramProfile = import ./engram.nix { inherit config pkgs lib; };
   makeCodegraphProfile = import ./codegraph.nix { inherit pkgs lib; };
   context7 = import ./context7.nix;
+  makeEmail = import ./email.nix { inherit config pkgs lib; };
   opencodeCandidateId = pkgs.callPackage ./candidate-id.nix { };
 
   profilePaths = {
@@ -144,6 +145,10 @@ let
       packages = [ codegraphProfiles.${profile}.codegraphPackage codegraphProfiles.${profile}.wrapper ];
     };
     context7 = { mcp = context7.mcp.context7; packages = [ ]; };
+    email = let email = makeEmail (profileFor profile).email; in {
+      mcp = email.mcp;
+      packages = [ email.wrapper ];
+    };
     "hr-merlin-context" = {
       mcp = {
         type = "remote";
@@ -161,6 +166,8 @@ let
     in lib.genAttrs (profileFor profile).mcp (name:
       if name == "hr-merlin-context" && !(profile == "merlin" && cfg.hrMerlinContext.enable) then
         throw "OpenCode hr-merlin-context requires the merlin profile and miguel.opencode.hrMerlinContext.enable."
+      else if name == "email" && profile != "personal" then
+        throw "OpenCode email is restricted to the personal profile."
       else registry.${name} or (throw "OpenCode ${profile} profile selects unknown MCP '${name}' in modules/home-manager/opencode/profiles.nix"));
 
   baseConfig = builtins.fromJSON (builtins.readFile ./opencode.json);
@@ -219,6 +226,19 @@ let
       agentConfig = lib.mapAttrs (name: agent:
         let route = routeFor name;
         in (removeAttrs agent [ "model" ])
+          // lib.optionalAttrs (lib.elem "email" profileRoutes.mcp && !lib.elem name [ "browser" "email" ]) {
+            # Browser's full authority is intentional. Other managed agents
+            # get mail reads, with writes reserved for user-facing primaries.
+            permissions = (agent.permissions or [ ]) ++ [
+              { action = "email_*"; resource = "*"; effect = "deny"; }
+            ] ++ map (tool: { action = "email_${tool}"; resource = "*"; effect = "allow"; }) [
+              "list_available_accounts" "list_allowed_recipients" "list_allowed_senders"
+              "list_email_tags" "list_mailboxes" "list_emails_metadata" "get_emails_content"
+            ] ++ lib.optionals (lib.elem name [ "assistant" "build" "quick" ]) (
+              map (tool: { action = "email_${tool}"; resource = "*"; effect = "ask"; })
+                [ "send_email" "forward_email" "save_draft" ]
+            );
+          }
           // lib.optionalAttrs (route != null) { model = route.model; }
       ) (selectedAssetsFor profile).agents;
       sharedConfig = (removeAttrs baseConfig [ "agents" "mcp" "providers" "plugins" ]) // {

@@ -78,17 +78,26 @@ in {
   };
 
   personal = {
-    enabledAgents = commonAgents;
+    enabledAgents = commonAgents ++ [ "email" ];
     commands = commonCommands;
     skills = commonSkills;
     externalModels = false;
-    mcp = [ "engram" "codegraph" "context7" ];
+    mcp = [ "engram" "codegraph" "context7" "email" ];
+    email = {
+      imapHost = "imap.purelymail.com";
+      smtpHost = "smtp.purelymail.com";
+      imapPort = 993;
+      smtpPort = 465;
+      imapTls = "implicit";
+      smtpTls = "implicit";
+    };
     plugins = commonPlugins;
     # V2 has no per-model whitelist; the wider Personal picker is intentional.
     smallModel = "opencode-go/glm-5.3-flash";
     agents = {
       quick = { model = "opencode/big-pickle"; };
       assistant = { model = "openai/gpt-6.1-sol"; };
+      email = { model = "openai/gpt-6-luna"; };
       build = { model = "openai/gpt-6.1-sol"; };
       plan = { model = "openai/gpt-6.1-sol"; };
       investigate = { model = "opencode-go/glm-5.3-flash"; };
