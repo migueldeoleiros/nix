@@ -96,18 +96,18 @@ in {
     smallModel = "opencode-go/glm-5.3-flash";
     agents = {
       quick = { model = "opencode/big-pickle"; };
-      assistant = { model = "openai/gpt-6.1-sol"; };
-      email = { model = "openai/gpt-6-luna"; };
-      build = { model = "openai/gpt-6.1-sol"; };
-      plan = { model = "openai/gpt-6.1-sol"; };
+      assistant = { model = "openai/gpt-6.1-terra#low"; };
+      email = { model = "openai/gpt-6-luna#medium"; };
+      build = { model = "openai/gpt-6.1-terra#medium"; };
+      plan = { model = "openai/gpt-6.1-terra#medium"; };
       investigate = { model = "opencode-go/glm-5.3-flash"; };
-      reviewer = { model = "openai/gpt-6.1-sol"; };
+      reviewer = { model = "openai/gpt-6.1-sol#high"; };
       verifier = { model = "opencode-go/glm-5.3-flash"; };
-      "spec-writer" = { model = "openai/gpt-6-luna"; };
-      general = { model = "openai/gpt-6-luna"; };
-      worker = { model = "openai/gpt-6.1-sol"; };
+      "spec-writer" = { model = "openai/gpt-6-luna#medium"; };
+      general = { model = "openai/gpt-6-luna#medium"; };
+      worker = { model = "openai/gpt-6-luna#high"; };
       browser = { model = "opencode-go/glm-5.3-flash"; };
-      "gitea-repo" = { model = "openai/gpt-6-luna"; };
+      "gitea-repo" = { model = "openai/gpt-6-luna#medium"; };
     };
   };
 
