@@ -15,6 +15,7 @@
       import ../../modules/nixos/kdeconnect ++
       import ../../modules/nixos/games ++
       import ../../modules/nixos/packet ++
+      import ../../modules/nixos/orca ++
       import ../../modules/nixos/netbird;
 
   services.netbird.enable = true;

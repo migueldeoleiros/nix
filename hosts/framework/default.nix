@@ -15,6 +15,7 @@
     import ../../modules/nixos/flatpak ++
     import ../../modules/nixos/gnupg ++
     import ../../modules/nixos/packet ++
+    import ../../modules/nixos/orca ++
     import ../../modules/nixos/netbird;
 
   services.netbird.enable = true;
