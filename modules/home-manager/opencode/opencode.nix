@@ -23,6 +23,38 @@ let
   profileConfigDirectory = profile:
     "${config.xdg.configHome}/${profilePaths.${profile}.directory}";
 
+  sharedAssets = ../../../agent;
+  promptCandidates = root:
+    if builtins.pathExists root then builtins.readDir root else { };
+  resolveAgentPrompt = name:
+    let
+      localRoot = ./agent-prompts;
+      local = localRoot + "/${name}.md";
+      shared = sharedAssets + "/agent-prompts/${name}.md";
+      selected = if builtins.hasAttr "${name}.md" (promptCandidates localRoot) then local else shared;
+    in if !builtins.pathExists selected then
+      throw "OpenCode agent prompt '${name}' is missing from both local and shared agent-prompts roots."
+    else builtins.seq (builtins.readFile selected) selected;
+  localSkillRoot = ./skills;
+  sharedSkillRoot = sharedAssets + "/skills";
+  skillCandidates = root:
+    if builtins.pathExists root then builtins.readDir root else { };
+  skillNames = lib.unique (
+    builtins.attrNames (skillCandidates localSkillRoot)
+    ++ builtins.attrNames (skillCandidates sharedSkillRoot)
+  );
+  resolveSkill = name:
+    let
+      local = localSkillRoot + "/${name}";
+      shared = sharedSkillRoot + "/${name}";
+      selected = if builtins.hasAttr name (skillCandidates localSkillRoot) then local else shared;
+      skillFile = selected + "/SKILL.md";
+    in if !builtins.pathExists selected then
+      throw "OpenCode skill '${name}' is missing from both local and shared skills roots."
+    else if !builtins.pathExists skillFile then
+      throw "OpenCode skill '${name}' is missing SKILL.md in selected source ${toString selected}."
+    else builtins.seq (builtins.readFile skillFile) selected;
+
   engramProfiles = lib.genAttrs cfg.enabledProfiles makeEngramProfile;
   codegraphProfiles = lib.genAttrs cfg.enabledProfiles makeCodegraphProfile;
 
@@ -191,9 +223,9 @@ let
       throw "OpenCode command '${name}' must declare 'agent: ${agent}' in its frontmatter; update commandAgents in opencode.nix when changing targets."
     else { inherit source agent; }
   ) commandAgents;
-  skillRegistry = lib.mapAttrs (name: _: ./skills + "/${name}")
-    (lib.filterAttrs (name: type: type == "directory" && builtins.pathExists (./skills + "/${name}/SKILL.md"))
-      (builtins.readDir ./skills));
+  # Include every candidate entry, even malformed files/directories, so local
+  # overrides fail closed instead of falling back silently.
+  skillRegistry = lib.genAttrs skillNames resolveSkill;
   selectedAssetsFor = profile:
     let
       selections = profileFor profile;
@@ -340,7 +372,7 @@ let
         value = {
           # Fail closed if the shared definition stops following the prompt convention.
           source = if agent.system == "{file:./agent-prompts/${name}.md}" then
-            ./agent-prompts + "/${name}.md"
+            resolveAgentPrompt name
           else throw "OpenCode agent '${name}' must reference agent-prompts/${name}.md.";
           target = ".config/${profilePath.directory}/agent-prompts/${name}.md";
           force = true;
