@@ -1,0 +1,22 @@
+README.md
+  h_da6a27d9bb11b0 36,38
+modules/home-manager/opencode/launcher-helper.mjs
+  h_da6a27d9bb11b0 3,44,53,59-63,80-122,126
+modules/home-manager/opencode/opencode.nix
+  h_da6a27d9bb11b0 278-279,300-306,330-346,445,451-452
+modules/home-manager/opencode/profiles.nix
+  h_da6a27d9bb11b0 118-119,122-137
+modules/home-manager/opencode/scripts/test-launcher-helper.mjs
+  h_da6a27d9bb11b0 102-174
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "e125e844edb12ae0df6b8eed68516d1064a5b50d",
+  "prompts": {},
+  "humans": {
+    "h_da6a27d9bb11b0": {
+      "author": "Miguel López López <miguelllop@ext.inditex.com>"
+    }
+  }
+}
