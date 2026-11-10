@@ -23,36 +23,22 @@ let
   profileConfigDirectory = profile:
     "${config.xdg.configHome}/${profilePaths.${profile}.directory}";
 
-  sharedAssets = ../../../agent;
-  promptCandidates = root:
-    if builtins.pathExists root then builtins.readDir root else { };
+  sharedAssets = ../../../agent-prompts;
   resolveAgentPrompt = name:
-    let
-      localRoot = ./agent-prompts;
-      local = localRoot + "/${name}.md";
-      shared = sharedAssets + "/agent-prompts/${name}.md";
-      selected = if builtins.hasAttr "${name}.md" (promptCandidates localRoot) then local else shared;
-    in if !builtins.pathExists selected then
-      throw "OpenCode agent prompt '${name}' is missing from both local and shared agent-prompts roots."
-    else builtins.seq (builtins.readFile selected) selected;
-  localSkillRoot = ./skills;
+    let source = sharedAssets + "/agents/${name}.md";
+    in if !builtins.pathExists source then
+      throw "OpenCode agent prompt '${name}' is missing from agent-prompts/agents."
+    else builtins.seq (builtins.readFile source) source;
   sharedSkillRoot = sharedAssets + "/skills";
-  skillCandidates = root:
-    if builtins.pathExists root then builtins.readDir root else { };
-  skillNames = lib.unique (
-    builtins.attrNames (skillCandidates localSkillRoot)
-    ++ builtins.attrNames (skillCandidates sharedSkillRoot)
-  );
+  skillNames = builtins.attrNames (if builtins.pathExists sharedSkillRoot then builtins.readDir sharedSkillRoot else { });
   resolveSkill = name:
     let
-      local = localSkillRoot + "/${name}";
-      shared = sharedSkillRoot + "/${name}";
-      selected = if builtins.hasAttr name (skillCandidates localSkillRoot) then local else shared;
+      selected = sharedSkillRoot + "/${name}";
       skillFile = selected + "/SKILL.md";
     in if !builtins.pathExists selected then
-      throw "OpenCode skill '${name}' is missing from both local and shared skills roots."
+      throw "OpenCode shared skill '${name}' is missing."
     else if !builtins.pathExists skillFile then
-      throw "OpenCode skill '${name}' is missing SKILL.md in selected source ${toString selected}."
+      throw "OpenCode shared skill '${name}' is missing SKILL.md in ${toString selected}."
     else builtins.seq (builtins.readFile skillFile) selected;
 
   engramProfiles = lib.genAttrs cfg.enabledProfiles makeEngramProfile;
@@ -214,17 +200,18 @@ let
   };
   commandRegistry = lib.mapAttrs (name: agent:
     let
-      source = ./commands + "/${name}.md";
-      sections = lib.splitString "---\n" (builtins.readFile source);
-      frontmatter = lib.splitString "\n" (builtins.elemAt sections 1);
+      adapter = builtins.readFile (sharedAssets + "/adapters/opencode/${name}.md");
+      body = builtins.readFile (sharedAssets + "/commands/${name}.md");
+      text = builtins.replaceStrings [ "@BODY@" ] [ (builtins.replaceStrings
+        [ "@ARGUMENTS@" ] [ "$ARGUMENTS" ] body) ] adapter;
+      sections = lib.splitString "---\n" text;
+      frontmatter = if builtins.length sections > 1 then lib.splitString "\n" (builtins.elemAt sections 1) else [ ];
       targets = builtins.filter (line: builtins.match "[ \t]*agent[ \t]*:.*" line != null) frontmatter;
     in if builtins.length sections < 3 || builtins.head sections != ""
       || targets != [ "agent: ${agent}" ] then
       throw "OpenCode command '${name}' must declare 'agent: ${agent}' in its frontmatter; update commandAgents in opencode.nix when changing targets."
-    else { inherit source agent; }
+    else { inherit text agent; }
   ) commandAgents;
-  # Include every candidate entry, even malformed files/directories, so local
-  # overrides fail closed instead of falling back silently.
   skillRegistry = lib.genAttrs skillNames resolveSkill;
   selectedAssetsFor = profile:
     let
@@ -381,7 +368,7 @@ let
       ++ lib.mapAttrsToList (name: command: {
         name = "opencode-${profile}.commands.${name}";
         value = {
-          source = command.source;
+          text = command.text;
           target = ".config/${profilePath.directory}/commands/${name}.md";
           force = true;
         };
