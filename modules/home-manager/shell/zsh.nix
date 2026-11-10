@@ -20,6 +20,11 @@
        export EDITOR="nvim"
        export VISUAL="nvim"
 
+        # aidevtracker (status check greps rc files for this init.sh source)
+        if [ -r "${config.home.homeDirectory}/.config/inditex/aidevtracker/scripts/init.sh" ]; then
+          source "${config.home.homeDirectory}/.config/inditex/aidevtracker/scripts/init.sh"
+        fi
+
         #vi mode
         bindkey -v
         export KEYTIMEOUT=1
