@@ -1,7 +1,7 @@
 let
   commonSkills = [
     "browser-devtools-investigation" "code-review" "codegraph-context7" "debugging"
-    "engram-memory" "exploration-deep-dive" "frontend-visual-verification" "java"
+    "engram-memory" "exploration-deep-dive" "frontend-visual-verification" "grilling" "java"
     "orca-workspace-checkpoints" "plan-review" "pr-review" "react" "skill-maintenance"
     "tech-test-review" "verification"
   ];

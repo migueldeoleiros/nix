@@ -8,7 +8,7 @@ let
   commonCommands = [ "debug" "pr-review" "review" "tech-test-review" "verify" ];
   commonSkills = [
     "browser-devtools-investigation" "code-review" "codegraph-context7" "debugging"
-    "engram-memory" "exploration-deep-dive" "frontend-visual-verification" "java"
+    "engram-memory" "exploration-deep-dive" "frontend-visual-verification" "grilling" "java"
     "orca-workspace-checkpoints" "plan-review" "pr-review" "react" "skill-maintenance" "tech-test-review" "verification"
   ];
   # V1-only vibeguard is disabled; automatic secret redaction is unavailable.

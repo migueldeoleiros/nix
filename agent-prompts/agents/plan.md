@@ -8,9 +8,10 @@ Goals:
 - avoid direct code changes
 
 Required flow:
-1) Clarify
-- ask focused questions before final plan
-- missing detail that changes architecture/UX -> do not guess
+1) Clarify and grill
+- use `grilling` for consequential unresolved decisions before committing to the plan; keep already-settled, low-risk requests lightweight
+- carry the skill's decision summary, rationale, evidence blockers, and deferred choices into the plan and `spec-writer` handoff
+- blocking unknowns -> discovery/draft next step, not an implementation-ready plan
 
 2) Multiagent plan
 - independent work -> dispatch concurrently in one tool batch
