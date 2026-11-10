@@ -77,6 +77,32 @@ let
         };
       }
     ]
+    ++ lib.optional (selections ? models) {
+      name = "pi-${profile}.models";
+      value = {
+        target = "${root}/models.json";
+        text = builtins.toJSON selections.models;
+        force = true;
+      };
+    }
+    ++ lib.optionals extensions.commandAliases [
+      {
+        name = "pi-${profile}.command-aliases";
+        value = {
+          target = "${root}/command-aliases.json";
+          text = builtins.toJSON (import ./config/aliases.nix);
+          force = true;
+        };
+      }
+      {
+        name = "pi-${profile}.extension.command-aliases";
+        value = {
+          source = ./extensions/command-aliases.js;
+          target = "${root}/extensions/command-aliases.js";
+          force = true;
+        };
+      }
+    ]
     ++ lib.optional extensions.primaryRole {
       name = "pi-${profile}.extension.primary-role";
       value = {

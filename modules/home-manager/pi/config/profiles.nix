@@ -24,6 +24,7 @@ in {
       "gitea-release-changelog" "sonarqube-review"
     ];
     roles = commonRoles ++ [ "gitea-repo" ];
+    models = import ./merlin-models.nix;
   };
   personal = commonProfile // {
     roleColors = import ./role-colors.nix;
