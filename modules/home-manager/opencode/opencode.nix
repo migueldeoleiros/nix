@@ -275,7 +275,8 @@ let
             XDG_CACHE_HOME = config.xdg.cacheHome;
           };
         }) (selectedServersFor profile);
-    } // lib.optionalAttrs (profileRoutes ? providers) { providers = profileRoutes.providers; };
+    } // lib.optionalAttrs (profileRoutes ? model) { model = profileRoutes.model; }
+      // lib.optionalAttrs (profileRoutes ? providers) { providers = profileRoutes.providers; };
 
   profilePackages = profile: with pkgs;
     [ opencode nodejs opencodeCandidateId stablyai-orca ]
@@ -296,6 +297,13 @@ let
         # Like the server overlay, inherited client overlays belong to neither profile.
         unset OPENCODE_CLI_CONFIG_CONTENT
         export OPENCODE_CONFIG_DIR=${lib.escapeShellArg configDirectory}
+        ${lib.optionalString (profile == "inditex") ''
+          # Read corporate providers at launch, never during Nix evaluation.
+          # Project MCPs/skills/tools remain owned by the AIContext runtime.
+          provider_directory="''${OPENCODE_INDITEX_PROVIDER_DIR:-${config.xdg.configHome}/opencode}"
+          provider_overlay="$(${pkgs.nodejs}/bin/node ${./launcher-helper.mjs} providers "$provider_directory" ${launcherJsoncParser})"
+          export OPENCODE_CONFIG_CONTENT="$provider_overlay"
+        ''}
         export XDG_DATA_HOME=${lib.escapeShellArg "${config.xdg.dataHome}/opencode-v2/${profile}"}
         export XDG_STATE_HOME=${lib.escapeShellArg "${config.xdg.stateHome}/opencode-v2/${profile}"}
         export XDG_CACHE_HOME=${lib.escapeShellArg "${config.xdg.cacheHome}/opencode-v2/${profile}"}
@@ -317,6 +325,23 @@ let
     name = "opencode-orca";
     text = ''
       exec ${opencodeLauncher orcaProfile}/bin/opencode-${orcaProfile} "$@"
+    '';
+  };
+  # Private PATH entry, not a replacement for the system/ASDF opencode binary.
+  aicontextOpenCode = pkgs.writeShellScriptBin "opencode" ''
+    exec ${opencodeLauncher "inditex"}/bin/opencode-inditex "$@"
+  '';
+  aicontextInditex = pkgs.writeShellApplication {
+    name = "aicontext-inditex";
+    text = ''
+      if ! command -v aicontext >/dev/null 2>&1; then
+        echo "aicontext-inditex: install the corporate AIContext CLI first" >&2
+        exit 1
+      fi
+      # Keep AIContext's cwd, arguments, credentials, and installed tools.
+      # Both CLI launch and a console started here inherit this scoped shim.
+      export PATH=${aicontextOpenCode}/bin:"$PATH"
+      exec aicontext "$@"
     '';
   };
   profileFiles = lib.concatMap (profile:
@@ -417,11 +442,14 @@ in
       packages = lib.unique (
         lib.concatMap profilePackages cfg.enabledProfiles
         ++ lib.map opencodeLauncher cfg.enabledProfiles
+        ++ lib.optional (lib.elem "inditex" cfg.enabledProfiles) aicontextInditex
         ++ lib.optionals (lib.elem "personal" cfg.enabledProfiles || lib.elem "inditex" cfg.enabledProfiles) [ opencodeOrca ]
       );
 
       shellAliases = {
         opencode = "opencode-${cfg.profile}";
+      } // lib.optionalAttrs (cfg.profile == "inditex") {
+        aicontext = "aicontext-inditex";
       };
 
       file = lib.listToAttrs profileFiles;

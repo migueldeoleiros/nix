@@ -33,10 +33,9 @@ To build a NixOS configuration without applying it, use `build` instead of `swit
 
 ## OpenCode and Orca
 
-- Start a profile with `opencode-merlin`, `opencode-personal`, or `opencode-inditex`.
-- `opencode` defaults to Merlin on laptops and Inditex on `vm-shell`.
+- Start the default profile with `opencode`, or choose one with `opencode-<profile>`.
 - In Orca's **Settings > Agents > OpenCode**, set the command to `opencode-orca`
-  and the default agent to `opencode`. This uses Personal on laptops and Inditex on VMs.
+  and the default agent to `opencode`.
 - Browser tools need Orca running locally or a paired remote environment.
 - After applying OpenCode configuration changes, quit and restart OpenCode.
 

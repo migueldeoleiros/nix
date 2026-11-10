@@ -115,10 +115,25 @@ in {
     enabledAgents = commonAgents;
     commands = commonCommands;
     skills = commonSkills;
-    # Other models/providers remain externally selected by corporate configuration.
-    externalModels = true;
+    # Explicit Copilot routes; corporate provider definitions still load at runtime.
+    externalModels = false;
     mcp = [ "engram" "codegraph" "context7" ];
     plugins = commonPlugins;
-    agents.quick = { model = "opencode/big-pickle"; };
+    model = "github-copilot/gpt-6.1-sol";
+    smallModel = "github-copilot/gpt-6-luna#low";
+    agents = {
+      quick = { model = "github-copilot/claude-haiku-5.5#low"; };
+      assistant = { model = "github-copilot/gpt-6.1-sol#medium"; };
+      build = { model = "github-copilot/claude-opus-5.5#low"; };
+      plan = { model = "github-copilot/gpt-6.1-sol#medium"; };
+      investigate = { model = "github-copilot/claude-haiku-5.5#low"; };
+      reviewer = { model = "github-copilot/claude-sonnet-5.5#medium"; };
+      verifier = { model = "github-copilot/gpt-5.6-terra#low"; };
+      "spec-writer" = { model = "github-copilot/gpt-6-luna#low"; };
+      general = { model = "github-copilot/claude-haiku-5.5#low"; };
+      # Keep delegated implementation on Sol so Sonnet reviews another model's work.
+      worker = { model = "github-copilot/gpt-6.1-sol#medium"; };
+      browser = { model = "github-copilot/gpt-5.6-terra#low"; };
+    };
   };
 }

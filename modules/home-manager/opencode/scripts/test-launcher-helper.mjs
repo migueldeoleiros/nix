@@ -99,3 +99,76 @@ test("standalone dispatch is unchanged", () => {
   assert.equal(result.status, 0, result.stderr);
   assert.equal(result.stdout, "1");
 });
+
+function providers(result) {
+  assert.equal(result.status, 0, result.stderr);
+  return JSON.parse(result.stdout);
+}
+
+test("corporate provider import is optional when the directory is absent", () => {
+  assert.deepEqual(providers(run("providers", ...[join(root, "missing"), parser])), {});
+});
+
+test("imports only providers, preserving legacy entries and references but not model selection", () => {
+  const directory = root;
+  const provider = {
+    name: "Corporate", npm: "@ai-sdk/openai-compatible",
+    options: { apiKey: "{env:CORPORATE_KEY}", baseURL: "https://example.invalid/v1" },
+    models: { reasoner: { name: "Reasoner" } },
+  };
+  writeFileSync(join(directory, "opencode.jsonc"), JSON.stringify({
+    provider: { corporate: provider }, model: "opencode/unwanted",
+    mcp: { unwanted: { type: "remote", url: "https://example.invalid/mcp" } },
+    agents: { build: { system: "unwanted" } }, plugins: ["unwanted"],
+    permissions: [{ action: "*", resource: "*", effect: "allow" }],
+    instructions: ["unwanted.md"], commands: { review: { template: "unwanted" } },
+    default_agent: "unwanted", skills: ["unwanted"],
+  }));
+  assert.deepEqual(providers(run("providers", ...[directory, parser])), {
+    provider: { corporate: provider },
+  });
+});
+
+test("supports JSONC, native providers, and jsonc precedence over json", () => {
+  const directory = root;
+  writeFileSync(join(directory, "opencode.json"), JSON.stringify({
+    providers: { corporate: { name: "Old", settings: { baseURL: "https://example.invalid", apiKey: "{env:KEY}" } } },
+    model: "corporate/old",
+  }));
+  writeFileSync(join(directory, "opencode.jsonc"), `{
+    // A native V2 provider overlay.
+    "providers": { "corporate": { "name": "New", }, },
+    "model": "corporate/new",
+  }`);
+  assert.deepEqual(providers(run("providers", ...[directory, parser])), {
+    providers: { corporate: { name: "New", settings: { baseURL: "https://example.invalid", apiKey: "{env:KEY}" } } },
+  });
+});
+
+test("rebases relative file references without reading secrets or expanding environment references", () => {
+  const directory = root;
+  writeFileSync(join(directory, "opencode.json"), JSON.stringify({
+    providers: { corporate: {
+      settings: { apiKey: "{file:keys/nonexistent}" },
+      headers: { Authorization: "Bearer {file:../outside.key}", Home: "{file:~/keys/key}", Absolute: "{file:/keys/key}" },
+      models: { example: { settings: { values: ["{env:KEY}", "{file:./another.key}"] } } },
+    } },
+  }));
+  const config = providers(run("providers", ...[directory, parser])).providers.corporate;
+  assert.equal(config.settings.apiKey, `{file:${directory}/keys/nonexistent}`);
+  assert.equal(config.headers.Authorization, `Bearer {file:${join(directory, "../outside.key")}}`);
+  assert.equal(config.headers.Home, "{file:~/keys/key}");
+  assert.equal(config.headers.Absolute, "{file:/keys/key}");
+  assert.deepEqual(config.models.example.settings.values, ["{env:KEY}", `{file:${directory}/another.key}`]);
+});
+
+test("invalid corporate config fails closed without printing its contents", () => {
+  const directory = root;
+  for (const content of ["{ secret-value", "[]", '{"providers": []}', '{"provider": null}']) {
+    writeFileSync(join(directory, "opencode.jsonc"), content);
+    const result = run("providers", ...[directory, parser]);
+    assert.equal(result.status, 1);
+    assert.equal(result.stdout, "");
+    assert.doesNotMatch(result.stderr, /secret-value/);
+  }
+});
