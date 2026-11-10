@@ -1,8 +1,37 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { parseColor } from "@earendil-works/pi-tui";
 
 const ENTRY_TYPE = "nix-primary-role";
 const DEFAULT_ROLE = "assistant";
+
+// Standalone defaults; role-colors.json may override any role with a hex color
+// or one of these preset names. Nix only supplies personal hex overrides.
+const PALETTE = Object.freeze({
+  blue: "#4fc3f7",
+  green: "#9ccc65",
+  orange: "#ffb74d",
+  purple: "#ba68c8",
+  red: "#e57373",
+  teal: "#4db6ac",
+  gray: "#90a4ae",
+  yellow: "#ffd54f",
+});
+const DEFAULT_ROLE_COLORS = Object.freeze({
+  quick: PALETTE.green,
+  assistant: PALETTE.blue,
+  build: PALETTE.orange,
+  plan: PALETTE.purple,
+  investigate: "#64b5f6",
+  reviewer: PALETTE.red,
+  verifier: PALETTE.teal,
+  "spec-writer": PALETTE.purple,
+  general: PALETTE.gray,
+  worker: PALETTE.yellow,
+  browser: "#42a5f5",
+  "gitea-repo": "#81c784",
+  email: "#26a69a",
+});
 
 export default function (pi) {
   // Child agents inherit this extension but must retain their own prompt/model.
@@ -22,6 +51,23 @@ export default function (pi) {
 
   async function rolePrompt(name) {
     return readFile(join(agentDir, "prompts", `${name}.md`), "utf8");
+  }
+
+  async function updateRoleStatus(ctx) {
+    let colors = {};
+    try {
+      colors = JSON.parse(await readFile(join(agentDir, "role-colors.json"), "utf8"));
+    } catch (error) {
+      if (error.code !== "ENOENT") {
+        ctx.ui.notify(`Could not load role colors (${error.message}); using the default color.`, "error");
+      }
+    }
+    // Concrete colors remain valid across theme changes; Pi handles terminal color depth.
+    const configured = colors?.[role];
+    const preset = Object.hasOwn(PALETTE, configured) ? PALETTE[configured] : undefined;
+    const color = preset ?? (typeof configured === "string" && /^#[0-9a-fA-F]{6}$/.test(configured)
+      ? configured : DEFAULT_ROLE_COLORS[role] ?? PALETTE.blue);
+    ctx.ui.setStatus("primary-role", `role: ${ctx.ui.theme.style(role, { fg: parseColor(color), bold: true })}`);
   }
 
   async function roleModels() {
@@ -79,7 +125,7 @@ export default function (pi) {
     } catch {
       role = DEFAULT_ROLE;
     }
-    ctx.ui.setStatus("primary-role", `role: ${role}`);
+    await updateRoleStatus(ctx);
   }
 
   async function chooseRole(name, ctx) {
@@ -103,7 +149,7 @@ export default function (pi) {
     role = name;
     await applyRoleModel(name, ctx, { notifyUnmapped: true });
     pi.appendEntry(ENTRY_TYPE, { role: name });
-    ctx.ui.setStatus("primary-role", `role: ${name}`);
+    await updateRoleStatus(ctx);
     ctx.ui.notify(`Primary role: ${name}${previousRole === name ? " (unchanged)" : ""}`, "info");
   }
 

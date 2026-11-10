@@ -9,7 +9,12 @@ let
     "quick" "assistant" "build" "plan" "investigate" "reviewer" "verifier"
     "spec-writer" "general" "worker" "browser"
   ];
-  commonProfile = { skills = commonSkills; roles = commonRoles; roleModels = {}; };
+  commonProfile = {
+    skills = commonSkills;
+    roles = commonRoles;
+    roleModels = {};
+    roleColors = {};
+  };
 in {
   merlin = commonProfile // {
     # Merlin-only workflows. Tool integrations remain absent until their
@@ -21,6 +26,7 @@ in {
     roles = commonRoles ++ [ "gitea-repo" ];
   };
   personal = commonProfile // {
+    roleColors = import ./role-colors.nix;
     roleModels = {
       quick = { provider = "openai-codex"; modelId = "gpt-6-luna"; thinkingLevel = "low"; };
       assistant = { provider = "openai-codex"; modelId = "gpt-6.1-sol"; thinkingLevel = "low"; };

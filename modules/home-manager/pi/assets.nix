@@ -61,6 +61,14 @@ let
         };
       }
       {
+        name = "pi-${profile}.role-colors";
+        value = {
+          target = "${root}/role-colors.json";
+          text = builtins.toJSON (lib.filterAttrs (role: _: lib.elem role selections.roles) selections.roleColors);
+          force = true;
+        };
+      }
+      {
         name = "pi-${profile}.mcp";
         value = {
           target = "${root}/mcp.json";
