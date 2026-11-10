@@ -1,0 +1,14 @@
+modules/home-manager/shell/zsh.nix
+  h_da6a27d9bb11b0 23-27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "3aba5a81ada26bb4eb06866ac70de5bbbf26904f",
+  "prompts": {},
+  "humans": {
+    "h_da6a27d9bb11b0": {
+      "author": "Miguel López López <miguelllop@ext.inditex.com>"
+    }
+  }
+}
