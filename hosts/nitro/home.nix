@@ -21,12 +21,17 @@
       import ../../modules/home-manager/dev/rust ++
       import ../../modules/home-manager/dev/nodejs ++
       import ../../modules/home-manager/dev/java ++
-       import ../../modules/home-manager/opencode
+        import ../../modules/home-manager/opencode ++
+        import ../../modules/home-manager/pi
    );
 
   miguel.opencode = {
     profile = "personal";
     enabledProfiles = [ "personal" ];
+  };
+
+  miguel.pi = {
+    enabledProfiles = [ "merlin" "personal" "inditex" ];
   };
 
   home = {

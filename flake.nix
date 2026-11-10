@@ -52,6 +52,7 @@
               '';
             });
             stablyai-orca = final.callPackage ./pkgs/orca-ide.nix { };
+            pi-interactive-subagents = final.callPackage ./pkgs/pi-interactive-subagents.nix { };
           })
         ];
       };

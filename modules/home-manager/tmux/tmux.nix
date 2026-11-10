@@ -1,6 +1,8 @@
 { config, pkgs, lib, ... }:
 
 {
+  home.packages = [ pkgs.acpi ];
+
   programs.tmux = {
     enable = true;
 
@@ -18,7 +20,12 @@
 
     plugins = with pkgs.tmuxPlugins; [
       sensible
-      battery
+      {
+        plugin = battery;
+        extraConfig = ''
+          set -g status-right ' Batt: #{battery_icon} #{battery_percentage} #{battery_remain} | %a %h-%d %H:%M '
+        '';
+      }
     ];
 
     extraConfig = ''
@@ -43,7 +50,6 @@
       set -g status-justify left
       set -g status-left-length 96
       set -g status-right-length 64
-      set -g status-right '#{battery_status_bg} Batt: #{battery_icon} #{battery_percentage} #{battery_remain} | %a %h-%d %H:%M '
       set-window-option -g window-status-format ' #I-#W '
       set-window-option -g window-status-current-format ' #I-#W '
       set -g status-bg black
@@ -51,6 +57,11 @@
 
       # Terminal overrides
       set -g terminal-overrides 'xterm*:smcup@:rmcup@'
+
+      # Enable extended key reporting for supported xterm-compatible terminals (tmux >= 3.2)
+      set -s extended-keys on
+      set -g extended-keys-format csi-u
+      set -as terminal-features ',xterm*:extkeys'
 
       # Update environment
       set -g update-environment "DISPLAY SSH_ASKPASS SSH_AUTH_SOCK SSH_AGENT_PID SSH_CONNECTION WINDOWID XAUTHORITY BSPWM_SOCKET PATH"

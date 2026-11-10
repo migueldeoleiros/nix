@@ -16,11 +16,16 @@
       import ../../modules/home-manager/dev/rust ++
       import ../../modules/home-manager/dev/nodejs ++
       import ../../modules/home-manager/dev/java ++
-       import ../../modules/home-manager/opencode
+        import ../../modules/home-manager/opencode ++
+        import ../../modules/home-manager/pi
    );
 
   miguel.opencode = {
     profile = "merlin";
+    enabledProfiles = [ "merlin" "personal" "inditex" ];
+  };
+
+  miguel.pi = {
     enabledProfiles = [ "merlin" "personal" "inditex" ];
   };
 

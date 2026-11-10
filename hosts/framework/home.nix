@@ -24,6 +24,7 @@
     import ../../modules/home-manager/dev/mysql ++
     import ../../modules/home-manager/dev/act ++
     import ../../modules/home-manager/opencode ++
+    import ../../modules/home-manager/pi ++
     import ../../modules/home-manager/vm-browser
   );
 
@@ -31,6 +32,10 @@
     profile = "merlin";
     enabledProfiles = [ "merlin" "personal" "inditex" ];
     hrMerlinContext.enable = true;
+  };
+
+  miguel.pi = {
+    enabledProfiles = [ "merlin" "personal" "inditex" ];
   };
 
   home = {
