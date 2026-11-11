@@ -77,6 +77,52 @@ def named_items(service, Secret, schema, name: str, cancellable):
     return [item for item in items if item.get_label() == name]
 
 
+def discover_names(query: str = "") -> int:
+    """Print compatible note labels only; never load secrets or unlock items."""
+    if query and re.fullmatch(r"[a-z0-9-]{1,64}", query, re.ASCII | re.IGNORECASE) is None:
+        return fail("usage")
+    try:
+        Gio, Secret, schema = secret_api()
+
+        def lookup(cancellable):
+            service = Secret.Service.get_sync(Secret.ServiceFlags.NONE, cancellable)
+            items = service.search_sync(schema, {}, Secret.SearchFlags.ALL, cancellable)
+            labels = [item.get_label() for item in items]
+            # Validate before printing: unrelated labels may contain terminal controls.
+            return sorted(
+                label for label in labels
+                if isinstance(label, str) and valid_name(label) and query.lower() in label
+            )
+
+        names = cancellable_call(Gio, LOOKUP_TIMEOUT, lookup)
+    except Exception:
+        return fail("unavailable")
+    for name in names:
+        print(name)
+    return 0
+
+
+HELP = """Usage: agent-secrets COMMAND
+
+Commands:
+  list                          List compatible keyring note names only
+  search QUERY                  Search names by case-insensitive literal substring
+  enroll NAME                   Store a credential through a private GUI dialog
+  exec [BINDINGS...] -- COMMAND  Deliver credentials privately to a trusted child
+    --env VAR=NAME              Raw value in the child environment
+    --env-line VAR=NAME         Value without trailing CR/LF in the child environment
+    --prompt NAME LITERAL       One exact terminal prompt (local ECHO must be off)
+  read [--trim-eol] NAME         Application-only private output; never for agents
+  help, --help, -h              Show this help
+
+Names: lowercase ASCII letters, digits, hyphens; start with a letter or digit;
+1-64 characters. Search queries: 1-64 ASCII letters, digits, or hyphens.
+Discovery shows compatible generic password notes, including other apps' notes;
+it never loads secret values or requests unlocking. Prefer search to limit output.
+Duplicate names remain duplicated; credential lookup rejects ambiguous names.
+"""
+
+
 def _check_private_directory(fd: int) -> None:
     info = os.fstat(fd)
     if (
@@ -446,6 +492,15 @@ def read_private(name: str, trim_eol: bool = False) -> int:
 
 def main(argv: list[str]) -> int:
     try:
+        if len(argv) == 1 or (len(argv) == 2 and argv[1] in {"help", "--help", "-h"}):
+            print(HELP, end="")
+            return 0
+        if len(argv) == 2 and argv[1] == "list":
+            return discover_names()
+        if len(argv) == 3 and argv[1] == "search":
+            if not argv[2]:
+                return fail("usage")
+            return discover_names(argv[2])
         if len(argv) == 3 and argv[1] == "enroll":
             return enroll(argv[2])
         if len(argv) == 3 and argv[1] == "read":
