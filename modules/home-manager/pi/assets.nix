@@ -50,6 +50,16 @@ let
       roleFiles = lib.genAttrs selections.roles resolveRole;
     in [
       {
+        name = "pi-${profile}.keybindings";
+        value = {
+          target = "${root}/keybindings.json";
+          text = builtins.toJSON {
+            "app.session.rename" = "ctrl+shift+r";
+          };
+          force = true;
+        };
+      }
+      {
         name = "pi-${profile}.primary-roles";
         value = {
           target = "${root}/roles.json";
