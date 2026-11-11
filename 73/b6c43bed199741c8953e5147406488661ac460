@@ -1,0 +1,20 @@
+hosts/vm-shell/home.nix
+  h_da6a27d9bb11b0 23
+modules/home-manager/pi/launchers.nix
+  h_da6a27d9bb11b0 43
+modules/home-manager/pi/pi.nix
+  h_da6a27d9bb11b0 11-16,19-20
+modules/home-manager/pi/scripts/profile-selector.sh
+  h_da6a27d9bb11b0 5-6,36
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "73b6c43bed199741c8953e5147406488661ac460",
+  "prompts": {},
+  "humans": {
+    "h_da6a27d9bb11b0": {
+      "author": "Miguel López López <miguelllop@ext.inditex.com>"
+    }
+  }
+}
