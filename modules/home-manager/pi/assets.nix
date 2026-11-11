@@ -40,6 +40,11 @@ let
     let
       selections = profiles.${profile};
       root = ".config/pi-${profile}";
+      modelConfig = lib.recursiveUpdate (selections.models or { })
+        (lib.optionalAttrs (profile == "merlin") {
+          providers.merlin.apiKey =
+            "!${config.miguel.agentSecrets.package}/bin/agent-secrets read --trim-eol merlinllm";
+        });
       commandDefaults = import ./config/commands.nix;
       commands = builtins.attrNames commandDefaults;
       roleFiles = lib.genAttrs selections.roles resolveRole;
@@ -81,7 +86,7 @@ let
       name = "pi-${profile}.models";
       value = {
         target = "${root}/models.json";
-        text = builtins.toJSON selections.models;
+        text = builtins.toJSON modelConfig;
         force = true;
       };
     }

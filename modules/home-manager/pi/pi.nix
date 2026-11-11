@@ -16,6 +16,11 @@
 
   config.assertions = [
     {
+      assertion = !(lib.elem "merlin" config.miguel.pi.enabledProfiles)
+        || (config.miguel.agentSecrets.enable or false);
+      message = "Pi Merlin requires miguel.agentSecrets.enable.";
+    }
+    {
       assertion = lib.elem config.miguel.pi.defaultProfile config.miguel.pi.enabledProfiles;
       message = "miguel.pi.enabledProfiles must contain miguel.pi.defaultProfile.";
     }

@@ -7,7 +7,7 @@ let
   ];
   commonCommands = [ "debug" "pr-review" "review" "tech-test-review" "verify" ];
   commonSkills = [
-    "browser-devtools-investigation" "code-review" "codegraph-context7" "debugging"
+    "browser-devtools-investigation" "code-review" "codegraph-context7" "credential-handling" "debugging"
     "engram-memory" "exploration-deep-dive" "frontend-visual-verification" "grilling" "java"
     "orca-workspace-checkpoints" "plan-review" "pr-review" "react" "skill-maintenance" "tech-test-review" "verification"
   ];

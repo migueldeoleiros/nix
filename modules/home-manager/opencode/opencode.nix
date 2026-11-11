@@ -12,7 +12,11 @@ let
   makeEngramProfile = import ./engram.nix { inherit config pkgs lib; };
   makeCodegraphProfile = import ./codegraph.nix { inherit pkgs lib; };
   context7 = import ./context7.nix;
-  makeEmail = import ./email.nix { inherit config pkgs lib; };
+  agentSecrets = config.miguel.agentSecrets.package;
+  makeEmail = import ./email.nix {
+    inherit config pkgs lib;
+    agentSecretsPackage = agentSecrets;
+  };
   opencodeCandidateId = pkgs.callPackage ./candidate-id.nix { };
 
   profilePaths = {
@@ -63,50 +67,44 @@ let
     runtimeInputs = with pkgs; [ coreutils nodejs ];
     text = ''
       set -euo pipefail
+      set +x
 
-      url_file="''${OPENCODE_GITEA_URL_FILE:-/home/miguel/.config/opencode/keys/gitea.url}"
-      token_file="''${OPENCODE_GITEA_TOKEN_FILE:-/home/miguel/.config/opencode/keys/gitea.token}"
-
-      if [ ! -r "$url_file" ]; then
-        echo "Gitea MCP URL file is missing or unreadable: $url_file" >&2
-        exit 1
-      fi
-
-      if [ ! -r "$token_file" ]; then
-        echo "Gitea MCP token file is missing or unreadable: $token_file" >&2
-        exit 1
-      fi
-
-      forgejo_url="$(tr -d '\r\n' < "$url_file")"
-      forgejo_token="$(tr -d '\r\n' < "$token_file")"
+      forgejo_url="$(${agentSecrets}/bin/agent-secrets read --trim-eol gitea-url)"
+      forgejo_token="$(${agentSecrets}/bin/agent-secrets read --trim-eol gitea-token)"
 
       if [ -z "$forgejo_url" ]; then
-        echo "Gitea MCP URL file is empty: $url_file" >&2
-        exit 1
-      fi
-
-      if [ -z "$forgejo_token" ]; then
-        echo "Gitea MCP token file is empty: $token_file" >&2
+        echo "Gitea MCP URL is empty in the keyring" >&2
         exit 1
       fi
 
       case "$forgejo_url" in
         http://*|https://*) ;;
         *)
-          echo "Gitea MCP URL must start with http:// or https://: $url_file" >&2
+          echo "Gitea MCP URL must start with http:// or https://" >&2
           exit 1
           ;;
       esac
 
-      token_mode="$(stat -c '%a' "$token_file")"
-      if [ $((10#$token_mode % 100)) -ne 0 ]; then
-        echo "Gitea MCP token file must not be group/world-readable: $token_file" >&2
-        exit 1
-      fi
-
       export FORGEJO_URL="$forgejo_url"
       export FORGEJO_TOKEN="$forgejo_token"
       exec npx -y @ric_/forgejo-mcp@0.1.5
+    '';
+  };
+
+  sonarqubeMcp = pkgs.writeShellApplication {
+    name = "opencode-sonarqube-mcp";
+    runtimeInputs = with pkgs; [ coreutils docker-client ];
+    text = ''
+      set +x
+      SONARQUBE_URL="$(${agentSecrets}/bin/agent-secrets read --trim-eol sonarqube-url)"
+      case "$SONARQUBE_URL" in
+        http://*|https://*) ;;
+        *) echo "SonarQube MCP URL must start with http:// or https://" >&2; exit 1 ;;
+      esac
+      SONARQUBE_TOKEN="$(${agentSecrets}/bin/agent-secrets read --trim-eol sonarqube-token)"
+      export SONARQUBE_URL SONARQUBE_TOKEN
+      exec docker run --init --rm --network=host -i \
+        -e SONARQUBE_TOKEN -e SONARQUBE_URL mcp/sonarqube
     '';
   };
 
@@ -140,15 +138,10 @@ let
       mcp = {
         type = "local";
         disabled = false;
-        command = [ "docker" "run" "--init" "--rm" "--network=host" "-i"
-          "-e" "SONARQUBE_TOKEN" "-e" "SONARQUBE_URL" "mcp/sonarqube" ];
-        environment = {
-          SONARQUBE_TOKEN = "{file:/home/miguel/.config/opencode/keys/sonarqube.key}";
-          SONARQUBE_URL = "{file:/home/miguel/.config/opencode/keys/sonarqube.url}";
-        };
+        command = [ "${sonarqubeMcp}/bin/opencode-sonarqube-mcp" ];
         timeout = { catalog = 60000; execution = 60000; };
       };
-      packages = [ pkgs.docker-client ];
+      packages = [ sonarqubeMcp ];
     };
     trivy = {
       mcp = { type = "local"; disabled = false; command = [ "opencode-trivy-mcp" ]; timeout = { catalog = 120000; execution = 120000; }; };
@@ -173,7 +166,7 @@ let
         url = "https://hr-api.merlinsoftware.es/mcp";
         disabled = false;
         oauth = false;
-        headers.Authorization = "Bearer {file:/home/miguel/.config/opencode/keys/hr-merlin-context.token}";
+        headers.Authorization = "Bearer {file:{env:OPENCODE_HR_TOKEN_FILE}}";
         timeout = { catalog = 60000; execution = 60000; };
       };
       packages = [ ];
@@ -287,16 +280,30 @@ let
     mkdir -p "$out"
     cp -RL ${pkgs.opencode.node_modules}/packages/cli/node_modules/jsonc-parser/. "$out/"
   '';
+  withRuntimeCredentials = import ../agent-secrets/runtime-files.nix {
+    inherit lib pkgs;
+    agentSecretsPackage = agentSecrets;
+  };
   opencodeLauncher = profile:
     let
       configDirectory = profileConfigDirectory profile;
-    in pkgs.writeShellApplication {
+      launcher = pkgs.writeShellApplication {
       name = "opencode-${profile}";
       text = ''
         unset OPENCODE_CONFIG OPENCODE_CONFIG_DIR OPENCODE_CONFIG_CONTENT OPENCODE_DB
         # Like the server overlay, inherited client overlays belong to neither profile.
         unset OPENCODE_CLI_CONFIG_CONTENT
         export OPENCODE_CONFIG_DIR=${lib.escapeShellArg configDirectory}
+        ${lib.optionalString (profile == "merlin" && cfg.hrMerlinContext.enable) ''
+          case " ''${AGENT_CREDENTIALS_MISSING:-} " in
+            *" OPENCODE_HR_TOKEN_FILE "*)
+              export OPENCODE_CONFIG_CONTENT=${lib.escapeShellArg (builtins.toJSON {
+                mcp.servers."hr-merlin-context".disabled = true;
+              })}
+              echo "OpenCode: HR context disabled for this session; continuing startup" >&2
+              ;;
+          esac
+        ''}
         ${lib.optionalString (profile == "inditex") ''
           # Read corporate providers at launch, never during Nix evaluation.
           # Project MCPs/skills/tools remain owned by the AIContext runtime.
@@ -320,6 +327,17 @@ let
         exec ${pkgs.opencode}/bin/opencode "''${args[@]}"
       '';
     };
+    in if profile == "merlin" && cfg.hrMerlinContext.enable then
+      withRuntimeCredentials {
+        name = "opencode-${profile}";
+        credentials.OPENCODE_HR_TOKEN_FILE = {
+          name = "hr-merlin-context-token";
+          trimEol = true;
+        };
+        required = false;
+        command = [ "${launcher}/bin/opencode-${profile}" ];
+      }
+    else launcher;
   orcaProfile = if lib.elem "personal" cfg.enabledProfiles then "personal" else "inditex";
   opencodeOrca = pkgs.writeShellApplication {
     name = "opencode-orca";
@@ -427,6 +445,10 @@ in
 
   config = {
     assertions = [
+      {
+        assertion = config.miguel.agentSecrets.enable or false;
+        message = "OpenCode credential consumers require miguel.agentSecrets.enable.";
+      }
       {
         assertion = lib.elem cfg.profile cfg.enabledProfiles;
         message = "miguel.opencode.enabledProfiles must contain miguel.opencode.profile.";

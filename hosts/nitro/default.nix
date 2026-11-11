@@ -18,6 +18,7 @@
       import ../../modules/nixos/orca ++
       import ../../modules/nixos/netbird;
 
+  services.gnome.gnome-keyring.enable = true;
   services.netbird.enable = true;
 
   system.stateVersion = "25.11";

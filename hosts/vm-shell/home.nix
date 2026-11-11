@@ -4,6 +4,7 @@
   imports = (
     import ../../modules/home-manager/shell ++
     import ../../modules/home-manager/gnupg ++
+    import ../../modules/home-manager/agent-secrets ++
     import ../../modules/home-manager/tmux ++
     import ../../modules/home-manager/yazi ++
     import ../../modules/home-manager/neovim ++
@@ -19,6 +20,8 @@
     enabledProfiles = [ "inditex" ];
   };
 
+  miguel.agentSecrets.enable = true;
+
   miguel.pi = {
     defaultProfile = "inditex";
     enabledProfiles = [ "merlin" "personal" "inditex" ];
@@ -31,6 +34,13 @@
   };
 
   miguel.gnupg.graphical = false;
+
+  services.gnome-keyring = {
+    enable = true;
+    components = [ "secrets" ];
+  };
+  # Headless sessions still need a running provider; unlocking stays explicit.
+  systemd.user.services.gnome-keyring.Install.WantedBy = [ "default.target" ];
 
   # Required for standalone Home Manager on non-NixOS systems.
   targets.genericLinux.enable = true;

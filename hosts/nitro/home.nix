@@ -5,6 +5,7 @@
   #   import ../../modules/home-manager/qutebrowser ++
       import ../../modules/home-manager/shell ++
       import ../../modules/home-manager/gnupg ++
+    import ../../modules/home-manager/agent-secrets ++
       import ../../modules/home-manager/defaults ++
       import ../../modules/home-manager/gtk ++
       import ../../modules/home-manager/bitwarden ++
@@ -29,6 +30,8 @@
     profile = "personal";
     enabledProfiles = [ "personal" ];
   };
+
+  miguel.agentSecrets.enable = true;
 
   miguel.pi = {
     enabledProfiles = [ "merlin" "personal" "inditex" ];

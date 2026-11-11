@@ -18,6 +18,9 @@
     import ../../modules/nixos/orca ++
     import ../../modules/nixos/netbird;
 
+  # TTY login unlocks the login keyring; Hyprland inherits the user session.
+  services.gnome.gnome-keyring.enable = true;
+
   services.netbird.enable = true;
   services.hardware.bolt.enable = true;
 

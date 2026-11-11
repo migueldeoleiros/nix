@@ -7,6 +7,7 @@
     import ../../modules/home-manager/defaults ++
     import ../../modules/home-manager/gtk ++
     import ../../modules/home-manager/bitwarden ++
+    import ../../modules/home-manager/agent-secrets ++
     import ../../modules/home-manager/yazi ++
     import ../../modules/home-manager/fcitx5 ++
     import ../../modules/home-manager/hyprland ++
@@ -34,6 +35,8 @@
     hrMerlinContext.enable = true;
   };
 
+  miguel.agentSecrets.enable = true;
+
   miguel.pi = {
     enabledProfiles = [ "merlin" "personal" "inditex" ];
   };
@@ -42,7 +45,9 @@
     username = vars.user;
     homeDirectory = "/home/${vars.user}";
     stateVersion = "25.11";
-    packages = [ pkgs.stablyai-orca ];
+    packages = [
+      pkgs.stablyai-orca
+    ];
   };
 
   xdg.portal = {

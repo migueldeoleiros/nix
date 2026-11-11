@@ -1,4 +1,4 @@
-{ config, pkgs, lib }:
+{ config, pkgs, lib, agentSecretsPackage }:
 { imapHost, smtpHost, imapPort ? 993, smtpPort ? 465,
   imapTls ? "implicit", smtpTls ? "implicit" }:
 assert lib.assertMsg (lib.elem imapTls [ "implicit" "starttls" ] && lib.elem smtpTls [ "implicit" "starttls" ])
@@ -16,7 +16,7 @@ let
     name = "opencode-email-mcp";
     runtimeInputs = [ pkgs.coreutils pkgs.jq pkgs.uv pkgs.python313 ];
     text = ''
-      export OPENCODE_EMAIL_SECRETS=${lib.escapeShellArg "${config.xdg.configHome}/opencode/keys/mail.json"}
+      export OPENCODE_EMAIL_CREDENTIAL_HELPER=${lib.escapeShellArg "${agentSecretsPackage}/bin/agent-secrets"}
       export OPENCODE_EMAIL_RUNTIME_CONFIG=${runtimeConfig}
       export OPENCODE_EMAIL_DATA=${lib.escapeShellArg "${config.xdg.dataHome}/opencode-email"}
       export OPENCODE_EMAIL_IMAP_HOST=${lib.escapeShellArg imapHost}

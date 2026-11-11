@@ -1,43 +1,11 @@
 # Embedded by writeShellApplication, which enables Bash strict mode.
-# Load secrets at runtime, never into the Nix store or as shell code.
+# Retrieve account metadata and password privately at runtime.
 set +x
 umask 077
 
 fail() {
   echo "Email MCP: $*" >&2
   exit 1
-}
-
-check_credentials_file() {
-  [[ -f "$secrets" && ! -L "$secrets" && -r "$secrets" ]] ||
-    fail "create a private regular file at $secrets (see email-setup.md)"
-  [[ "$(stat -c '%u' "$secrets")" == "$(id -u)" ]] ||
-    fail "credentials must belong to the current user"
-
-  local mode
-  mode="$(stat -c '%a' "$secrets")"
-  (( (8#$mode & 077) == 0 )) ||
-    fail "credentials must not be accessible to group/others (chmod 600)"
-
-  # Exactly one JSON object. Suppress jq errors: they might contain secrets.
-  # Recipient commas/whitespace are forbidden because the server expects CSV.
-  jq -se '
-    def address: type == "string" and test("^[^@\\s]+@[^@\\s]+$");
-    def password:
-      type == "string" and length > 0 and (test("[\u0000-\u001f]") | not);
-    def recipients:
-      type == "array" and length <= 1000 and
-      all(.[]; type == "string" and length > 0 and (test("[,\u0000-\u0020]") | not));
-
-    length == 1 and (.[0] |
-      type == "object" and
-      ((keys - ["address", "password", "allowedRecipients"]) | length == 0) and
-      (.address | address) and
-      (.password | password) and
-      ((.allowedRecipients // []) | recipients)
-    )
-  ' "$secrets" >/dev/null 2>&1 ||
-    fail "invalid credentials JSON; expected address, password, optional allowedRecipients array"
 }
 
 load_account() {
@@ -50,9 +18,30 @@ load_account() {
   export MCP_EMAIL_SERVER_CONFIG_PATH="$OPENCODE_EMAIL_RUNTIME_CONFIG"
   export MCP_EMAIL_SERVER_ACCOUNT_NAME=main
   export MCP_EMAIL_SERVER_FULL_NAME="Miguel Lopez's Agent"
-  MCP_EMAIL_SERVER_EMAIL_ADDRESS="$(jq -r '.address' "$secrets")"
-  MCP_EMAIL_SERVER_PASSWORD="$(jq -r '.password' "$secrets")"
-  MCP_EMAIL_SERVER_ALLOWED_RECIPIENTS="$(jq -r '(.allowedRecipients // []) | join(",")' "$secrets")"
+
+  local address recipients_json password
+  address="$("$OPENCODE_EMAIL_CREDENTIAL_HELPER" read --trim-eol purelymail-address)" ||
+    fail "could not retrieve email address from the keyring"
+  [[ "$address" =~ ^[^@[:space:]]+@[^@[:space:]]+$ ]] ||
+    fail "keyring returned an invalid email address"
+
+  recipients_json="$("$OPENCODE_EMAIL_CREDENTIAL_HELPER" read --trim-eol purelymail-allowed-recipients)" ||
+    fail "could not retrieve email recipient policy from the keyring"
+  # The server expects CSV; reject commas and whitespace within each address.
+  printf '%s' "$recipients_json" | jq -es '
+    def recipients:
+      type == "array" and length <= 1000 and
+      all(.[]; type == "string" and length > 0 and (test("[,\u0000-\u0020]") | not));
+    length == 1 and (.[0] | recipients)
+  ' >/dev/null 2>&1 || fail "keyring returned an invalid email recipient policy"
+  MCP_EMAIL_SERVER_EMAIL_ADDRESS="$address"
+  MCP_EMAIL_SERVER_ALLOWED_RECIPIENTS="$(printf '%s' "$recipients_json" | jq -r 'join(",")')"
+
+  password="$("$OPENCODE_EMAIL_CREDENTIAL_HELPER" read purelymail-password)" ||
+    fail "could not retrieve email password from the keyring"
+  [[ -n "$password" && ! "$password" =~ [[:cntrl:]] ]] ||
+    fail "keyring returned an invalid email password"
+  MCP_EMAIL_SERVER_PASSWORD="$password"
   export MCP_EMAIL_SERVER_EMAIL_ADDRESS MCP_EMAIL_SERVER_PASSWORD MCP_EMAIL_SERVER_ALLOWED_RECIPIENTS
 }
 
@@ -83,8 +72,6 @@ configure_policy() {
   export MCP_EMAIL_SERVER_LOG_LEVEL=WARNING
 }
 
-secrets="$OPENCODE_EMAIL_SECRETS"
-check_credentials_file
 load_account
 configure_servers
 configure_policy
