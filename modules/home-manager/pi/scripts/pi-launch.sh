@@ -3,9 +3,10 @@ export PI_TELEMETRY=0
 export PI_SUBAGENT_MUX=tmux
 
 load_orca_extensions=1
+native_command=0
 # Native commands dispatch on argv[0], before parsing session flags.
 case "${1:-}" in
-  auth|install|remove|update|list|config|mcp) load_orca_extensions=0 ;;
+  auth|install|remove|update|list|config|mcp) load_orca_extensions=0; native_command=1 ;;
 esac
 for arg in "$@"; do
   case "$arg" in
@@ -25,6 +26,34 @@ if [ "$load_orca_extensions" -eq 1 ] && [ -n "${ORCA_PANE_KEY:-}" ]; then
       fi
       set -- --extension "$extension_path" "$@"
     fi
+  done
+fi
+
+aicontext_profile=0
+case "${PI_CODING_AGENT_DIR:-}" in
+  @AICONTEXT_AGENT_DIRS@) [ -n "${PI_CODING_AGENT_DIR:-}" ] && aicontext_profile=1 ;;
+esac
+if [ "$native_command" -eq 0 ] && [ "$aicontext_profile" -eq 1 ]; then
+  # Explicit -e paths survive --no-extensions, including restricted subagents.
+  for extension in git-ai.ts gptoaudit.ts; do
+    extension_path="$HOME/.pi/agent/extensions/$extension"
+    if [ -f "$extension_path" ]; then
+      set -- --extension "$extension_path" "$@"
+    else
+      echo "Warning: aidevtracker Pi extension missing: $extension_path" >&2
+    fi
+  done
+
+  dir="$(pwd -P)"
+  while :; do
+    if [ -f "$dir/aicontext.yaml" ] && [ -f "$dir/.opencode/opencode.json" ]; then
+      [ -d "$dir/.opencode/skills" ] && set -- --skill "$dir/.opencode/skills" "$@"
+      [ -d "$dir/.opencode/commands" ] && set -- --prompt-template "$dir/.opencode/commands" "$@"
+      break
+    fi
+    [ "$dir" = / ] && break
+    dir="${dir%/*}"
+    [ -n "$dir" ] || dir=/
   done
 fi
 

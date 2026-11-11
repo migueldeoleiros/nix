@@ -119,6 +119,14 @@ let
         force = true;
       };
     }
+    ++ lib.optional (selections.aicontext or false) {
+      name = "pi-${profile}.extension.aicontext-mcp";
+      value = {
+        source = ./extensions/aicontext-mcp.js;
+        target = "${root}/extensions/aicontext-mcp.js";
+        force = true;
+      };
+    }
     ++ lib.mapAttrsToList (name: source: {
       name = "pi-${profile}.role.${name}";
       value = {

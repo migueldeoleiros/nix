@@ -42,5 +42,22 @@ in {
       browser = { provider = "openai-codex"; modelId = "gpt-6-luna"; thinkingLevel = "low"; };
     };
   };
-  inditex = commonProfile;
+  inditex = commonProfile // {
+    aicontext = true;
+    # Match the owned-agent routes in the corresponding OpenCode profile.
+    roleModels = {
+      quick = { provider = "github-copilot"; modelId = "claude-haiku-5.5"; thinkingLevel = "low"; };
+      assistant = { provider = "github-copilot"; modelId = "gpt-6.1-sol"; thinkingLevel = "medium"; };
+      build = { provider = "github-copilot"; modelId = "claude-opus-5.5"; thinkingLevel = "low"; };
+      plan = { provider = "github-copilot"; modelId = "gpt-6.1-sol"; thinkingLevel = "medium"; };
+      investigate = { provider = "github-copilot"; modelId = "claude-haiku-5.5"; thinkingLevel = "low"; };
+      reviewer = { provider = "github-copilot"; modelId = "claude-sonnet-5.5"; thinkingLevel = "medium"; };
+      verifier = { provider = "github-copilot"; modelId = "gpt-5.6-terra"; thinkingLevel = "low"; };
+      "spec-writer" = { provider = "github-copilot"; modelId = "gpt-6-luna"; thinkingLevel = "low"; };
+      general = { provider = "github-copilot"; modelId = "claude-haiku-5.5"; thinkingLevel = "low"; };
+      # Keep implementation on Sol and independent review on Sonnet.
+      worker = { provider = "github-copilot"; modelId = "gpt-6.1-sol"; thinkingLevel = "medium"; };
+      browser = { provider = "github-copilot"; modelId = "gpt-5.6-terra"; thinkingLevel = "low"; };
+    };
+  };
 }

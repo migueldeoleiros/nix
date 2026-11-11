@@ -1,5 +1,6 @@
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
+import { readdir, readFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import { parseColor } from "@earendil-works/pi-tui";
 
 const ENTRY_TYPE = "nix-primary-role";
@@ -33,6 +34,32 @@ const DEFAULT_ROLE_COLORS = Object.freeze({
   email: "#26a69a",
 });
 
+function findAicontextAgentsDir(start) {
+  let dir = resolve(start);
+  while (true) {
+    const agents = join(dir, ".opencode", "agents");
+    if (existsSync(join(dir, "aicontext.yaml")) && existsSync(agents)) return agents;
+    const parent = dirname(dir);
+    if (parent === dir) return undefined;
+    dir = parent;
+  }
+}
+
+function frontmatter(source) {
+  return source.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/);
+}
+
+function stripFrontmatter(source) {
+  const match = frontmatter(source);
+  return match ? source.slice(match[0].length).trimStart() : source;
+}
+
+function frontmatterValue(source, key) {
+  const match = frontmatter(source ?? "");
+  const line = match?.[1].split(/\r?\n/).find((candidate) => candidate.startsWith(`${key}:`));
+  return line?.slice(key.length + 1).trim().replace(/^(['"])(.*)\1$/, "$2");
+}
+
 export default function (pi) {
   // Child agents inherit this extension but must retain their own prompt/model.
   // Return before registering hooks; do not alter any other extensions' state.
@@ -42,15 +69,36 @@ export default function (pi) {
   ) return;
 
   const agentDir = process.env.PI_CODING_AGENT_DIR;
+  const aicontextAgentsDir = agentDir && existsSync(join(agentDir, "extensions", "aicontext-mcp.js")) ? findAicontextAgentsDir(process.cwd()) : undefined;
   let role = DEFAULT_ROLE;
   let roleCommands = Promise.resolve();
 
+  async function aicontextRoles() {
+    if (!aicontextAgentsDir) return [];
+    return (await readdir(aicontextAgentsDir, { withFileTypes: true }))
+      .filter((entry) => (entry.isFile() || entry.isSymbolicLink()) && entry.name.endsWith(".md"))
+      .map((entry) => entry.name.slice(0, -3))
+      .sort();
+  }
+
   async function availableRoles() {
-    return JSON.parse(await readFile(join(agentDir, "roles.json"), "utf8"));
+    const roles = JSON.parse(await readFile(join(agentDir, "roles.json"), "utf8"));
+    return [...roles, ...(await aicontextRoles()).filter((name) => !roles.includes(name))];
+  }
+
+  async function aicontextRoleFile(name) {
+    if (!aicontextAgentsDir || !(await aicontextRoles()).includes(name)) return undefined;
+    return readFile(join(aicontextAgentsDir, `${name}.md`), "utf8");
   }
 
   async function rolePrompt(name) {
-    return readFile(join(agentDir, "prompts", `${name}.md`), "utf8");
+    try {
+      return await readFile(join(agentDir, "prompts", `${name}.md`), "utf8");
+    } catch (error) {
+      const source = await aicontextRoleFile(name);
+      if (source === undefined) throw error;
+      return stripFrontmatter(source);
+    }
   }
 
   async function updateRoleStatus(ctx) {
@@ -71,12 +119,20 @@ export default function (pi) {
   }
 
   async function roleModels() {
+    let models;
     try {
-      return JSON.parse(await readFile(join(agentDir, "role-models.json"), "utf8"));
+      models = JSON.parse(await readFile(join(agentDir, "role-models.json"), "utf8"));
     } catch (error) {
-      if (error.code === "ENOENT") return {};
-      throw error;
+      if (error.code !== "ENOENT") throw error;
+      models = {};
     }
+    for (const name of await aicontextRoles()) {
+      if (models[name]) continue;
+      const model = frontmatterValue(await aicontextRoleFile(name), "model");
+      const separator = model?.indexOf("/") ?? -1;
+      if (separator > 0) models[name] = { provider: model.slice(0, separator), modelId: model.slice(separator + 1) };
+    }
+    return models;
   }
 
   async function applyRoleModel(targetRole, ctx, { notifyUnmapped = false } = {}) {

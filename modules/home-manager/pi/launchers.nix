@@ -1,6 +1,8 @@
 { config, pkgs, lib, ... }:
 let
   cfg = config.miguel.pi;
+  profiles = import ./config/profiles.nix;
+  aicontextProfiles = lib.filter (profile: profiles.${profile}.aicontext or false) cfg.enabledProfiles;
   pi = pkgs.pi-coding-agent;
   piPackageDir = "${pi}/lib/node_modules/pi-monorepo";
   profileDir = profile: "${config.xdg.configHome}/pi-${profile}";
@@ -19,6 +21,7 @@ let
   ];
   piLaunch = render (builtins.readFile ./scripts/pi-launch.sh) [
     { key = "@PI_EXE@"; value = lib.escapeShellArg (lib.getExe pi); }
+    { key = "@AICONTEXT_AGENT_DIRS@"; value = if aicontextProfiles == [ ] then "''" else lib.concatMapStringsSep "|" (profile: lib.escapeShellArg (profileDir profile)) aicontextProfiles; }
   ];
   launcher = profile: pkgs.writeShellApplication {
     name = "pi-${profile}";
