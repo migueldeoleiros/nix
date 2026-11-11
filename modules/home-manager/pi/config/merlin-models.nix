@@ -21,9 +21,11 @@ in {
         input = model.modalities.input;
         contextWindow = model.limit.context;
         maxTokens = model.limit.output;
-        # The catalog declares neither reasoning support nor pricing. Leave
-        # Pi's defaults; do not infer thinking levels from model aliases.
-        # OpenCode attachment/options/variants are intentionally not imported.
+        # OpenCode explicitly configures reasoning-effort variants for these
+        # two models. Enable Pi thinking so the mirrored role levels take effect.
+        reasoning = builtins.elem id [ "gpt-6.1-sol" "gpt-5.6-terra" ];
+        # Leave pricing and other models' reasoning at Pi defaults; the managed
+        # catalog does not declare them. OpenCode-only options stay omitted.
       }
     ) (builtins.attrNames provider.models);
   };

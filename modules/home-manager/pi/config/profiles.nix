@@ -1,6 +1,6 @@
 let
   commonSkills = [
-    "browser-devtools-investigation" "code-review" "codegraph-context7" "debugging"
+    "browser-devtools-investigation" "code-review" "codegraph-context7" "credential-handling" "debugging"
     "engram-memory" "exploration-deep-dive" "frontend-visual-verification" "grilling" "java"
     "orca-workspace-checkpoints" "plan-review" "pr-review" "react" "skill-maintenance"
     "tech-test-review" "verification"
@@ -25,21 +25,35 @@ in {
     ];
     roles = commonRoles ++ [ "gitea-repo" ];
     models = import ./merlin-models.nix;
+    roleModels = {
+      quick = { provider = "opencode"; modelId = "big-pickle"; thinkingLevel = "low"; };
+      assistant = { provider = "merlin"; modelId = "gpt-6.1-sol"; thinkingLevel = "medium"; };
+      build = { provider = "merlin"; modelId = "gpt-6.1-sol"; thinkingLevel = "medium"; };
+      plan = { provider = "merlin"; modelId = "gpt-6.1-sol"; thinkingLevel = "medium"; };
+      investigate = { provider = "merlin"; modelId = "gpt-5.6-terra"; thinkingLevel = "low"; };
+      reviewer = { provider = "merlin"; modelId = "gpt-6.1-sol"; thinkingLevel = "high"; };
+      verifier = { provider = "merlin"; modelId = "gpt-5.6-terra"; thinkingLevel = "low"; };
+      "spec-writer" = { provider = "merlin"; modelId = "gpt-5.6-terra"; thinkingLevel = "low"; };
+      general = { provider = "merlin"; modelId = "gpt-5.6-terra"; thinkingLevel = "low"; };
+      worker = { provider = "merlin"; modelId = "gpt-5.6-terra"; thinkingLevel = "medium"; };
+      browser = { provider = "merlin"; modelId = "gpt-5.6-terra"; thinkingLevel = "low"; };
+      "gitea-repo" = { provider = "merlin"; modelId = "gpt-5.6-terra"; thinkingLevel = "medium"; };
+    };
   };
   personal = commonProfile // {
     roleColors = import ./role-colors.nix;
     roleModels = {
-      quick = { provider = "openai-codex"; modelId = "gpt-6-luna"; thinkingLevel = "low"; };
-      assistant = { provider = "openai-codex"; modelId = "gpt-6.1-sol"; thinkingLevel = "low"; };
-      build = { provider = "openai-codex"; modelId = "gpt-6.1-sol"; thinkingLevel = "medium"; };
-      plan = { provider = "openai-codex"; modelId = "gpt-6.1-sol"; thinkingLevel = "medium"; };
-      investigate = { provider = "openai-codex"; modelId = "gpt-6-luna"; thinkingLevel = "low"; };
+      quick = { provider = "opencode"; modelId = "big-pickle"; thinkingLevel = "low"; };
+      assistant = { provider = "openai-codex"; modelId = "gpt-6.1-terra"; thinkingLevel = "low"; };
+      build = { provider = "openai-codex"; modelId = "gpt-6.1-terra"; thinkingLevel = "medium"; };
+      plan = { provider = "openai-codex"; modelId = "gpt-6.1-terra"; thinkingLevel = "medium"; };
+      investigate = { provider = "opencode-go"; modelId = "glm-5.3-flash"; thinkingLevel = "low"; };
       reviewer = { provider = "openai-codex"; modelId = "gpt-6.1-sol"; thinkingLevel = "high"; };
-      verifier = { provider = "openai-codex"; modelId = "gpt-6-luna"; thinkingLevel = "low"; };
+      verifier = { provider = "opencode-go"; modelId = "glm-5.3-flash"; thinkingLevel = "low"; };
       "spec-writer" = { provider = "openai-codex"; modelId = "gpt-6-luna"; thinkingLevel = "medium"; };
       general = { provider = "openai-codex"; modelId = "gpt-6-luna"; thinkingLevel = "medium"; };
       worker = { provider = "openai-codex"; modelId = "gpt-6-luna"; thinkingLevel = "high"; };
-      browser = { provider = "openai-codex"; modelId = "gpt-6-luna"; thinkingLevel = "low"; };
+      browser = { provider = "opencode-go"; modelId = "glm-5.3-flash"; thinkingLevel = "low"; };
     };
   };
   inditex = commonProfile // {
