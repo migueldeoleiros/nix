@@ -40,6 +40,7 @@ let
     runtimeInputs = [ pkgs.coreutils pkgs.git pkgs.tmux ];
     text = render (builtins.readFile ./scripts/profile-selector.sh) [
       { key = "@CHILD_PROFILE@"; value = childProfile; }
+      { key = "@DEFAULT_PROFILE@"; value = lib.escapeShellArg cfg.defaultProfile; }
       { key = "@ENABLED_PROFILES@"; value = lib.escapeShellArg (lib.concatStringsSep " " cfg.enabledProfiles); }
       { key = "@PROFILE_CHOICES@"; value = lib.concatMapStringsSep "\n" (profile: ''
         ${profile})

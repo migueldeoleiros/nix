@@ -20,6 +20,7 @@
   };
 
   miguel.pi = {
+    defaultProfile = "inditex";
     enabledProfiles = [ "merlin" "personal" "inditex" ];
   };
 

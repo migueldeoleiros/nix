@@ -2,7 +2,8 @@
 unset PI_CODING_AGENT_DIR PI_CODING_AGENT_SESSION_DIR PI_PACKAGE_DIR
 project_dir="$(cd -- "$PWD" && pwd -P)"
 project_root="$(git -C "$project_dir" rev-parse --show-toplevel 2>/dev/null || printf '%s' "$project_dir")"
-profile=personal
+default_profile=@DEFAULT_PROFILE@
+profile="$default_profile"
 marker_found=0
 dir="$project_dir"
 while :; do
@@ -32,7 +33,7 @@ done
 if [ -n "$inherited_profile" ]; then
   profile="$inherited_profile"
 elif [ "$marker_found" -eq 0 ]; then
-  echo "No .pi-profile marker found for $project_dir; using default 'personal'." >&2
+  echo "No .pi-profile marker found for $project_dir; using default '$default_profile'." >&2
 fi
 enabled_profiles=@ENABLED_PROFILES@
 case " $enabled_profiles " in

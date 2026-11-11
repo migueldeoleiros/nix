@@ -8,10 +8,16 @@
     description = "Pi profiles to materialize as isolated launchers and agent directories.";
   };
 
+  options.miguel.pi.defaultProfile = lib.mkOption {
+    type = lib.types.enum [ "merlin" "personal" "inditex" ];
+    default = "personal";
+    description = "Profile used by pi when no .pi-profile marker applies.";
+  };
+
   config.assertions = [
     {
-      assertion = lib.elem "personal" config.miguel.pi.enabledProfiles;
-      message = "miguel.pi.enabledProfiles must contain personal, the safe default profile for unmarked projects.";
+      assertion = lib.elem config.miguel.pi.defaultProfile config.miguel.pi.enabledProfiles;
+      message = "miguel.pi.enabledProfiles must contain miguel.pi.defaultProfile.";
     }
   ];
 }
