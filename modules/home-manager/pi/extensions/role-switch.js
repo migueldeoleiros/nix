@@ -209,23 +209,40 @@ export default function (pi) {
     ctx.ui.notify(`Primary role: ${name}${previousRole === name ? " (unchanged)" : ""}`, "info");
   }
 
+  function queueRoleCommand(args, ctx, cycle = false) {
+    // Queue the whole transaction, including selection and persistence.
+    const command = roleCommands.then(async () => {
+      if (cycle) {
+        const roles = await availableRoles();
+        if (roles.length) await chooseRole(roles[(roles.indexOf(role) + 1) % roles.length], ctx);
+        return;
+      }
+      const name = args.trim();
+      if (name === "list") {
+        const roles = await availableRoles();
+        ctx.ui.notify(`Available roles: ${roles.join(", ")}\nCurrent role: ${role}`, "info");
+        return;
+      }
+      await chooseRole(name, ctx);
+    });
+    // Keep failures visible to the caller without poisoning later commands.
+    roleCommands = command.catch(() => {});
+    return command;
+  }
+
   pi.registerCommand("role", {
     description: "Show or switch the primary role (/role [name|list])",
-    handler: (args, ctx) => {
-      // Queue the whole transaction, including selection and persistence.
-      const command = roleCommands.then(async () => {
-        const name = args.trim();
-        if (name === "list") {
-          const roles = await availableRoles();
-          ctx.ui.notify(`Available roles: ${roles.join(", ")}\nCurrent role: ${role}`, "info");
-          return;
-        }
-        await chooseRole(name, ctx);
-      });
-      // Keep failures visible to the caller without poisoning later commands.
-      roleCommands = command.catch(() => {});
-      return command;
-    },
+    handler: queueRoleCommand,
+  });
+
+  pi.registerShortcut("ctrl+r", {
+    description: "Cycle primary role",
+    handler: (ctx) => queueRoleCommand("", ctx, true),
+  });
+
+  pi.registerShortcut("ctrl+alt+r", {
+    description: "Select primary role",
+    handler: (ctx) => queueRoleCommand("", ctx),
   });
 
   pi.on("session_start", async (_event, ctx) => await restoreRole(ctx));
