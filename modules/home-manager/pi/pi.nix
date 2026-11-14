@@ -16,9 +16,9 @@
 
   config.assertions = [
     {
-      assertion = !(lib.elem "merlin" config.miguel.pi.enabledProfiles)
+      assertion = !(lib.any (profile: lib.elem profile config.miguel.pi.enabledProfiles) [ "merlin" "personal" ])
         || (config.miguel.agentSecrets.enable or false);
-      message = "Pi Merlin requires miguel.agentSecrets.enable.";
+      message = "Pi Merlin/personal require miguel.agentSecrets.enable.";
     }
     {
       assertion = lib.elem config.miguel.pi.defaultProfile config.miguel.pi.enabledProfiles;

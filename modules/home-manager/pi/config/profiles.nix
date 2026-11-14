@@ -44,11 +44,11 @@ in {
     roleColors = import ./role-colors.nix;
     roleModels = {
       quick = { provider = "opencode"; modelId = "big-pickle"; thinkingLevel = "low"; };
-      assistant = { provider = "openai-codex"; modelId = "gpt-6.1-terra"; thinkingLevel = "low"; };
-      build = { provider = "openai-codex"; modelId = "gpt-6.1-terra"; thinkingLevel = "medium"; };
+      assistant = { provider = "openai-codex"; modelId = "gpt-6.1-sol"; thinkingLevel = "low"; };
+      build = { provider = "miguelllm"; modelId = "claude-sonnet-5-5"; thinkingLevel = "medium"; };
       plan = { provider = "openai-codex"; modelId = "gpt-6.1-terra"; thinkingLevel = "medium"; };
       investigate = { provider = "opencode-go"; modelId = "glm-5.3-flash"; thinkingLevel = "low"; };
-      reviewer = { provider = "openai-codex"; modelId = "gpt-6.1-sol"; thinkingLevel = "high"; };
+      reviewer = { provider = "miguelllm"; modelId = "claude-sonnet-5-5"; thinkingLevel = "high"; };
       verifier = { provider = "opencode-go"; modelId = "glm-5.3-flash"; thinkingLevel = "low"; };
       "spec-writer" = { provider = "openai-codex"; modelId = "gpt-6-luna"; thinkingLevel = "medium"; };
       general = { provider = "openai-codex"; modelId = "gpt-6-luna"; thinkingLevel = "medium"; };

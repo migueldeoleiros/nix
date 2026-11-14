@@ -142,6 +142,17 @@ let
         force = true;
       };
     }
+    ++ lib.optional (profile == "personal") {
+      name = "pi-${profile}.extension.miguelllm";
+      value = {
+        text = builtins.replaceStrings
+          [ "@AGENT_SECRETS@" ]
+          [ "${config.miguel.agentSecrets.package}/bin/agent-secrets" ]
+          (builtins.readFile ./extensions/miguelllm.js);
+        target = "${root}/extensions/miguelllm.js";
+        force = true;
+      };
+    }
     ++ lib.optional (selections.aicontext or false) {
       name = "pi-${profile}.extension.aicontext-mcp";
       value = {
