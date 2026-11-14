@@ -7,6 +7,7 @@
     import ../../modules/home-manager/defaults ++
     import ../../modules/home-manager/gtk ++
     import ../../modules/home-manager/bitwarden ++
+    import ../../modules/home-manager/battery-notify ++
     import ../../modules/home-manager/agent-secrets ++
     import ../../modules/home-manager/yazi ++
     import ../../modules/home-manager/fcitx5 ++

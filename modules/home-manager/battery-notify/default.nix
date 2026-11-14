@@ -1,0 +1,3 @@
+[
+  ./battery-notify.nix
+]

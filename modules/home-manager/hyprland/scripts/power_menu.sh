@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-selection=$(printf "Poweroff\nReboot\nLock Screen\nExit Hyprland\n" | vicinae dmenu -p "POWER MENU" -W 300 -H 300)
+selection=$(printf "Lock Screen\nExit Hyprland\nReboot\nPoweroff\n" | vicinae dmenu -p "POWER MENU" -W 300 -H 300)
 
 case $selection in
     "Poweroff") hyprshutdown --post-cmd "systemctl poweroff" ;;

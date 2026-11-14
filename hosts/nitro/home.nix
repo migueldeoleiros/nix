@@ -5,16 +5,17 @@
   #   import ../../modules/home-manager/qutebrowser ++
       import ../../modules/home-manager/shell ++
       import ../../modules/home-manager/gnupg ++
-    import ../../modules/home-manager/agent-secrets ++
+      import ../../modules/home-manager/agent-secrets ++
       import ../../modules/home-manager/defaults ++
       import ../../modules/home-manager/gtk ++
       import ../../modules/home-manager/bitwarden ++
+      import ../../modules/home-manager/battery-notify ++
       import ../../modules/home-manager/yazi ++
       import ../../modules/home-manager/fcitx5 ++
-       import ../../modules/home-manager/hyprland ++
-       import ../../modules/home-manager/kitty ++
-       import ../../modules/home-manager/mpv ++
-       import ../../modules/home-manager/tmux ++
+      import ../../modules/home-manager/hyprland ++
+      import ../../modules/home-manager/kitty ++
+      import ../../modules/home-manager/mpv ++
+      import ../../modules/home-manager/tmux ++
       import ../../modules/home-manager/neovim ++
       import ../../modules/home-manager/emacs ++
       import ../../modules/home-manager/packages ++
@@ -22,8 +23,8 @@
       import ../../modules/home-manager/dev/rust ++
       import ../../modules/home-manager/dev/nodejs ++
       import ../../modules/home-manager/dev/java ++
-        import ../../modules/home-manager/opencode ++
-        import ../../modules/home-manager/pi
+      import ../../modules/home-manager/opencode ++
+      import ../../modules/home-manager/pi
    );
 
   miguel.opencode = {
