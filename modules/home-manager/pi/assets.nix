@@ -134,6 +134,14 @@ let
         force = true;
       };
     }
+    ++ lib.optional (profile == "merlin") {
+      name = "pi-${profile}.extension.merlin-cache-key";
+      value = {
+        source = ./extensions/merlin-cache-key.js;
+        target = "${root}/extensions/merlin-cache-key.js";
+        force = true;
+      };
+    }
     ++ lib.optional (selections.aicontext or false) {
       name = "pi-${profile}.extension.aicontext-mcp";
       value = {
