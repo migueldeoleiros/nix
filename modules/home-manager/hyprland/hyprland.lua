@@ -175,7 +175,7 @@ hl.bind(mod .. " + V", exec("vicinae 'vicinae://launch/clipboard/history?toggle=
 hl.bind(mod .. " + SHIFT + Return", exec("pypr toggle term"))
 hl.bind(mod .. " + M", exec("pypr toggle music"))
 hl.bind(mod .. " + CTRL + Q", exec("vicinae 'vicinae://launch/@leonkohli/vicinae-extension-process-manager-0/processes?toggle=true'"))
-hl.bind("Print", exec("wayshot ~/pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).jpg -g"))
+hl.bind("Print", exec("wayshot --clipboard ~/pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).jpg -g"))
 hl.bind(mod .. " + B", exec("eww kill || bash " .. config_dir .. "/scripts/open_bar.sh"), { release = true })
 
 hl.bind("XF86AudioPlay", exec("playerctl play-pause"))
