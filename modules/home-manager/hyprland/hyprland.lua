@@ -123,6 +123,9 @@ hl.layer_rule({
     name = "blur-gtk-layer-shell",
     match = { namespace = "gtk-layer-shell" },
     blur = true,
+    -- Handy's rounded overlay uses this namespace too. Do not blur its
+    -- transparent rectangular canvas outside the visible pill (also suits Eww).
+    ignore_alpha = 0.2,
 })
 
 hl.curve("myBezier", { type = "bezier", points = { { 0.05, 0.9 }, { 0.1, 1.05 } } })

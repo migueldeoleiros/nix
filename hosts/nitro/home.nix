@@ -20,6 +20,7 @@
       import ../../modules/home-manager/emacs ++
       import ../../modules/home-manager/packages ++
       import ../../modules/home-manager/vicinae ++
+      import ../../modules/home-manager/handy ++
       import ../../modules/home-manager/dev/rust ++
       import ../../modules/home-manager/dev/nodejs ++
       import ../../modules/home-manager/dev/java ++
