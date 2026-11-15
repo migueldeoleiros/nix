@@ -11,6 +11,9 @@ buildNpmPackage rec {
     hash = "sha256-CuHDL6JV1VZoYIe+P/hk9qGMK71GGF7QRHEohsPKA2s=";
   };
 
+  # Publish parent-owned lifecycle events consumed by Orca's Pi status hook.
+  patches = [ ./patches/pi-interactive-subagents-orca-lifecycle.patch ];
+
   npmDepsHash = "sha256-MOaEVe8aXnwbUWEvPfF4NcD+6X+TZrfLhp4lPBqoYT8=";
   dontNpmBuild = true;
 

@@ -77,13 +77,12 @@ while IFS= read -r name; do
 done < <(tmux show-environment -g 2>/dev/null)
 orca_names=()
 orca_args=()
-while IFS= read -r name; do
-  case "$name" in ORCA_*)
-    orca_names+=("$name")
-    orca_args+=( -e "$name=${!name}" )
-    ;;
-  esac
-done < <(compgen -e)
+# Nix's noninteractive Bash has no compgen builtin. Prefix expansion works
+# there too; a failed process substitution would silently drop every Orca var.
+for name in "${!ORCA_@}"; do
+  orca_names+=("$name")
+  orca_args+=( -e "$name=${!name}" )
+done
 unset_names=()
 for name in "${server_orca_names[@]}"; do
   if [[ ! " ${orca_names[*]} " == *" $name "* ]]; then

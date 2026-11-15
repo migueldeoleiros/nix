@@ -1,0 +1,101 @@
+--- a/pi-extension/subagents/index.ts
++++ b/pi-extension/subagents/index.ts
+@@ -649,0 +650,69 @@
++// Orca listens on Pi's inter-extension bus; tmux children do not emit these
++// events themselves. Report from the parent that owns their watcher instead.
++function emitSubagentLifecycle(running: RunningSubagent, status: string): void {
++  try {
++    latestPi?.events?.emit?.("task:subagent:lifecycle", {
++      id: running.id,
++      agent: running.agent,
++      description: running.name,
++      status,
++    });
++  } catch {
++    // Optional status reporting must never interrupt spawning or result delivery.
++  }
++}
++
++// Orca parks the old session's roster before our shutdown hook can run. Keep
++// aborted IDs for replay when that session is restored, not for unrelated sessions.
++// Like Orca's parked roster, this state only needs to survive in-process reloads.
++const ORCA_ABORTED_KEY = Symbol.for("pi-subagents/orca-aborted");
++const orcaAborted: Map<string, Set<string>> =
++  (globalThis as any)[ORCA_ABORTED_KEY] ??= new Map();
++let orcaParentSessionFile: string | undefined;
++let orcaReplayTimer: ReturnType<typeof setTimeout> | null = null;
++
++function cancelOrcaReplay(): void {
++  if (orcaReplayTimer !== null) clearTimeout(orcaReplayTimer);
++  orcaReplayTimer = null;
++}
++
++function replayOrcaAborted(): void {
++  cancelOrcaReplay();
++  const file = orcaParentSessionFile;
++  if (!file || !orcaAborted.has(file)) return;
++  // A microtask can run between awaited session_start handlers. Wait a full
++  // timer turn so the consumer has restored the parked roster in either order.
++  orcaReplayTimer = setTimeout(() => {
++    orcaReplayTimer = null;
++    const ids = orcaAborted.get(file);
++    if (!ids) return;
++    orcaAborted.delete(file);
++    for (const id of ids) emitSubagentLifecycle({ id, name: "" } as RunningSubagent, "aborted");
++  }, 0);
++  orcaReplayTimer.unref?.();
++}
++
++function shutdownOrcaSubagents(reason?: string): void {
++  cancelOrcaReplay();
++  const children = [...runningSubagents.values()];
++  if (children.length && orcaParentSessionFile && reason !== "reload" && reason !== "quit") {
++    const ids = orcaAborted.get(orcaParentSessionFile) ?? new Set<string>();
++    for (const running of children) ids.add(running.id);
++    orcaAborted.set(orcaParentSessionFile, ids);
++  }
++  for (const running of children) finishRunningSubagent(running, "aborted");
++}
++
++function trackRunningSubagent(running: RunningSubagent): void {
++  runningSubagents.set(running.id, running);
++  emitSubagentLifecycle(running, "started");
++}
++
++function finishRunningSubagent(running: RunningSubagent, status: string): void {
++  // Shutdown and the async watcher may both settle the same run. An old watcher
++  // must not retire another registration or emit a second completion.
++  if (runningSubagents.get(running.id) !== running) return;
++  runningSubagents.delete(running.id);
++  emitSubagentLifecycle(running, status);
++}
++
+@@ -1311 +1380 @@
+-    runningSubagents.set(id, running);
++    trackRunningSubagent(running);
+@@ -1452 +1521 @@
+-  runningSubagents.set(id, running);
++  trackRunningSubagent(running);
+@@ -1574 +1643 @@
+-      runningSubagents.delete(running.id);
++      finishRunningSubagent(running, result.exitCode === 0 ? "completed" : "failed");
+@@ -1602 +1671 @@
+-    runningSubagents.delete(running.id);
++    finishRunningSubagent(running, result.exitCode === 0 && !result.errorMessage ? "completed" : "failed");
+@@ -1619 +1688 @@
+-    runningSubagents.delete(running.id);
++    finishRunningSubagent(running, signal.aborted || getModuleAbortSignal().aborted ? "aborted" : "failed");
+@@ -1647,0 +1717,2 @@
++    orcaParentSessionFile = ctx.sessionManager.getSessionFile();
++    replayOrcaAborted();
+@@ -1659,0 +1731,2 @@
++    const children = [...runningSubagents.values()];
++    shutdownOrcaSubagents(_event.reason);
+@@ -1672 +1745 @@
+-    for (const [_id, agent] of runningSubagents) {
++    for (const agent of children) {
+@@ -2246,0 +2320 @@
++          agent: loadout.agent ?? undefined,
+@@ -2253 +2327 @@
+-        runningSubagents.set(id, running);
++        trackRunningSubagent(running);
