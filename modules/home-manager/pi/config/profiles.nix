@@ -46,13 +46,13 @@ in {
       quick = { provider = "opencode"; modelId = "big-pickle"; thinkingLevel = "low"; };
       assistant = { provider = "openai-codex"; modelId = "gpt-6.1-sol"; thinkingLevel = "low"; };
       build = { provider = "miguelllm"; modelId = "claude-sonnet-5-5"; thinkingLevel = "medium"; };
-      plan = { provider = "openai-codex"; modelId = "gpt-6.1-terra"; thinkingLevel = "medium"; };
+      plan = { provider = "openai-codex"; modelId = "gpt-6.1-sol"; thinkingLevel = "low"; };
       investigate = { provider = "opencode-go"; modelId = "glm-5.3-flash"; thinkingLevel = "low"; };
-      reviewer = { provider = "miguelllm"; modelId = "claude-sonnet-5-5"; thinkingLevel = "high"; };
+      reviewer = { provider = "openai-codex"; modelId = "gpt-6.1-sol"; thinkingLevel = "low"; };
       verifier = { provider = "opencode-go"; modelId = "glm-5.3-flash"; thinkingLevel = "low"; };
       "spec-writer" = { provider = "openai-codex"; modelId = "gpt-6-luna"; thinkingLevel = "medium"; };
-      general = { provider = "openai-codex"; modelId = "gpt-6-luna"; thinkingLevel = "medium"; };
-      worker = { provider = "openai-codex"; modelId = "gpt-6-luna"; thinkingLevel = "high"; };
+      general = { provider = "miguelllm"; modelId = "claude-sonnet-5-5"; thinkingLevel = "low"; };
+      worker = { provider = "miguelllm"; modelId = "claude-sonnet-5-5"; thinkingLevel = "low"; };
       browser = { provider = "opencode-go"; modelId = "glm-5.3-flash"; thinkingLevel = "low"; };
     };
   };
