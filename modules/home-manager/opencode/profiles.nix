@@ -15,11 +15,11 @@ let
   commonPlugins = [ "@tarquinen/opencode-dcp@3.2.0" "@mohak34/opencode-notifier@1.0.0" ];
   managedConfig = builtins.fromJSON (builtins.readFile (builtins.fetchurl {
     url = "https://llm.merlinsoftware.es/.well-known/opencode/managed-v1.json";
-    sha256 = "1bd5hclcaz3lm8k68h6snlf50fp5gjlqqn2i598gp0wanqgyzq6s";
+    sha256 = "1lb2jcvyk3knz6xw56mkss0xsyvks69aq9c3w7hqz8vhwf8xfm3b";
   }));
   managedProvider = managedConfig.provider.merlin;
   modelVariants = {
-    "gpt-6.1-sol" = {
+    "gpt-6.2-sol" = {
       settings = { reasoningEffort = "medium"; };
       variants = [
         { id = "balanced"; settings = { reasoningEffort = "medium"; }; }
@@ -63,11 +63,11 @@ in {
     smallModel = "merlin/gpt-6-luna";
     agents = {
       quick = { model = "opencode/big-pickle"; };
-      assistant = { model = "merlin/gpt-6.1-sol#balanced"; };
-      build = { model = "merlin/gpt-6.1-sol#balanced"; };
-      plan = { model = "merlin/gpt-6.1-sol#balanced"; };
+      assistant = { model = "merlin/gpt-6.2-sol#balanced"; };
+      build = { model = "merlin/gpt-6.2-sol#balanced"; };
+      plan = { model = "merlin/gpt-6.2-sol#balanced"; };
       investigate = { model = "merlin/gpt-5.6-terra#fast"; };
-      reviewer = { model = "merlin/gpt-6.1-sol#deep"; };
+      reviewer = { model = "merlin/gpt-6.2-sol#deep"; };
       verifier = { model = "merlin/gpt-5.6-terra#fast"; };
       "spec-writer" = { model = "merlin/gpt-5.6-terra#fast"; };
       general = { model = "merlin/gpt-5.6-terra#fast"; };
@@ -101,7 +101,7 @@ in {
       build = { model = "openai/gpt-6.1-terra#medium"; };
       plan = { model = "openai/gpt-6.1-terra#medium"; };
       investigate = { model = "opencode-go/glm-5.3-flash"; };
-      reviewer = { model = "openai/gpt-6.1-sol#high"; };
+      reviewer = { model = "openai/gpt-6.2-sol#high"; };
       verifier = { model = "opencode-go/glm-5.3-flash"; };
       "spec-writer" = { model = "openai/gpt-6-luna#medium"; };
       general = { model = "openai/gpt-6-luna#medium"; };

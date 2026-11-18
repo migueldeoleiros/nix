@@ -27,11 +27,11 @@ in {
     models = import ./merlin-models.nix;
     roleModels = {
       quick = { provider = "opencode"; modelId = "big-pickle"; thinkingLevel = "low"; };
-      assistant = { provider = "merlin"; modelId = "gpt-6.1-sol"; thinkingLevel = "medium"; };
-      build = { provider = "merlin"; modelId = "gpt-6.1-sol"; thinkingLevel = "medium"; };
-      plan = { provider = "merlin"; modelId = "gpt-6.1-sol"; thinkingLevel = "medium"; };
+      assistant = { provider = "merlin"; modelId = "gpt-6.2-sol"; thinkingLevel = "medium"; };
+      build = { provider = "merlin"; modelId = "gpt-6.2-sol"; thinkingLevel = "medium"; };
+      plan = { provider = "merlin"; modelId = "gpt-6.2-sol"; thinkingLevel = "medium"; };
       investigate = { provider = "merlin"; modelId = "gpt-5.6-terra"; thinkingLevel = "low"; };
-      reviewer = { provider = "merlin"; modelId = "gpt-6.1-sol"; thinkingLevel = "high"; };
+      reviewer = { provider = "merlin"; modelId = "gpt-6.2-sol"; thinkingLevel = "high"; };
       verifier = { provider = "merlin"; modelId = "gpt-5.6-terra"; thinkingLevel = "low"; };
       "spec-writer" = { provider = "merlin"; modelId = "gpt-5.6-terra"; thinkingLevel = "low"; };
       general = { provider = "merlin"; modelId = "gpt-5.6-terra"; thinkingLevel = "low"; };
@@ -44,11 +44,11 @@ in {
     roleColors = import ./role-colors.nix;
     roleModels = {
       quick = { provider = "opencode"; modelId = "big-pickle"; thinkingLevel = "low"; };
-      assistant = { provider = "openai-codex"; modelId = "gpt-6.1-sol"; thinkingLevel = "low"; };
+      assistant = { provider = "openai-codex"; modelId = "gpt-6.2-sol"; thinkingLevel = "low"; };
       build = { provider = "miguelllm"; modelId = "claude-sonnet-5-5"; thinkingLevel = "medium"; };
-      plan = { provider = "openai-codex"; modelId = "gpt-6.1-sol"; thinkingLevel = "low"; };
+      plan = { provider = "openai-codex"; modelId = "gpt-6.2-sol"; thinkingLevel = "low"; };
       investigate = { provider = "opencode-go"; modelId = "glm-5.3-flash"; thinkingLevel = "low"; };
-      reviewer = { provider = "openai-codex"; modelId = "gpt-6.1-sol"; thinkingLevel = "low"; };
+      reviewer = { provider = "openai-codex"; modelId = "gpt-6.2-sol"; thinkingLevel = "low"; };
       verifier = { provider = "opencode-go"; modelId = "glm-5.3-flash"; thinkingLevel = "low"; };
       "spec-writer" = { provider = "openai-codex"; modelId = "gpt-6-luna"; thinkingLevel = "medium"; };
       general = { provider = "miguelllm"; modelId = "claude-sonnet-5-5"; thinkingLevel = "low"; };
