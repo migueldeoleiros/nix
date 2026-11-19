@@ -1,4 +1,4 @@
-{ config, lib, pkgs, piMcpConfig, ... }:
+{ config, lib, pkgs, inputs, piMcpConfig, ... }:
 
 let
   cfg = config.miguel.pi;
@@ -118,6 +118,28 @@ let
         };
       }
     ]
+    ++ map (skill: {
+      name = "pi-${profile}.skill.workmux-${skill}";
+      value = {
+        source = inputs.workmux + "/skills/${skill}";
+        target = "${root}/skills/${skill}";
+        recursive = true;
+        force = true;
+      };
+    }) [ "coordinator" "merge" "open-pr" "rebase" "workmux" "worktree" ]
+    ++ [{
+      # workmux status tracking; no-op outside a workmux pane.
+      name = "pi-${profile}.extension.workmux-status";
+      value = {
+        # Subagents are separate pi processes in their own panes; only the parent reports status.
+        text = builtins.replaceStrings
+          [ "export default function (pi: ExtensionAPI) {" ]
+          [ "export default function (pi: ExtensionAPI) {\n  if (process.env.PI_SUBAGENT_ID) return;" ]
+          (builtins.readFile (inputs.workmux + "/resources/pi/extensions/workmux-status.ts"));
+        target = "${root}/extensions/workmux-status.ts";
+        force = true;
+      };
+    }]
     ++ lib.optional extensions.primaryRole {
       name = "pi-${profile}.extension.primary-role";
       value = {

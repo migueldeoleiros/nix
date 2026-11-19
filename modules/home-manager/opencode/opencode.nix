@@ -44,6 +44,8 @@ let
   };
   opencodeCandidateId = pkgs.callPackage ./candidate-id.nix { };
 
+  workmuxSkills = [ "coordinator" "merge" "open-pr" "rebase" "workmux" "worktree" ];
+
   profilePaths = {
     merlin = { directory = "opencode-merlin"; filename = "opencode.json"; };
     inditex = { directory = "opencode-inditex"; filename = "opencode.json"; };
@@ -473,7 +475,26 @@ let
           recursive = true;
           force = true;
         };
-      }) assets.skills) cfg.enabledProfiles;
+      }) assets.skills
+      ++ map (skill: {
+        name = "opencode-${profile}.skills.workmux-${skill}";
+        value = {
+          source = inputs.workmux + "/skills/${skill}";
+          target = ".config/${profilePath.directory}/skills/${skill}";
+          recursive = true;
+          force = true;
+        };
+      }) workmuxSkills
+      ++ [{
+        # workmux status tracking (OpenCode v2 plugin); no-op outside a workmux pane.
+        name = "opencode-${profile}.plugins.workmux-status";
+        value = {
+          source = inputs.workmux + "/resources/opencode/v2/workmux-status";
+          target = ".config/${profilePath.directory}/plugins/workmux-status";
+          recursive = true;
+          force = true;
+        };
+      }]) cfg.enabledProfiles;
 in
 {
   options.miguel.opencode.hrMerlinContext = {
