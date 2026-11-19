@@ -36,6 +36,11 @@
       inputs.vicinae.follows = "vicinae";
     };
 
+    workmux = {
+      url = "github:raine/workmux/d8e416a04cd87ad639bf323bab806e346639074c";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
   };
 
   outputs = inputs @ { self, nixpkgs, home-manager, ... }:

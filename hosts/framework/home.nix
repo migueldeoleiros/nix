@@ -28,7 +28,8 @@
     import ../../modules/home-manager/dev/act ++
     import ../../modules/home-manager/opencode ++
     import ../../modules/home-manager/pi ++
-    import ../../modules/home-manager/vm-browser
+    import ../../modules/home-manager/vm-browser ++
+    import ../../modules/home-manager/workmux
   );
 
   miguel.opencode = {

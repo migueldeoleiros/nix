@@ -12,7 +12,8 @@
     import ../../modules/home-manager/dev/nodejs ++
     import ../../modules/home-manager/dev/java ++
     import ../../modules/home-manager/opencode ++
-    import ../../modules/home-manager/pi
+    import ../../modules/home-manager/pi ++
+    import ../../modules/home-manager/workmux
   );
 
   miguel.opencode = {

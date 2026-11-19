@@ -140,6 +140,7 @@
         "opencode-v2": "opencode-v2",
         "vicinae": "vicinae",
         "vicinae-extensions": "vicinae-extensions",
+        "workmux": "workmux",
         "zen-browser": "zen-browser"
       }
     },
@@ -240,6 +241,27 @@
       "original": {
         "owner": "vicinaehq",
         "repo": "extensions",
+        "type": "github"
+      }
+    },
+    "workmux": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1794812284,
+        "narHash": "sha256-dbwsHujxDY/nzOLbAqYn/7f1afYcTJmWsZfw0KNgE90=",
+        "owner": "raine",
+        "repo": "workmux",
+        "rev": "d8e416a04cd87ad639bf323bab806e346639074c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "raine",
+        "repo": "workmux",
+        "rev": "d8e416a04cd87ad639bf323bab806e346639074c",
         "type": "github"
       }
     },
