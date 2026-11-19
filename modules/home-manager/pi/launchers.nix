@@ -23,8 +23,9 @@ let
     { key = "@PI_EXE@"; value = lib.escapeShellArg (lib.getExe pi); }
     { key = "@AICONTEXT_AGENT_DIRS@"; value = if aicontextProfiles == [ ] then "''" else lib.concatMapStringsSep "|" (profile: lib.escapeShellArg (profileDir profile)) aicontextProfiles; }
   ];
+  singleProfile = builtins.length cfg.enabledProfiles == 1;
   launcher = profile: pkgs.writeShellApplication {
-    name = "pi-${profile}";
+    name = if singleProfile then "pi" else "pi-${profile}";
     runtimeInputs = [ pkgs.coreutils pkgs.tmux ];
     text = render (builtins.readFile ./scripts/profile-launcher.sh) [
       { key = "@CHILD_PROFILE@"; value = childProfile; }
@@ -52,5 +53,5 @@ let
     ];
   };
 in {
-  home.packages = [ profileSelector ] ++ map launcher cfg.enabledProfiles;
+  home.packages = lib.optional (!singleProfile) profileSelector ++ map launcher cfg.enabledProfiles;
 }

@@ -33,14 +33,14 @@
 
   miguel.opencode = {
     profile = "merlin";
-    enabledProfiles = [ "merlin" "personal" "inditex" ];
+    enabledProfiles = [ "merlin" ];
     hrMerlinContext.enable = true;
   };
 
   miguel.agentSecrets.enable = true;
 
   miguel.pi = {
-    enabledProfiles = [ "merlin" "personal" "inditex" ];
+    enabledProfiles = [ "personal" ];
   };
 
   home = {

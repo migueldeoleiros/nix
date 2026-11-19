@@ -4,6 +4,12 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
+    # Merlin's managed plugin requires OpenCode >= 2.2.7.
+    opencode-merlin = {
+      url = "github:anomalyco/opencode/fedc6f208aa2bd54c1019227214568083f6380ad";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     opencode-v2 = {
       url = "github:anomalyco/opencode/4617210822bdbb31e5749751afbfb4584ccedac8";
       inputs.nixpkgs.follows = "nixpkgs";

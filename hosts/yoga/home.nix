@@ -22,7 +22,7 @@
 
   miguel.opencode = {
     profile = "merlin";
-    enabledProfiles = [ "merlin" "personal" "inditex" ];
+    enabledProfiles = [ "merlin" "inditex" ];
   };
 
   miguel.pi = {

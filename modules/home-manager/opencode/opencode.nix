@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, inputs, ... }:
 
 let
   cfg = config.miguel.opencode;
@@ -6,6 +6,31 @@ let
     inherit lib;
     hrMerlinContextEnabled = cfg.hrMerlinContext.enable;
   };
+  merlinOpenCode =
+    let
+      upstream = inputs.opencode-merlin.packages.${pkgs.stdenv.hostPlatform.system}.opencode;
+      # OpenCode 2.2.7 needs Bun >= 1.4.4 (builtin ws extensions/subprotocol);
+      # the followed nixpkgs pin ships 1.4.2. Drop once nixpkgs bun >= 1.4.4.
+      bun = pkgs.bun.overrideAttrs (old: {
+        version = "1.4.4";
+        __intentionallyOverridingVersion = true;
+        passthru = old.passthru // {
+          sources = old.passthru.sources // {
+            "x86_64-linux" = pkgs.fetchurl {
+              url = "https://github.com/oven-sh/bun/releases/download/bun-v1.4.4/bun-linux-x64-baseline.zip";
+              hash = "sha256-4ERutVmVdy65iUvrrppr42jZhai5Jx7hJEhvmUbu3XY=";
+            };
+          };
+        };
+      });
+    in upstream.override {
+      inherit bun;
+      node_modules = upstream.node_modules.override {
+        inherit bun;
+        # Differs from upstream's hash with our nixpkgs pin.
+        hash = "sha256-N/VSSutmwwP1S7P0miONCyIXGKBpv9lrIIW9u+4dqnk=";
+      };
+    };
   profileFor = profile:
     profiles.${profile} or (throw "OpenCode profile '${profile}' is missing from modules/home-manager/opencode/profiles.nix");
 
@@ -21,7 +46,6 @@ let
 
   profilePaths = {
     merlin = { directory = "opencode-merlin"; filename = "opencode.json"; };
-    personal = { directory = "opencode-personal"; filename = "opencode.json"; };
     inditex = { directory = "opencode-inditex"; filename = "opencode.json"; };
   };
   profileConfigDirectory = profile:
@@ -271,8 +295,16 @@ let
     } // lib.optionalAttrs (profileRoutes ? model) { model = profileRoutes.model; }
       // lib.optionalAttrs (profileRoutes ? providers) { providers = profileRoutes.providers; };
 
+  configWithManagedDefaults = profile:
+    let local = opencodeConfigFor profile;
+    in if profile != "merlin" then local else
+      let managed = profiles.merlin.managedConfig;
+      # Managed settings win collisions; keep every managed plugin spec and its options.
+      in local // managed // { plugins = (managed.plugins or []) ++ local.plugins; };
+
   profilePackages = profile: with pkgs;
-    [ opencode nodejs opencodeCandidateId stablyai-orca ]
+    [ nodejs opencodeCandidateId stablyai-orca ]
+    ++ lib.optional (!singleProfile && profile == "inditex") opencode
     ++ lib.concatMap (server: server.packages) (lib.attrValues (selectedServersFor profile));
   # Reuse the pinned CLI's parser, but copy just this dependency-free package so
   # launcher runtime references do not retain the entire upstream node_modules.
@@ -284,26 +316,18 @@ let
     inherit lib pkgs;
     agentSecretsPackage = agentSecrets;
   };
+  singleProfile = builtins.length cfg.enabledProfiles == 1;
+  launcherName = profile: if singleProfile then "opencode" else "opencode-${profile}";
   opencodeLauncher = profile:
     let
       configDirectory = profileConfigDirectory profile;
       launcher = pkgs.writeShellApplication {
-      name = "opencode-${profile}";
+      name = launcherName profile;
       text = ''
         unset OPENCODE_CONFIG OPENCODE_CONFIG_DIR OPENCODE_CONFIG_CONTENT OPENCODE_DB
         # Like the server overlay, inherited client overlays belong to neither profile.
         unset OPENCODE_CLI_CONFIG_CONTENT
         export OPENCODE_CONFIG_DIR=${lib.escapeShellArg configDirectory}
-        ${lib.optionalString (profile == "merlin" && cfg.hrMerlinContext.enable) ''
-          case " ''${AGENT_CREDENTIALS_MISSING:-} " in
-            *" OPENCODE_HR_TOKEN_FILE "*)
-              export OPENCODE_CONFIG_CONTENT=${lib.escapeShellArg (builtins.toJSON {
-                mcp.servers."hr-merlin-context".disabled = true;
-              })}
-              echo "OpenCode: HR context disabled for this session; continuing startup" >&2
-              ;;
-          esac
-        ''}
         ${lib.optionalString (profile == "inditex") ''
           # Read corporate providers at launch, never during Nix evaluation.
           # Project MCPs/skills/tools remain owned by the AIContext runtime.
@@ -327,27 +351,52 @@ let
         exec ${pkgs.opencode}/bin/opencode "''${args[@]}"
       '';
     };
-    in if profile == "merlin" && cfg.hrMerlinContext.enable then
-      withRuntimeCredentials {
-        name = "opencode-${profile}";
+      merlinLauncher = pkgs.writeShellApplication {
+      name = launcherName profile;
+      runtimeInputs = [ pkgs.git ];
+      text = ''
+        unset OPENCODE_CONFIG OPENCODE_CONFIG_CONTENT OPENCODE_CLI_CONFIG_CONTENT OPENCODE_DB
+        export OPENCODE_CONFIG_DIR=${lib.escapeShellArg configDirectory}
+        ${lib.optionalString cfg.hrMerlinContext.enable ''
+          if [[ " ''${AGENT_CREDENTIALS_MISSING:-} " == *" OPENCODE_HR_TOKEN_FILE "* ]]; then
+            export OPENCODE_CONFIG_CONTENT=${lib.escapeShellArg (builtins.toJSON {
+              mcp.servers."hr-merlin-context".disabled = true;
+            })}
+            echo "OpenCode: HR context disabled for this session; continuing startup" >&2
+          fi
+        ''}
+        export XDG_DATA_HOME=${lib.escapeShellArg "${config.xdg.dataHome}/opencode-v2/merlin"}
+        export XDG_STATE_HOME=${lib.escapeShellArg "${config.xdg.stateHome}/opencode-v2/merlin"}
+        export XDG_CACHE_HOME=${lib.escapeShellArg "${config.xdg.cacheHome}/opencode-v2/merlin"}
+        # Use Merlin's own server so another profile cannot supply its config.
+        insert="$(${pkgs.nodejs}/bin/node ${./launcher-helper.mjs} standalone "$@")"
+        args=("$@")
+        if (( insert >= 0 )); then
+          args=("''${args[@]:0:insert}" --standalone "''${args[@]:insert}")
+        fi
+        exec ${merlinOpenCode}/bin/opencode "''${args[@]}"
+      '';
+    };
+    in if profile != "merlin" then launcher
+      else if !cfg.hrMerlinContext.enable then merlinLauncher
+      else withRuntimeCredentials {
+        name = launcherName profile;
         credentials.OPENCODE_HR_TOKEN_FILE = {
           name = "hr-merlin-context-token";
           trimEol = true;
         };
         required = false;
-        command = [ "${launcher}/bin/opencode-${profile}" ];
-      }
-    else launcher;
-  orcaProfile = if lib.elem "personal" cfg.enabledProfiles then "personal" else "inditex";
+        command = [ "${merlinLauncher}/bin/${launcherName profile}" ];
+      };
   opencodeOrca = pkgs.writeShellApplication {
     name = "opencode-orca";
     text = ''
-      exec ${opencodeLauncher orcaProfile}/bin/opencode-${orcaProfile} "$@"
+      exec ${opencodeLauncher "inditex"}/bin/${launcherName "inditex"} "$@"
     '';
   };
   # Private PATH entry, not a replacement for the system/ASDF opencode binary.
   aicontextOpenCode = pkgs.writeShellScriptBin "opencode" ''
-    exec ${opencodeLauncher "inditex"}/bin/opencode-inditex "$@"
+    exec ${opencodeLauncher "inditex"}/bin/${launcherName "inditex"} "$@"
   '';
   aicontextInditex = pkgs.writeShellApplication {
     name = "aicontext-inditex";
@@ -370,7 +419,7 @@ let
       {
         name = "opencode-${profile}.${profilePath.filename}";
         value = {
-          text = builtins.toJSON (opencodeConfigFor profile);
+          text = builtins.toJSON (configWithManagedDefaults profile);
           target = ".config/${profilePath.directory}/${profilePath.filename}";
           force = true;
         };
@@ -432,13 +481,13 @@ in
   };
 
   options.miguel.opencode.profile = lib.mkOption {
-    type = lib.types.enum [ "merlin" "personal" "inditex" ];
+    type = lib.types.enum [ "merlin" "inditex" ];
     default = "merlin";
     description = "OpenCode configuration profile.";
   };
 
   options.miguel.opencode.enabledProfiles = lib.mkOption {
-    type = lib.types.listOf (lib.types.enum [ "merlin" "personal" "inditex" ]);
+    type = lib.types.listOf (lib.types.enum [ "merlin" "inditex" ]);
     default = [ cfg.profile ];
     description = "OpenCode profiles to materialize.";
   };
@@ -465,11 +514,11 @@ in
         lib.concatMap profilePackages cfg.enabledProfiles
         ++ lib.map opencodeLauncher cfg.enabledProfiles
         ++ lib.optional (lib.elem "inditex" cfg.enabledProfiles) aicontextInditex
-        ++ lib.optionals (lib.elem "personal" cfg.enabledProfiles || lib.elem "inditex" cfg.enabledProfiles) [ opencodeOrca ]
+        ++ lib.optionals (lib.elem "inditex" cfg.enabledProfiles) [ opencodeOrca ]
       );
 
-      shellAliases = {
-        opencode = "opencode-${cfg.profile}";
+      shellAliases = lib.optionalAttrs (!singleProfile) {
+        opencode = launcherName cfg.profile;
       } // lib.optionalAttrs (cfg.profile == "inditex") {
         aicontext = "aicontext-inditex";
       };

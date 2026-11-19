@@ -13,102 +13,22 @@ let
   ];
   # V1-only vibeguard is disabled; automatic secret redaction is unavailable.
   commonPlugins = [ "@tarquinen/opencode-dcp@3.2.0" "@mohak34/opencode-notifier@1.0.0" ];
-  managedConfig = builtins.fromJSON (builtins.readFile (builtins.fetchurl {
-    url = "https://llm.merlinsoftware.es/.well-known/opencode/managed-v1.json";
-    sha256 = "1lb2jcvyk3knz6xw56mkss0xsyvks69aq9c3w7hqz8vhwf8xfm3b";
-  }));
-  managedProvider = managedConfig.provider.merlin;
-  modelVariants = {
-    "gpt-6.2-sol" = {
-      settings = { reasoningEffort = "medium"; };
-      variants = [
-        { id = "balanced"; settings = { reasoningEffort = "medium"; }; }
-        { id = "deep"; settings = { reasoningEffort = "high"; textVerbosity = "medium"; }; }
-      ];
-    };
-    "gpt-5.6-terra" = {
-      settings = { reasoningEffort = "medium"; };
-      variants = [
-        { id = "fast"; settings = { reasoningEffort = "low"; }; }
-        { id = "balanced"; settings = { reasoningEffort = "medium"; }; }
-        { id = "deep"; settings = { reasoningEffort = "high"; textVerbosity = "medium"; }; }
-      ];
-    };
-  };
 in {
   merlin = {
+    managedConfig = builtins.fromJSON (builtins.readFile (builtins.fetchurl {
+      url = "https://llm.merlinsoftware.es/.well-known/opencode/managed-v1.json";
+      sha256 = "1mh4ijb5d9n0q8115plkm92zj3bxbzib0izl4x34xy5bxsr4j5wi";
+    }));
     enabledAgents = commonAgents ++ [ "gitea-repo" ];
     commands = commonCommands;
     skills = commonSkills ++ [
       "gitea-ci-investigation" "gitea-issue-triage" "gitea-pr-management"
       "gitea-release-changelog" "sonarqube-review"
     ];
-    externalModels = false;
+    externalModels = true; # Agents inherit the managed default rather than custom model routes.
     mcp = [ "gitea" "sonarqube" "trivy" "engram" "codegraph" "context7" ]
       ++ lib.optional hrMerlinContextEnabled "hr-merlin-context";
     plugins = commonPlugins;
-    # Convert the complete fixed-hash V1 entry; do not mix nested V1/V2 fields.
-    providers.merlin = {
-      name = managedProvider.name;
-      package = "aisdk:${managedProvider.npm}";
-      settings.baseURL = managedProvider.options.baseURL;
-      headers = managedProvider.options.headers;
-      models = lib.mapAttrs (modelName: modelDef: {
-        inherit (modelDef) name limit;
-        capabilities = modelDef.modalities;
-        # V1 attachment has no native equivalent; input modalities are retained.
-        settings = modelDef.options;
-      } // (modelVariants.${modelName} or {})) managedProvider.models;
-    };
-    smallModel = "merlin/gpt-6-luna";
-    agents = {
-      quick = { model = "opencode/big-pickle"; };
-      assistant = { model = "merlin/gpt-6.2-sol#balanced"; };
-      build = { model = "merlin/gpt-6.2-sol#balanced"; };
-      plan = { model = "merlin/gpt-6.2-sol#balanced"; };
-      investigate = { model = "merlin/gpt-5.6-terra#fast"; };
-      reviewer = { model = "merlin/gpt-6.2-sol#deep"; };
-      verifier = { model = "merlin/gpt-5.6-terra#fast"; };
-      "spec-writer" = { model = "merlin/gpt-5.6-terra#fast"; };
-      general = { model = "merlin/gpt-5.6-terra#fast"; };
-      worker = { model = "merlin/gpt-5.6-terra#balanced"; };
-      browser = { model = "merlin/gpt-5.6-terra#fast"; };
-      "gitea-repo" = { model = "merlin/gpt-5.6-terra#balanced"; };
-    };
-  };
-
-  personal = {
-    enabledAgents = commonAgents ++ [ "email" ];
-    commands = commonCommands;
-    skills = commonSkills;
-    externalModels = false;
-    mcp = [ "engram" "codegraph" "context7" "email" ];
-    email = {
-      imapHost = "imap.purelymail.com";
-      smtpHost = "smtp.purelymail.com";
-      imapPort = 993;
-      smtpPort = 465;
-      imapTls = "implicit";
-      smtpTls = "implicit";
-    };
-    plugins = commonPlugins;
-    # V2 has no per-model whitelist; the wider Personal picker is intentional.
-    smallModel = "opencode-go/glm-5.3-flash";
-    agents = {
-      quick = { model = "opencode/big-pickle"; };
-      assistant = { model = "openai/gpt-6.1-terra#low"; };
-      email = { model = "openai/gpt-6-luna#medium"; };
-      build = { model = "openai/gpt-6.1-terra#medium"; };
-      plan = { model = "openai/gpt-6.1-terra#medium"; };
-      investigate = { model = "opencode-go/glm-5.3-flash"; };
-      reviewer = { model = "openai/gpt-6.2-sol#high"; };
-      verifier = { model = "opencode-go/glm-5.3-flash"; };
-      "spec-writer" = { model = "openai/gpt-6-luna#medium"; };
-      general = { model = "openai/gpt-6-luna#medium"; };
-      worker = { model = "openai/gpt-6-luna#high"; };
-      browser = { model = "opencode-go/glm-5.3-flash"; };
-      "gitea-repo" = { model = "openai/gpt-6-luna#medium"; };
-    };
   };
 
   inditex = {

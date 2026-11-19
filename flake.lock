@@ -90,6 +90,27 @@
         "type": "github"
       }
     },
+    "opencode-merlin": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1794297162,
+        "narHash": "sha256-JPCR867ZoMbYNrCvAa3OnilsxVcktD3mHCGpR6o/nlw=",
+        "owner": "anomalyco",
+        "repo": "opencode",
+        "rev": "fedc6f208aa2bd54c1019227214568083f6380ad",
+        "type": "github"
+      },
+      "original": {
+        "owner": "anomalyco",
+        "repo": "opencode",
+        "rev": "fedc6f208aa2bd54c1019227214568083f6380ad",
+        "type": "github"
+      }
+    },
     "opencode-v2": {
       "inputs": {
         "nixpkgs": [
@@ -115,6 +136,7 @@
       "inputs": {
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs",
+        "opencode-merlin": "opencode-merlin",
         "opencode-v2": "opencode-v2",
         "vicinae": "vicinae",
         "vicinae-extensions": "vicinae-extensions",
