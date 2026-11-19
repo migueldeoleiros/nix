@@ -1,0 +1,3 @@
+[
+  ./browser-hub.nix
+]
