@@ -15,6 +15,10 @@ let
   commonPlugins = [ "@tarquinen/opencode-dcp@3.2.0" "@mohak34/opencode-notifier@1.0.0" ];
 in {
   merlin = {
+    gitea = {
+      url = "https://gitea.merlinsoftware.es";
+      permissions = [ { action = "gitea_*"; resource = "*"; effect = "allow"; } ];
+    };
     managedConfig = builtins.fromJSON (builtins.readFile (builtins.fetchurl {
       url = "https://llm.merlinsoftware.es/.well-known/opencode/managed-v1.json";
       sha256 = "1mh4ijb5d9n0q8115plkm92zj3bxbzib0izl4x34xy5bxsr4j5wi";

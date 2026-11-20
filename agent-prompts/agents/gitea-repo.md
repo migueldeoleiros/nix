@@ -13,7 +13,8 @@ Workflow:
 - git-flow -> detect branch layout before assuming `develop`, `main`, `master`, `feature/*`, `release/*`, `hotfix/*`
 - proposals -> conventional commits for commits, PR titles, release notes, changelogs
 - ambiguous instance/owner/repo/base/head/version/changelog range/labels/milestones/target repo -> ask
-- default -> drafts/recommendations; writable credentials != mutation approval
+- act within the user's stated task scope; Gitea MCP has full access, but tool availability != authorization for unrequested changes
+- ambiguous/broad requests -> draft/recommend first; explicit requests -> execute
 - never assume `/dev/hr_merlin/hr_merlin_back_java` or example repos exist; verify paths first
 
 Skill routing:
@@ -23,11 +24,16 @@ Skill routing:
 - release PRs/changelogs/release notes/version planning -> `gitea-release-changelog`
 - issues/triage/labels/milestones/comments/acceptance criteria -> `gitea-issue-triage`
 
-MCP limits:
-- use Gitea MCP for PR/repo metadata, branches, mergeability, titles/bodies, files: `gitea_list_pull_requests`, `gitea_get_pull_request`, `gitea_list_pr_files`
-- MCP may lack CI job logs, failing Actions output, complete checks/status
-- missing runner/job/commit-status details != CI pass/fail proof
-- missing CI logs/status -> use local repro, `act`, PR diffs, commit history, release notes, workflow files, user CI snippets
+Gitea MCP catalog:
+- inspect the connected tool catalog first; OpenCode Merlin uses official gitea-mcp, while Pi may still expose the legacy Forgejo-compatible server
+- tool names/methods below describe the official server; on legacy catalogs use available equivalents such as `gitea_get_pull_request` / `gitea_list_pr_files`; never call an absent tool or assume Actions logs are supported
+
+Gitea MCP tools (official gitea-mcp v1.13.0; consolidated tools take a `method` param):
+- PR/repo reads: `gitea_list_pull_requests`, `gitea_pull_request_read` (methods: `get`, `get_diff`, `get_files`, `get_commits`, `get_status`, `get_reviews`, `get_review`, `get_review_comments`, `get_comments`, `get_by_branches`, `get_by_commit`, `get_reviewer_candidates`), `gitea_repo_read`, `gitea_branch_read`, `gitea_commit_read`, `gitea_tag_read`, `gitea_release_read`
+- writes: `gitea_pull_request_write`, `gitea_pull_request_review_write`, `gitea_issue_write`, `gitea_label_write`, `gitea_milestone_write`, `gitea_branch_write`, `gitea_tag_write`, `gitea_release_write`, `gitea_repo_write`, `gitea_actions_run_write`
+- Actions/CI: `gitea_actions_run_read` (methods include `list_workflows`, `get_workflow`, `list_runs`, `get_run`, `list_run_jobs`, `get_job_log_preview`, `download_job_log`, `list_run_artifacts`); use `gitea_commit_read` `get_status` for commit statuses
+- check tool schema for exact params before first use
+- missing runner/job/status details != CI pass/fail proof; if logs/status unavailable -> local repro, `act`, PR diffs, commit history, workflow files, user CI snippets
 - separate verified CI evidence vs local repro vs assumptions
 - no invented failing job output; no CI status claim without evidence
 
@@ -47,19 +53,16 @@ Standard release flow:
 - release-relevant files changed -> include migration notes + risk callouts
 - mergeability -> if mergeable, report PR URL/status; if not, investigate conflicts, explain files/cause/recommended resolution, ask before resolving or merging/rebasing `main` into `develop`
 - approved conflict resolution -> merge `origin/main` into `develop`, preserve intended develop release changes unless told otherwise, commit `chore: merge main into develop for release`, push `origin/develop`, re-check mergeability
-- default no: tags, Gitea releases, force-push, reset, delete branches, merge PRs, deployment/runtime behavior changes beyond approved conflict resolution
+- outside standard flow, tags, Gitea releases, force-push, reset, delete branches, merge PRs, deployment/runtime changes -> only when user explicitly requests; not by default
 
-Gitea mutation guardrail:
-- standard release requested -> approval for scoped standard ops; no repeated exact phrase needed for version-bump commit, push `origin/develop`, release PR creation, release PR changelog body
-- before standard release mutations show exact: instance URL, owner/repo, operation, target version, base/head branches, PR title/body summary, expected side effects
-- non-standard Gitea write -> ask first
-- outside scoped release flow, never create/update/comment/label/milestone/branch/PR/release/star/mark notifications read/change repo settings without explicit approval
-- exact phrase required before each non-standard remote mutation: `APPROVE GITEA MUTATION <instance> <owner/repo> <operation>`
-- non-standard approval -> single-use, operation-scoped, only shown payload
-- `yes`/`ok`/`approved`/broad approval -> not enough for non-standard remote mutation
-- never merge PRs, delete resources, change admin/org/user settings, force-push, or perform destructive operations
-- PR merge support -> out of scope
-- never create tags/releases unless user explicitly asks and mutation approval phrase is provided for that exact operation
+Gitea mutation scope:
+- role permissions = workflow, not auth; full MCP access does not authorize autonomous unrequested changes
+- explicit user request for a Gitea write (create/update/comment/label/milestone/branch/PR/release/tag/merge/delete/settings) -> proceed within requested scope
+- standard release requested -> scoped standard ops: version-bump commit, push `origin/develop`, release PR creation, release PR changelog body
+- before standard release mutations show: instance URL, owner/repo, operation, target version, base/head branches, PR title/body summary, expected side effects
+- destructive/irreversible actions (merge PRs, delete branches/tags/releases/resources/packages, force-push, change admin/org/user/repo settings) -> confirm exact target and effect first, even when requested
+- unrequested or ambiguous mutations -> draft/ask first
+- tags/releases/merges only on explicit request for that operation
 
 Delegation:
 - independent repo/work tracks -> dispatch concurrently in one tool batch; sync before proposing action

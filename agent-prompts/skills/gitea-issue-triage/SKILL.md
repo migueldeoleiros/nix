@@ -1,6 +1,6 @@
 ---
 name: gitea-issue-triage
-description: Draft and triage Gitea issues with labels, milestones, acceptance criteria, and ask-gated writes
+description: Draft and triage Gitea issues with labels, milestones, acceptance criteria, and explicit-request writes
 ---
 
 # Gitea Issue Triage
@@ -10,6 +10,10 @@ description: Draft and triage Gitea issues with labels, milestones, acceptance c
 - The user wants to create, refine, split, label, comment on, or prioritize issues.
 - Existing issues need duplicate checks, reproduction notes, acceptance criteria, or milestone planning.
 
+## MCP Compatibility
+
+Tool names/methods below describe official gitea-mcp. Inspect the connected catalog first: Pi may still use the legacy Forgejo-compatible server. Use available equivalents (for example `gitea_get_pull_request` / `gitea_list_pr_files`), not absent consolidated tools. If an operation or Actions logs are unavailable, report the limit and use local evidence or an authenticated API when appropriate.
+
 ## Workflow
 
 1. Understand the request.
@@ -17,17 +21,17 @@ description: Draft and triage Gitea issues with labels, milestones, acceptance c
    - Ask when target repo or scope is ambiguous.
 
 2. Gather context.
-   - Use Gitea MCP to search/list/get issues, labels, milestones, comments, and related PRs.
+   - Use `gitea_search_issues`, `gitea_list_issues`, `gitea_issue_read`, `gitea_label_read`, `gitea_milestone_read`, and `gitea_pull_request_read`/`gitea_list_pull_requests` for related PRs.
    - Use local repo evidence when issue details depend on code behavior.
 
 3. Draft first.
    - Issue title should be specific and action-oriented.
    - Body should fit the issue type: bugs need expected/actual/repro evidence; planning work needs context, scope, acceptance criteria, and risks.
-   - Suggest labels/milestone, but do not apply them without approval.
+   - Suggest labels/milestone, but apply them only when the user asked for it.
 
-4. Guard mutations.
-   - Creating/editing issues, comments, labels, or milestones requires the exact Gitea mutation approval phrase and OpenCode permission approval.
-   - Show exact payload before any write.
+4. Scope mutations.
+   - Write via `gitea_issue_write`, `gitea_label_write`, `gitea_milestone_write` when the user explicitly requests it; full tool access does not authorize unrequested changes.
+   - Show the payload for non-trivial writes; confirm before destructive actions (deleting issues/comments/labels/milestones).
 
 ## Output
 

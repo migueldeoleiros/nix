@@ -88,32 +88,14 @@ let
     '';
   };
 
-  giteaMcp = pkgs.writeShellApplication {
+  giteaMcpFor = profile: pkgs.writeShellApplication {
     name = "opencode-gitea-mcp";
-    runtimeInputs = with pkgs; [ coreutils nodejs ];
     text = ''
-      set -euo pipefail
       set +x
-
-      forgejo_url="$(${agentSecrets}/bin/agent-secrets read --trim-eol gitea-url)"
-      forgejo_token="$(${agentSecrets}/bin/agent-secrets read --trim-eol gitea-token)"
-
-      if [ -z "$forgejo_url" ]; then
-        echo "Gitea MCP URL is empty in the keyring" >&2
-        exit 1
-      fi
-
-      case "$forgejo_url" in
-        http://*|https://*) ;;
-        *)
-          echo "Gitea MCP URL must start with http:// or https://" >&2
-          exit 1
-          ;;
-      esac
-
-      export FORGEJO_URL="$forgejo_url"
-      export FORGEJO_TOKEN="$forgejo_token"
-      exec npx -y @ric_/forgejo-mcp@0.1.5
+      export GITEA_HOST=${lib.escapeShellArg (profileFor profile).gitea.url}
+      exec ${agentSecrets}/bin/agent-secrets exec \
+        --env-line GITEA_ACCESS_TOKEN=gitea-token -- \
+        ${pkgs.gitea-mcp-server}/bin/gitea-mcp -transport stdio
     '';
   };
 
@@ -156,9 +138,9 @@ let
 
   # Definitions and supporting packages live together; profiles only select names.
   mcpRegistryFor = profile: {
-    gitea = {
-      mcp = { type = "local"; disabled = false; command = [ "opencode-gitea-mcp" ]; timeout = { catalog = 60000; execution = 60000; }; };
-      packages = [ giteaMcp ];
+    gitea = let wrapper = giteaMcpFor profile; in {
+      mcp = { type = "local"; disabled = false; command = [ "${wrapper}/bin/opencode-gitea-mcp" ]; timeout = { catalog = 60000; execution = 60000; }; };
+      packages = [ pkgs.tea wrapper ];
     };
     sonarqube = {
       mcp = {
@@ -264,6 +246,11 @@ let
       agentConfig = lib.mapAttrs (name: agent:
         let route = routeFor name;
         in (removeAttrs agent [ "model" ])
+          // lib.optionalAttrs (lib.elem "gitea" profileRoutes.mcp) {
+            # Official MCP consolidates operations; profile policy replaces legacy rules.
+            permissions = builtins.filter (rule: !(lib.hasPrefix "gitea_" rule.action))
+              (agent.permissions or [ ]) ++ profileRoutes.gitea.permissions;
+          }
           // lib.optionalAttrs (lib.elem "email" profileRoutes.mcp && !lib.elem name [ "browser" "email" ]) {
             # Browser's full authority is intentional. Other managed agents
             # get mail reads, with writes reserved for user-facing primaries.
