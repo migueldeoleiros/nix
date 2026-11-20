@@ -1,4 +1,4 @@
-{ lib, pkgs, ... }:
+{ lib, pkgs, osConfig, ... }:
 
 # One shared agent-browser instance for all agent sessions, in a rootless, non-root Podman container.
 # The live viewer/takeover dashboard is published on host loopback only; `browser-hub` runs agent-browser
@@ -41,13 +41,33 @@ let
     };
   };
 
-  podman = "${pkgs.podman}/bin/podman";
+  # The NixOS module's podman: a second build makes rootless podman reject the other's pause process.
+  podmanPkg = osConfig.virtualisation.podman.package;
+  podman = "${podmanPkg}/bin/podman";
 
   # Host-side convenience: run agent-browser in the hub under this directory's own session/profile.
   cli = pkgs.writeShellApplication {
     name = name;
-    runtimeInputs = [ pkgs.podman pkgs.coreutils ];
+    runtimeInputs = [ podmanPkg pkgs.coreutils ];
     text = ''
+      # Agent launchers relocate XDG data/state/cache; podman keeps its container store there and would miss the hub's.
+      unset XDG_DATA_HOME XDG_STATE_HOME XDG_CACHE_HOME
+      # `browser-hub fetch <container-path>`: copy a file agent-browser wrote in the hub (screenshot, pdf, ...) to the host.
+      if [ "''${1:-}" = fetch ]; then
+        dest="''${XDG_RUNTIME_DIR:-/tmp}/${name}"
+        mkdir -p "$dest"
+        podman cp "${name}:$2" "$dest/"
+        echo "$dest/$(basename "$2")"
+        exit
+      fi
+      # `browser-hub host-url <port>`: URL of a host dev server as seen from the hub. Raw IP, since hostname
+      # checks (e.g. Vite allowedHosts) reject host.containers.internal.
+      if [ "''${1:-}" = host-url ]; then
+        ip="$(podman exec ${name} cat /etc/hosts | awk '/host.containers.internal/ { print $1; exit }')"
+        [ -n "$ip" ] || { echo "${name}: cannot resolve the host address" >&2; exit 1; }
+        echo "http://$ip:''${2:?usage: ${name} host-url <port>}"
+        exit
+      fi
       session="''${AGENT_BROWSER_SESSION:-$(basename "$PWD" | tr -c 'A-Za-z0-9_-' '_')}"
       exec podman exec -i -e "AGENT_BROWSER_SESSION=$session" ${name} \
         agent-browser --profile "/data/profile-$session" "$@"
@@ -108,7 +128,7 @@ in
     Service = {
       Type = "simple";
       # newuidmap/newgidmap come from the NixOS setuid wrappers.
-      Environment = [ "PATH=/run/wrappers/bin:${lib.makeBinPath [ pkgs.podman pkgs.coreutils pkgs.shadow ]}" ];
+      Environment = [ "PATH=/run/wrappers/bin:${lib.makeBinPath [ podmanPkg pkgs.coreutils pkgs.shadow ]}" ];
       ExecStartPre = [
         "-${podman} rm -f -t 10 ${name}"
         "${podman} load -i ${image}"
