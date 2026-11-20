@@ -10,8 +10,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Keep Inditex on the same OpenCode release as Merlin.
     opencode-v2 = {
-      url = "github:anomalyco/opencode/4617210822bdbb31e5749751afbfb4584ccedac8";
+      url = "github:anomalyco/opencode/fedc6f208aa2bd54c1019227214568083f6380ad";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -53,6 +54,12 @@
         overlays = [
           inputs.opencode-v2.overlays.default
           (final: prev: {
+            opencode = prev.opencode.override {
+              node_modules = prev.opencode.node_modules.override {
+                # Matches Merlin's dependency tree with our followed nixpkgs pin.
+                hash = "sha256-N/VSSutmwwP1S7P0miONCyIXGKBpv9lrIIW9u+4dqnk=";
+              };
+            };
             # Upstream fix: https://github.com/NixOS/nixpkgs/pull/576488
             # The patched vendored Node crashes before CodeGraph starts.
             # Remove once the nixpkgs pin includes that fix.
