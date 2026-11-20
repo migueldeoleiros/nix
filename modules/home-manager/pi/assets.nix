@@ -132,10 +132,11 @@ let
       name = "pi-${profile}.extension.workmux-status";
       value = {
         # Subagents are separate pi processes in their own panes; only the parent reports status.
-        text = builtins.replaceStrings
+        # Pi resolves symlinks before importing; the store file needs its TS suffix.
+        source = pkgs.writeText "workmux-status.ts" (builtins.replaceStrings
           [ "export default function (pi: ExtensionAPI) {" ]
           [ "export default function (pi: ExtensionAPI) {\n  if (process.env.PI_SUBAGENT_ID) return;" ]
-          (builtins.readFile (inputs.workmux + "/resources/pi/extensions/workmux-status.ts"));
+          (builtins.readFile (inputs.workmux + "/resources/pi/extensions/workmux-status.ts")));
         target = "${root}/extensions/workmux-status.ts";
         force = true;
       };
@@ -167,10 +168,11 @@ let
     ++ lib.optional (profile == "personal") {
       name = "pi-${profile}.extension.miguelllm";
       value = {
-        text = builtins.replaceStrings
+        # Keep the JS suffix on the real path, not just the Home Manager symlink.
+        source = pkgs.writeText "miguelllm.js" (builtins.replaceStrings
           [ "@AGENT_SECRETS@" ]
           [ "${config.miguel.agentSecrets.package}/bin/agent-secrets" ]
-          (builtins.readFile ./extensions/miguelllm.js);
+          (builtins.readFile ./extensions/miguelllm.js));
         target = "${root}/extensions/miguelllm.js";
         force = true;
       };
