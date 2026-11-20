@@ -16,24 +16,29 @@ def _forward_step(buf: bytes, secrets, hold: int):
     """Emit final bytes; keep trailing `hold` bytes (and partial-secret bytes)
     pending. Returns (emit, keep)."""
     if secrets:
-        maxlen = max(len(s) for s in secrets)
-        keep = max(hold, maxlen - 1)
-        out = bytearray(); i = 0; n = len(buf); stop = n - keep
+        view = memoryview(buf)
+        out = bytearray(); i = 0; n = len(buf); stop = n - hold
         while i < stop:
             for s in secrets:
-                if buf.startswith(s, i):
+                if len(s) > n - i:
+                    # A longer partial match takes precedence over a complete
+                    # shorter one. Hold only a suffix that can still match.
+                    if buf[i] == s[0] and s.startswith(view[i:]):
+                        return bytes(out), buf[i:]
+                elif buf.startswith(s, i):
                     i += len(s); break
             else:
                 out.append(buf[i]); i += 1
         emit, rest = bytes(out), bytes(buf[i:])
         # restore hold if a match consumed past the boundary
         if len(rest) < hold:
-            cut = hold - len(rest)
-            rest = emit[len(emit) - cut:] + rest
-            emit = emit[:len(emit) - cut]
+            cut = min(hold - len(rest), len(emit))
+            split = len(emit) - cut
+            rest = emit[split:] + rest
+            emit = emit[:split]
         return emit, rest
     if hold:
-        return buf[:-hold], buf[len(buf) - hold:]
+        return buf[:-hold], buf[-hold:]
     return buf, b""
 
 
