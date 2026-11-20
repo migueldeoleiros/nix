@@ -88,12 +88,12 @@ let
     '';
   };
 
-  giteaMcpFor = profile: pkgs.writeShellApplication {
+  giteaMcp = pkgs.writeShellApplication {
     name = "opencode-gitea-mcp";
     text = ''
       set +x
-      export GITEA_HOST=${lib.escapeShellArg (profileFor profile).gitea.url}
       exec ${agentSecrets}/bin/agent-secrets exec \
+        --env-line GITEA_HOST=gitea-url \
         --env-line GITEA_ACCESS_TOKEN=gitea-token -- \
         ${pkgs.gitea-mcp-server}/bin/gitea-mcp -transport stdio
     '';
@@ -138,7 +138,7 @@ let
 
   # Definitions and supporting packages live together; profiles only select names.
   mcpRegistryFor = profile: {
-    gitea = let wrapper = giteaMcpFor profile; in {
+    gitea = let wrapper = giteaMcp; in {
       mcp = { type = "local"; disabled = false; command = [ "${wrapper}/bin/opencode-gitea-mcp" ]; timeout = { catalog = 60000; execution = 60000; }; };
       packages = [ pkgs.tea wrapper ];
     };

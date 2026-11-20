@@ -16,7 +16,6 @@ let
 in {
   merlin = {
     gitea = {
-      url = "https://gitea.merlinsoftware.es";
       permissions = [ { action = "gitea_*"; resource = "*"; effect = "allow"; } ];
     };
     managedConfig = builtins.fromJSON (builtins.readFile (builtins.fetchurl {
