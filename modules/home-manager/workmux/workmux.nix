@@ -19,12 +19,15 @@ in
       name = "workmux-tmux";
       paths = [ inputs.workmux.packages.${pkgs.stdenv.hostPlatform.system}.default ];
       nativeBuildInputs = [ pkgs.makeWrapper ];
-      postBuild = "wrapProgram $out/bin/workmux --set-default WORKMUX_BACKEND tmux";
+      # Pin workmux's state to the real XDG dir: the OpenCode launchers export a per-profile
+      # XDG_STATE_HOME, which would otherwise hide hook-registered agents from the dashboard.
+      postBuild = "wrapProgram $out/bin/workmux --set-default WORKMUX_BACKEND tmux --set XDG_STATE_HOME ${config.xdg.stateHome}";
     })
   ];
 
   xdg.configFile."workmux/config.yaml".text = builtins.toJSON {
     nerdfont = true; # the config is read-only, so workmux can't save its first-run prompt
+    dashboard.close_on_jump = false;
     agent = "opencode-${config.miguel.opencode.profile}";
     inherit agents;
   };
